@@ -133,7 +133,7 @@ export default function BrandVoicePage() {
                         {/* Cuvinte Cheie */}
                         <div className="bg-gray-800/30 p-6 rounded-xl border border-primary/50">
                             <h2 className="text-2xl font-semibold mb-4 flex items-center gap-3">
-                                <Sparkles className="text-accent" /> Your Brand's Personality
+                                <Sparkles className="text-accent" /> Your Brand&apos;s Personality
                             </h2>
                             <div className="flex flex-wrap gap-3">
                                 {analysis?.keywords?.map((keyword, index) => (

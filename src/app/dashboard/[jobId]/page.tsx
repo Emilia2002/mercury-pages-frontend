@@ -3,9 +3,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import { Zap, Download, ArrowLeft, Image as ImageIcon, CheckCircle, ShoppingCart } from 'lucide-react';
+import { Zap, ArrowLeft, Image as ImageIcon, CheckCircle, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Define the full structure of the final result
@@ -63,7 +63,6 @@ export default function JobResultPage() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
                 throw new Error('Failed to export product.');
             }
 

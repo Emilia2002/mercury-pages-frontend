@@ -59,7 +59,7 @@ export default function LandingPage() {
               <div className="bg-gray-800/30 p-8 rounded-xl border border-white/10">
                 <BrainCircuit className="w-10 h-10 text-[#38BDF8] mb-4" />
                 <h3 className="text-2xl font-bold mb-2">Train Your AI Brand Voice</h3>
-                <p className="text-gray-400">Define your brand's unique tone, and our AI will generate content that is a perfect match for your business style.</p>
+                <p className="text-gray-400">Define your brand&apos;s unique tone, and our AI will generate content that is a perfect match for your business style.</p>
               </div>
             </div>
           </section>
@@ -102,7 +102,7 @@ export default function LandingPage() {
                 <span className="text-accent font-semibold">YOUR UNIQUE ADVANTAGE</span>
                 <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4">Train Your AI Brand Voice</h2>
                 <p className="text-gray-400 text-lg mb-6">
-                  Don't settle for generic text. With Mercury Pages, you can teach our AI your brand's unique personality. Provide examples, define your tone, and our AI will generate content that is a perfect match for your business, every single time.
+                  Don&apos;t settle for generic text. With Mercury Pages, you can teach our AI your brand&apos;s unique personality. Provide examples, define your tone, and our AI will generate content that is a perfect match for your business, every single time.
                 </p>
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-400"/> Maintain brand consistency across all products.</li>
