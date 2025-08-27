@@ -19,25 +19,28 @@ export default function SignUpPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setError(null);
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+        if (!agreedToTerms) {
+            setError("You must agree to the Terms & Conditions.");
+            return;
+        }
+
+        setIsLoading(true);
         try {
             const response = await fetch(`${API_BASE_URL}/register`, {
-                method: 'POST',
+                method: 'POST', // Asigurăm că metoda este POST
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ first_name: firstName, email, password }),
             });
 
-            const responseData = await response.json();
-
             if (!response.ok) {
-                if (responseData.detail && Array.isArray(responseData.detail)) {
-                    const firstError = responseData.detail[0];
-                    const errorMessage = `${firstError.loc[1]} - ${firstError.msg}`;
-                    throw new Error(errorMessage);
-                }
-                // Dacă este o altă eroare, afișăm mesajul general.
-                throw new Error(responseData.detail || 'Registration failed');
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Registration failed. Please try again.');
             }
 
             router.push('/signin?registered=true');
@@ -48,13 +51,12 @@ export default function SignUpPage() {
         }
     };
 
-
     return (
         <>
             <div className="text-center">
-                <Zap className="w-10 h-10 text-white mx-auto mb-4" />
-                <h2 className="text-white text-3xl font-bold gradient-text">Create Your Account</h2>
-                <p className="text-white">to start generating pages at divine speed.</p>
+                <Zap className="w-10 h-10 text-primary mx-auto mb-4" />
+                <h2 className="text-3xl font-bold gradient-text">Create Your Account</h2>
+                <p className="text-gray-400">to start generating pages at divine speed.</p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 {error && <p className="text-red-500 text-center text-sm mb-4">{error}</p>}
@@ -103,13 +105,13 @@ export default function SignUpPage() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full flex justify-center py-3 px-4 border border-white rounded-md shadow-sm text-base font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary glow-on-hover disabled:opacity-50 text-white"
+                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary glow-on-hover disabled:opacity-50"
                     >
                         {isLoading ? 'Creating Account...' : 'Sign Up'}
                     </button>
                 </div>
             </form>
-            <p className="mt-4 text-center text-sm text-white">
+            <p className="mt-4 text-center text-sm text-gray-400">
                 Already have an account?{' '}
                 <Link href="/signin" className="font-medium text-primary hover:text-primary/90">
                     Sign In
