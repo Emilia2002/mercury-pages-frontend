@@ -41,8 +41,8 @@ export default function SignUpPage() {
             }
 
             router.push('/signin?registered=true');
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError("We have encountered a problem. Please try again later.");
         } finally {
             setIsLoading(false);
         }
