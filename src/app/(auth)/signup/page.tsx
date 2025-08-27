@@ -22,7 +22,7 @@ export default function SignUpPage() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`/api/register`, {
+            const response = await fetch(`${API_BASE_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ first_name: firstName, email, password }),
