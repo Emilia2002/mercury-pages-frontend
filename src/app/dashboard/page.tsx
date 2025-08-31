@@ -233,7 +233,7 @@ export default function DashboardPage() {
 
                                                 {job.status === 'failed' && (
                                                     <p className="text-red-400 text-xs mt-1 truncate">
-                                                        Error: {job.error || 'Unknown error.'}
+                                                        Error: {'Unknown error.'}
                                                     </p>
                                                 )}
                                             </div>

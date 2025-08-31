@@ -55,7 +55,7 @@ export default function PricingPage() {
     };
 
     return (
-        <div className="min-h-screen w-full flex flex-col bg-[#111827]">
+        <div className="min-h-screen w-full flex flex-col bg-[#111827] text-white">
             <Header />
             <main className="container mx-auto px-8 py-20 flex-grow">
                 <div className="text-center mb-12">

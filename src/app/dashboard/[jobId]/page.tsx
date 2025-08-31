@@ -214,8 +214,6 @@ export default function JobResultPage() {
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
                         <div className="prose prose-lg max-w-none text-black">
                             <h1 className="text-4xl font-bold mb-4">{result.new_title}</h1>
-                            <p className="text-4xl font-bold text-black mb-6">{result.price}</p>
-
                             <p className="text-black">{result.description}</p>
 
                             <ul className="mt-6 space-y-2 text-black">
