@@ -172,7 +172,7 @@ export default function DashboardPage() {
                         ⚡ Connect Your Shopify Store
                     </h2>
 
-                    <p className="text-gray-200 mt-3 leading-relaxed text-base sm:text-lg text-center sm:text-left">
+                    <p className="text-gray-500 mt-3 leading-relaxed text-base sm:text-lg text-center sm:text-left">
                         Ready to <span className="text-cyan-300 font-semibold">export amazing products</span> straight
                         into your
                         Shopify? Just grab your <span className="text-fuchsia-400 font-semibold">Store URL</span> ⚙️ and

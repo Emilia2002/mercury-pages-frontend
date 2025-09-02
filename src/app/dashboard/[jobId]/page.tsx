@@ -86,7 +86,6 @@ export default function JobResultPage() {
                     Boolean(userData.shopify_store_url?.trim() && userData.shopify_access_token?.trim())
                 );
             }
-
         } catch (error) {
             console.error("Failed to fetch user data:", error);
         }
@@ -120,7 +119,7 @@ export default function JobResultPage() {
     };
 
     if (isLoading || auth.isLoading) {
-        return <div className="min-h-screen flex items-center justify-center">Loading Results...</div>;
+        return <div className="min-h-screen flex items-center justify-center text-white">Loading Results...</div>;
     }
 
     if (!auth.isAuthenticated) {
@@ -131,9 +130,9 @@ export default function JobResultPage() {
     if (!job || !job.result) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center text-center p-4">
-                <h1 className="text-3xl font-bold mb-4">Job Not Found or Still Processing</h1>
+                <h1 className="text-3xl font-bold mb-4 text-white">Job Not Found or Still Processing</h1>
                 <p className="text-gray-400 mb-8">The job might still be in progress or an error occurred. Please check the dashboard.</p>
-                <Link href="/dashboard" className="flex items-center gap-2 hover:underline">
+                <Link href="/dashboard" className="flex items-center gap-2 hover:underline text-gray-400">
                     <ArrowLeft size={16}/> Back to Dashboard
                 </Link>
             </div>
@@ -143,15 +142,15 @@ export default function JobResultPage() {
     const { result } = job;
 
     return (
-        <div className="min-h-screen w-full bg-background">
-            <header className="py-4 px-8 flex justify-between items-center border-b border-white/10 sticky top-0 bg-background/80 backdrop-blur-lg z-10">
-                <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold text-black hover:text-gray-600 transition-colors">
+        <div className="min-h-screen w-full bg-[#0d0d0d] text-white">
+            <header className="py-4 px-8 flex justify-between items-center border-b border-white/10 sticky top-0 bg-[#0d0d0d]/80 backdrop-blur-lg z-10">
+                <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold text-white hover:text-gray-400 transition-colors">
                     <ArrowLeft size={20} />
                     <span>Back to Dashboard</span>
                 </Link>
                 <div className="flex gap-4">
                     <button
-                        className="bg-primary text-black font-bold py-2 px-6 rounded-lg hover:text-gray-600 flex items-center gap-2"
+                        className="bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 flex items-center gap-2"
                         onClick={handleOpenModal}
                     >
                         <Zap size={18} />
@@ -161,7 +160,7 @@ export default function JobResultPage() {
             </header>
 
             <main className="container mx-auto p-8">
-                <p className="text-center text-accent mb-8 text-black font-semibold">
+                <p className="text-center text-gray-400 mb-8 font-semibold">
                     This is a simulation of your new Shopify product page.
                 </p>
 
@@ -186,11 +185,11 @@ export default function JobResultPage() {
 
                     {/* AI Generated Content */}
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                        <div className="prose prose-lg max-w-none text-black">
-                            <h1 className="text-4xl font-bold mb-4">{result.new_title}</h1>
-                            <p className="text-black">{result.description}</p>
+                        <div className="prose prose-lg max-w-none">
+                            <h1 className="text-4xl font-bold mb-4 text-white">{result.new_title}</h1>
+                            <p className="text-gray-300">{result.description}</p>
 
-                            <ul className="mt-6 space-y-2 text-black">
+                            <ul className="mt-6 space-y-2 text-gray-300">
                                 {result.benefits_list && result.benefits_list.map((benefit, index) => (
                                     <li key={index} className="flex items-start gap-3">
                                         <CheckCircle className="text-green-600 mt-1 flex-shrink-0" size={20}/>
@@ -202,10 +201,10 @@ export default function JobResultPage() {
                             <div className="mt-8">
                                 {Object.entries(result?.variants).map(([key, values]) => (
                                     <div key={key} className="mb-4">
-                                        <h3 className="font-semibold text-black mb-2">{key}</h3>
+                                        <h3 className="font-semibold text-gray-200 mb-2">{key}</h3>
                                         <div className="flex flex-wrap gap-2">
                                             {values.map(value => (
-                                                <span key={value} className="px-3 py-1 bg-gray-100 text-black rounded-full text-sm">
+                                                <span key={value} className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm">
                                                     {value}
                                                 </span>
                                             ))}
@@ -252,7 +251,7 @@ export default function JobResultPage() {
                                     <button
                                         onClick={handleExportSubmit}
                                         disabled={exporting}
-                                        className="mt-6 w-full bg-primary text-black font-bold py-3 rounded-lg hover:opacity-90 flex items-center justify-center gap-2"
+                                        className="mt-6 w-full bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 flex items-center justify-center gap-2"
                                     >
                                         {exporting ? (
                                             <>
