@@ -158,10 +158,36 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="mb-4">
                 <h1 className="text-4xl font-bold mb-2 gradient-text py-10">Dashboard</h1>
-                <p className="text-gray-400 flex items-center gap-2"><Info size={16}/>How to get started</p>
+                <div className="mb-8 p-6 rounded-2xl relative overflow-hidden shadow-xl
+                bg-white/5 backdrop-blur-md border-2 border-transparent
+                bg-clip-padding
+                before:absolute before:inset-0 before:rounded-2xl
+                before:p-[2px] before:bg-gradient-to-r
+                before:from-cyan-400 before:via-blue-500 before:to-fuchsia-500
+                before:content-[''] before:-z-10
+                hover:before:animate-pulse">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
+                        ⚡ Connect Your Shopify Store
+                    </h2>
+                    <p className="text-black mt-3 leading-relaxed">
+                        Ready to <span className="text-cyan-900 font-semibold">export amazing products</span> straight into your
+                        Shopify?
+                        Just grab your <span className="text-fuchsia-400 font-semibold">Store URL</span> ⚙️ and
+                        <span className="text-cyan-900 font-semibold"> API Access Token</span> 🔑.
+                    </p>
+                    <p className="text-black mt-2">
+                        Don’t worry — we’ll guide you step-by-step 🛸
+                        <span className="italic text-cyan-900">Estimated time: <span
+                            className="text-cyan-400">3 minutes</span> ⏱️</span>
+                    </p>
+                    <div className="mt-4 flex items-center gap-2 text-sm font-medium text-cyan-800">
+                        <span>👇 Follow the guide below</span>
+                    </div>
+                </div>
+
             </div>
 
-            <OnboardingSlides />
+            <OnboardingSlides/>
 
             {/* How It Works / Steps */}
             <div className="bg-gray-800/30 p-6 rounded-xl border border-white/10">
@@ -169,14 +195,16 @@ export default function DashboardPage() {
                     <Info size={22}/> How it works
                 </h2>
                 <div className="grid md:grid-cols-3 gap-6">
-                    <div className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
+                    <div
+                        className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
                         <LinkIcon size={28} className="text-primary mb-3"/>
                         <h3 className="font-semibold text-lg">1. Paste Link</h3>
                         <p className="text-gray-400 text-sm mt-1">
                             Enter an AliExpress product page URL that you want to optimize.
                         </p>
                     </div>
-                    <div className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
+                    <div
+                        className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
                         <Zap size={28} className="text-yellow-400 mb-3"/>
                         <h3 className="font-semibold text-lg">2. Generate</h3>
                         <p className="text-gray-400 text-sm mt-1">
