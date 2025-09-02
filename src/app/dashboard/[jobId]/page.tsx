@@ -47,7 +47,7 @@ export default function JobResultPage() {
                 fetch(`${API_BASE_URL}/jobs/${jobId}`, {
                     headers: { 'Authorization': `Bearer ${auth.token}` }
                 }),
-                fetch(`${API_BASE-URL}/me`, {
+                fetch(`${API_BASE_URL}/me`, {
                     headers: { 'Authorization': `Bearer ${auth.token}` }
                 })
             ]);
