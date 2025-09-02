@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import OnboardingSlides from '../../components/OnboardingSlides'
 import {
     Clock, CheckCircle, AlertTriangle, ArrowRight, ShoppingBag,
     FilePlus2, Zap, Info, Link as LinkIcon, CheckCircle as CheckCircleIcon
@@ -52,6 +53,7 @@ export default function DashboardPage() {
     const [url, setUrl] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [jobs, setJobs] = useState<Job[]>([]);
+    const [shopifyConnected, setShopifyConnected] = useState(false);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
     const fetchJobs = useCallback(async () => {
@@ -75,8 +77,23 @@ export default function DashboardPage() {
         }
         if (auth.isAuthenticated) {
             fetchJobs();
+
+            // Fetch user info to check Shopify connection
+            const fetchUserInfo = async () => {
+                try {
+                    const res = await fetch(`${API_BASE_URL}/me`, {
+                        headers: { Authorization: `Bearer ${auth.token}` },
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    setShopifyConnected(Boolean(data.shopify_store_url && data.shopify_access_token));
+                } catch (err) {
+                    console.error("Failed to fetch user info:", err);
+                }
+            };
+            fetchUserInfo();
         }
-    }, [auth.isLoading, auth.isAuthenticated, fetchJobs, router]);
+    }, [auth.isLoading, auth.isAuthenticated, fetchJobs, router, auth.token]);
 
     const handleGenerate = async () => {
         if (!url || isLoading || !auth.token) return;
@@ -141,15 +158,10 @@ export default function DashboardPage() {
             {/* Header */}
             <div className="mb-4">
                 <h1 className="text-4xl font-bold mb-2 gradient-text py-10">Dashboard</h1>
-                <p className="text-gray-400 flex items-center gap-2"><Info size={16}/> Paste a product link to get started!</p>
+                <p className="text-gray-400 flex items-center gap-2"><Info size={16}/>How to get started</p>
             </div>
-            {/* Connect to Shopify Section */}
-            <div className="bg-primary/10 p-6 rounded-xl border border-primary/30 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-xl font-bold flex items-center gap-2"><ShoppingBag className="text-primary"/> Connect your Shopify Store</h2>
-                    <p className="text-primary/80 mt-1">Export your generated pages directly to your store with one click.</p>
-                </div>
-            </div>
+
+            <OnboardingSlides />
 
             {/* How It Works / Steps */}
             <div className="bg-gray-800/30 p-6 rounded-xl border border-white/10">
@@ -157,7 +169,6 @@ export default function DashboardPage() {
                     <Info size={22}/> How it works
                 </h2>
                 <div className="grid md:grid-cols-3 gap-6">
-                    {/* Step 1 */}
                     <div className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
                         <LinkIcon size={28} className="text-primary mb-3"/>
                         <h3 className="font-semibold text-lg">1. Paste Link</h3>
@@ -165,8 +176,6 @@ export default function DashboardPage() {
                             Enter an AliExpress product page URL that you want to optimize.
                         </p>
                     </div>
-
-                    {/* Step 2 */}
                     <div className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
                         <Zap size={28} className="text-yellow-400 mb-3"/>
                         <h3 className="font-semibold text-lg">2. Generate</h3>
@@ -174,8 +183,6 @@ export default function DashboardPage() {
                             Click <span className="font-semibold">Generate</span> and our AI will create a new optimized page.
                         </p>
                     </div>
-
-                    {/* Step 3 */}
                     <div className="flex flex-col items-center text-center p-4 bg-gray-900/40 rounded-xl border border-gray-700">
                         <CheckCircleIcon size={28} className="text-green-400 mb-3"/>
                         <h3 className="font-semibold text-lg">3. Review & Use</h3>
@@ -226,14 +233,14 @@ export default function DashboardPage() {
                                                     <img src={job.result.images[0]} alt="Product" className="w-full h-full object-cover" />
                                                 ) : <FilePlus2 className="w-8 h-8 text-gray-500 m-auto"/>}
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-semibold truncate text-sm">
+                                            <div className="flex-1 min-w-0 overflow-hidden">
+                                                <p className="font-semibold text-sm break-words line-clamp-2">
                                                     {job.result?.new_title || job.url}
                                                 </p>
 
                                                 {job.status === 'failed' && (
                                                     <p className="text-red-400 text-xs mt-1 truncate">
-                                                        Error: {'Unknown error.'}
+                                                        Error: {job.error || 'Unknown error.'}
                                                     </p>
                                                 )}
                                             </div>

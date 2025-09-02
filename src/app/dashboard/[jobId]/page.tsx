@@ -1,14 +1,12 @@
-// FILE: src/app/dashboard/[jobId]/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
-import { Zap, ArrowLeft, Image as ImageIcon, CheckCircle, ShoppingCart } from 'lucide-react';
+import { Zap, ArrowLeft, Image as ImageIcon, CheckCircle, X, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Define the full structure of the final result
 interface ProductData {
     title: string;
     price: string;
@@ -34,66 +32,92 @@ export default function JobResultPage() {
 
     const [job, setJob] = useState<Job | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [exporting, setExporting] = useState(false);
+    const [shopifyCredentialsSaved, setShopifyCredentialsSaved] = useState(false);
+
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [shopifyShop, setShopifyShop] = useState('');
-    const [shopifyToken, setShopifyToken] = useState('');
-    const [exporting, setExporting] = useState(false);
-
-    const handleExportClick = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleExportSubmit = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        setExporting(true);
+    /** Fetch job + user info once */
+    const fetchJobAndUserInfo = async () => {
+        if (!jobId || !auth.token) return;
+        setIsLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/export-to-shopify/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${auth.token}`
-                },
-                body: JSON.stringify({
-                    job_id: jobId,
-                    shop_name: shopifyShop,
-                    access_token: shopifyToken,
+            const [jobRes, userRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+                    headers: { 'Authorization': `Bearer ${auth.token}` }
+                }),
+                fetch(`${API_BASE_URL}/me`, {
+                    headers: { 'Authorization': `Bearer ${auth.token}` }
                 })
-            });
+            ]);
 
-            if (!response.ok) {
-                throw new Error('Failed to export product.');
+            if (!jobRes.ok) throw new Error('Job not found.');
+            const jobData = await jobRes.json();
+            setJob(jobData);
+
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                setShopifyCredentialsSaved(Boolean(userData.shopify_store_url && userData.shopify_access_token));
             }
-
-            alert("Product exported to Shopify successfully!");
-            setIsModalOpen(false);
         } catch (error) {
-            alert(`Export failed. Check your store name and access token.`);
+            console.error("Failed to fetch data:", error);
         } finally {
-            setExporting(false);
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        const fetchJob = async () => {
-            if (!jobId || !auth.token) return;
-            setIsLoading(true);
-            try {
-                const response = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
-                    headers: { 'Authorization': `Bearer ${auth.token}` }
-                });
-                if (!response.ok) throw new Error('Job not found.');
-                const data = await response.json();
-                setJob(data);
-            } catch (error) {
-                console.error("Failed to fetch job:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        if (auth.token) fetchJob();
+        if (auth.token) fetchJobAndUserInfo();
     }, [jobId, auth.token]);
+
+    /** Explicitly fetch credentials only when opening modal */
+    const handleOpenModal = async () => {
+        if (!auth.token) return;
+        try {
+            const userRes = await fetch(`${API_BASE_URL}/me`, {
+                headers: { 'Authorization': `Bearer ${auth.token}` }
+            });
+            console.log(userRes)
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                console.log("User data from /me:", userData);
+                setShopifyCredentialsSaved(
+                    Boolean(userData.shopify_store_url?.trim() && userData.shopify_access_token?.trim())
+                );
+            }
+
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+        }
+        setIsModalOpen(true);
+    };
+
+    const handleExportSubmit = async () => {
+        if (!job?.result) return;
+        setExporting(true);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/shopify/export`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${auth.token}`,
+                },
+                body: JSON.stringify(job.result),
+            });
+
+            if (!response.ok) throw new Error("Export failed");
+
+            alert("✅ Exported successfully to Shopify!");
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Export failed:", error);
+            alert("❌ Export failed. Please try again or check your credentials.");
+        } finally {
+            setExporting(false);
+        }
+    };
 
     if (isLoading || auth.isLoading) {
         return <div className="min-h-screen flex items-center justify-center">Loading Results...</div>;
@@ -127,69 +151,19 @@ export default function JobResultPage() {
                 </Link>
                 <div className="flex gap-4">
                     <button
-                        onClick={handleExportClick}
-                        className="bg-primary text-black font-bold py-2 px-6 rounded-lg hover:text-gray-600 flex items-center gap-2">
+                        className="bg-primary text-black font-bold py-2 px-6 rounded-lg hover:text-gray-600 flex items-center gap-2"
+                        onClick={handleOpenModal}
+                    >
                         <Zap size={18} />
                         Export to Shopify
                     </button>
                 </div>
             </header>
 
-=            {isModalOpen && (
-                <div className="fixed inset-0 bg-[#111827] bg-opacity-75 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                        <h2 className="text-xl font-bold mb-4 text-black">Export to Shopify</h2>
-                        <form onSubmit={handleExportSubmit}>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Shopify Store Name</label>
-                                <input
-                                    type="text"
-                                    value={shopifyShop}
-                                    onChange={(e) => setShopifyShop(e.target.value)}
-                                    placeholder="your-store-name"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-black"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Access Token</label>
-                                <input
-                                    type="text"
-                                    value={shopifyToken}
-                                    onChange={(e) => setShopifyToken(e.target.value)}
-                                    placeholder="shpat_..."
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-black"
-                                    required
-                                />
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Create a Private App in your Shopify admin to get this token.
-                                </p>
-
-                            </div>
-                            <div className="flex justify-end gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
-                                    disabled={exporting}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-primary text-black rounded-lg "
-                                    disabled={exporting}
-                                >
-                                    {exporting ? 'Exporting...' : 'Export Product'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
             <main className="container mx-auto p-8">
-                <p className="text-center text-accent mb-8 text-black font-semibold">This is a simulation of your new Shopify product page.</p>
+                <p className="text-center text-accent mb-8 text-black font-semibold">
+                    This is a simulation of your new Shopify product page.
+                </p>
 
                 <div className="grid lg:grid-cols-2 gap-12">
                     {/* Image Gallery */}
@@ -232,23 +206,67 @@ export default function JobResultPage() {
                                         <div className="flex flex-wrap gap-2">
                                             {values.map(value => (
                                                 <span key={value} className="px-3 py-1 bg-gray-100 text-black rounded-full text-sm">
-                {value}
-              </span>
+                                                    {value}
+                                                </span>
                                             ))}
                                         </div>
                                     </div>
                                 ))}
                             </div>
-
-                            <button className="mt-8 w-full bg-primary text-white font-bold py-4 rounded-lg text-lg flex items-center justify-center gap-3 glow-on-hover">
-                                <ShoppingCart size={22}/>
-                                Add to Cart
-                            </button>
                         </div>
                     </motion.div>
-
                 </div>
             </main>
+
+            {/* Export Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                            <X size={20}/>
+                        </button>
+
+                        <h2 className="text-xl font-semibold mb-4 text-black">Export to Shopify</h2>
+
+                        {shopifyCredentialsSaved ? (
+                            <>
+                                <p className="text-black mb-4">
+                                    Your Shopify store is connected. Click the button below to export this product.
+                                </p>
+                                <button
+                                    onClick={handleExportSubmit}
+                                    disabled={exporting}
+                                    className="mt-6 w-full bg-primary text-black font-bold py-3 rounded-lg hover:opacity-90 flex items-center justify-center gap-2"
+                                >
+                                    {exporting ? (
+                                        <>
+                                            <Loader2 className="animate-spin" size={20} />
+                                            Exporting...
+                                        </>
+                                    ) : "Export"}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-black mb-4">
+                                    You have not yet connected your Shopify store. Please go to your Dashboard to set up your credentials.
+                                </p>
+                                <Link href="/dashboard">
+                                    <button
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="mt-6 w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300"
+                                    >
+                                        Go to Dashboard
+                                    </button>
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
