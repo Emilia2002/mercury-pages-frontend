@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { Zap, ArrowLeft, Image as ImageIcon, CheckCircle, X, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductData {
     title: string;
@@ -219,54 +219,66 @@ export default function JobResultPage() {
             </main>
 
             {/* Export Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-                        <button
-                            onClick={() => setIsModalOpen(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            <AnimatePresence>
+                {isModalOpen && (
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative"
+                            initial={{ y: -50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 50, opacity: 0 }}
                         >
-                            <X size={20}/>
-                        </button>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            >
+                                <X size={20}/>
+                            </button>
 
-                        <h2 className="text-xl font-semibold mb-4 text-black">Export to Shopify</h2>
+                            <h2 className="text-xl font-semibold mb-4 text-black">Export to Shopify</h2>
 
-                        {shopifyCredentialsSaved ? (
-                            <>
-                                <p className="text-black mb-4">
-                                    Your Shopify store is connected. Click the button below to export this product.
-                                </p>
-                                <button
-                                    onClick={handleExportSubmit}
-                                    disabled={exporting}
-                                    className="mt-6 w-full bg-primary text-black font-bold py-3 rounded-lg hover:opacity-90 flex items-center justify-center gap-2"
-                                >
-                                    {exporting ? (
-                                        <>
-                                            <Loader2 className="animate-spin" size={20} />
-                                            Exporting...
-                                        </>
-                                    ) : "Export"}
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <p className="text-black mb-4">
-                                    You have not yet connected your Shopify store. Please go to your Dashboard to set up your credentials.
-                                </p>
-                                <Link href="/dashboard">
+                            {shopifyCredentialsSaved ? (
+                                <>
+                                    <p className="text-black mb-4">
+                                        Your Shopify store is connected. Click the button below to export this product.
+                                    </p>
                                     <button
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="mt-6 w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300"
+                                        onClick={handleExportSubmit}
+                                        disabled={exporting}
+                                        className="mt-6 w-full bg-primary text-black font-bold py-3 rounded-lg hover:opacity-90 flex items-center justify-center gap-2"
                                     >
-                                        Go to Dashboard
+                                        {exporting ? (
+                                            <>
+                                                <Loader2 className="animate-spin" size={20} />
+                                                Exporting...
+                                            </>
+                                        ) : "Export"}
                                     </button>
-                                </Link>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-black mb-4">
+                                        You have not yet connected your Shopify store. Please go to your Dashboard to set up your credentials.
+                                    </p>
+                                    <Link href="/dashboard">
+                                        <button
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="mt-6 w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300"
+                                        >
+                                            Go to Dashboard
+                                        </button>
+                                    </Link>
+                                </>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
