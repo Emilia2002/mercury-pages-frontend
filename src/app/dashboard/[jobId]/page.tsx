@@ -47,7 +47,7 @@ export default function JobResultPage() {
                 fetch(`${API_BASE_URL}/jobs/${jobId}`, {
                     headers: { 'Authorization': `Bearer ${auth.token}` }
                 }),
-                fetch(`${API_BASE_URL}/me`, {
+                fetch(`${API_BASE-URL}/me`, {
                     headers: { 'Authorization': `Bearer ${auth.token}` }
                 })
             ]);
@@ -222,16 +222,18 @@ export default function JobResultPage() {
             <AnimatePresence>
                 {isModalOpen && (
                     <motion.div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 transition-opacity"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
                     >
                         <motion.div
                             className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative"
                             initial={{ y: -50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 50, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
                         >
                             <button
                                 onClick={() => setIsModalOpen(false)}
