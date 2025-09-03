@@ -172,22 +172,22 @@ export default function DashboardPage() {
                         ⚡ Connect Your Shopify Store
                     </h2>
 
-                    <p className="text-gray-500 mt-3 leading-relaxed text-base sm:text-lg text-center sm:text-left">
-                        Ready to <span className="text-cyan-300 font-semibold">export amazing products</span> straight
+                    <p className="text-black mt-3 leading-relaxed text-base sm:text-lg text-center sm:text-left">
+                        Ready to <span className="text-cyan-800 font-semibold">export amazing products</span> straight
                         into your
                         Shopify? Just grab your <span className="text-fuchsia-400 font-semibold">Store URL</span> ⚙️ and
-                        <span className="text-cyan-300 font-semibold"> API Access Token</span> 🔑.
+                        <span className="text-cyan-800 font-semibold"> API Access Token</span> 🔑.
                     </p>
 
-                    <p className="text-gray-300 mt-2 text-sm sm:text-base text-center sm:text-left">
+                    <p className="text-gray-900 mt-2 text-sm sm:text-base text-center sm:text-left">
                         Don’t worry — we’ll guide you step-by-step 🛸
-                        <span className="block sm:inline italic text-cyan-400">
+                        <span className="block sm:inline italic text-cyan-200">
       Estimated time: <span className="font-semibold">3 minutes</span> ⏱️
     </span>
                     </p>
 
                     <div
-                        className="mt-4 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 text-sm font-medium text-cyan-300">
+                        className="mt-4 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 text-sm font-medium text-gray-900">
                         <span>👇 Follow the guide below</span>
                     </div>
                 </div>

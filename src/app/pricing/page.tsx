@@ -69,9 +69,7 @@ export default function PricingPage() {
                         <p className="text-gray-400 mb-6">For getting started and launching your first products.</p>
                         <p className="text-5xl font-bold mb-6 text-white">€0<span className="text-lg font-normal text-gray-400">/mo</span></p>
                         <ul className="space-y-4 text-gray-300 mb-8">
-                            <li className="flex items-center"><CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>Unlimited
-                                Shopify stores
-                            </li>
+
                             <li className="flex items-center"><CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>5
                                 Product Pages / month
                             </li>
@@ -100,7 +98,6 @@ export default function PricingPage() {
                         <p className="text-gray-800 mb-6">For growing brands that test and launch regularly.</p>
                         <p className="text-5xl font-bold mb-6">€39<span className="text-lg font-normal text-gray-800">/mo</span></p>
                         <ul className="space-y-4 mb-8">
-                            <li className="flex items-center"><CheckCircle className="w-5 h-5 text-black mr-2" />Unlimited Shopify Stores</li>
                             <li className="flex items-center"><CheckCircle className="w-5 h-5 text-black mr-2" />Unlimited Product Pages</li>
                             <li className="flex items-center"><CheckCircle className="w-5 h-5 text-black mr-2" />AI Brand Voice Profiles</li>
                         </ul>
