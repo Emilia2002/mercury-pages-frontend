@@ -15,14 +15,16 @@ interface ExtractedData {
     price: string;
     category: string;
     availability: boolean;
+    benefits?: string[];
 }
 
 interface JobResult {
-    new_title?: string;
+    title?: string;
     description?: string;
     images?: string[];
     variants?: Record<string, string[]>; // dictionary from backend
     price?: string;
+    benefits?: string[];
 }
 
 interface Job {
@@ -100,6 +102,7 @@ export default function DashboardPage() {
         if (auth.isAuthenticated) fetchJobs();
     }, [auth.isAuthenticated, fetchJobs]);
 
+
     // Extract data from URL
     const handleExtractData = async () => {
         if (!url || isLoading || !auth.token) return;
@@ -134,43 +137,56 @@ export default function DashboardPage() {
         }
     };
 
+    function flattenVariants(variants: Record<string, (string | Record<string, unknown>)[]>): Record<string, string[]> {
+        const normalized: Record<string, string[]> = {};
+        for (const key in variants) {
+            normalized[key] = variants[key].map(v => {
+                if (typeof v === 'string') return v;
+                if (typeof v === 'object' && v !== null) {
+                    const values = Object.values(v);
+                    if (values.length > 0) {
+                        return String(values[0]);
+                    }
+                }
+                return String(v);
+            });
+        }
+        return normalized;
+    }
+
     // Export to Shopify
     const handleExportToShopify = async () => {
-        // Normalize data from either extractedData or selectedJob
-        const dataToExport: ExtractedData | null = extractedData
-            ? extractedData
-            : selectedJob?.result
-                ? {
-                    new_title: selectedJob.result.new_title || '',
-                    description: selectedJob.result.description || '',
-                    images: selectedJob.result.images || [],
-                    variants: selectedJob.result.variants
-                        ? Object.values(selectedJob.result.variants).flat()
-                        : [],
-                    price: selectedJob.result.price || '',
-                    category: '',       // optional
-                    availability: true, // optional
-                }
-                : null;
+        if (!auth.token) {
+            setExportError('No auth token.');
+            return;
+        }
 
-        if (!dataToExport || !auth.token) {
+        let payloadVariants: Record<string, string[]> = {};
+
+        if (extractedData) {
+            payloadVariants = { Option: extractedData.variants }; // extractedData.variants is string[]
+        } else if (selectedJob?.result) {
+            payloadVariants = selectedJob.result.variants
+                ? flattenVariants(selectedJob.result.variants)
+                : { Option: [] };
+        } else {
             setExportError('No data to export.');
             return;
         }
+
+        const payload = {
+            title: extractedData?.new_title || selectedJob?.result?.title || '',
+            description: extractedData?.description || selectedJob?.result?.description || '',
+            images: extractedData?.images || selectedJob?.result?.images || [],
+            variants: payloadVariants,
+            price: extractedData?.price || selectedJob?.result?.price || '',
+        };
 
         setExportLoading(true);
         setExportError(null);
         setExportSuccess(false);
 
         try {
-            const payload = {
-                new_title: dataToExport.new_title,
-                description: dataToExport.description,
-                images: dataToExport.images,
-                variants: {Option: dataToExport.variants},
-                price: dataToExport.price,
-            };
-
             const response = await fetch(`${API_BASE_URL}/shopify/export`, {
                 method: 'POST',
                 headers: {
@@ -194,6 +210,7 @@ export default function DashboardPage() {
             setExportLoading(false);
         }
     };
+
 
     const statusBadge = (status: string) => {
         switch (status) {
@@ -337,15 +354,30 @@ export default function DashboardPage() {
                                     <p className="text-lg font-semibold">{extractedData.new_title}</p>
                                     <h3 className="text-xl font-bold mb-1">Description</h3>
                                     <div
-                                        className="max-h-64 overflow-y-auto p-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 text-sm sm:text-base leading-relaxed"
+                                        className="p-4 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 text-sm sm:text-base leading-relaxed space-y-4"
                                         dangerouslySetInnerHTML={{__html: extractedData.description}}
                                     />
+                                    {extractedData.benefits && extractedData.benefits.length > 0 && (
+                                        <div className="mt-6">
+                                            <h3 className="text-xl font-semibold mb-3 text-white">✨ Key Benefits</h3>
+                                            <ul className="list-disc list-inside text-gray-300 space-y-2">
+                                                {extractedData.benefits.map((benefit, i) => (
+                                                    <li key={i} className="leading-relaxed">{benefit}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
                                     <p><strong>Price:</strong> {extractedData.price}</p>
                                     <p><strong>Category:</strong> {extractedData.category}</p>
                                     <p>
                                         <strong>Availability:</strong> {extractedData.availability ? 'In Stock' : 'Out of Stock'}
                                     </p>
-                                    <p><strong>Variants:</strong> {extractedData.variants.join(', ') || 'N/A'}</p>
+                                    {extractedData.variants && (
+                                        <p>
+                                            <strong>Variants:</strong> {Object.values(extractedData.variants).flat().join(', ')}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div className="mt-8 text-center">
@@ -382,7 +414,7 @@ export default function DashboardPage() {
                                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                             <div>
                                                 <p className="text-white font-medium">
-                                                    {job.result?.new_title || job.url}
+                                                    {job.result?.title || job.url}
                                                 </p>
                                                 <p className="text-sm text-gray-400 flex items-center gap-2">
                                                     Status: {statusBadge(job.status)}
@@ -432,14 +464,23 @@ export default function DashboardPage() {
                                         )}
                                     </motion.div>
                                     <div className="space-y-2">
-                                        <p><strong>Title:</strong> {selectedJob.result.new_title}</p>
+                                        <p><strong>Title:</strong> {selectedJob.result.title}</p>
                                         <p><strong>Price:</strong> {selectedJob.result.price}</p>
-                                        {selectedJob.result.description && (
-                                            <div
-                                                className="max-h-48 overflow-y-auto p-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 text-sm sm:text-base"
-                                                dangerouslySetInnerHTML={{__html: selectedJob.result.description}}
-                                            />
+                                        <div className="p-4 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 text-sm sm:text-base leading-relaxed space-y-4">
+                                            {selectedJob.result.description}
+                                        </div>
+
+                                        {selectedJob.result.benefits && selectedJob.result.benefits.length > 0 && (
+                                            <div className="mt-6">
+                                                <h3 className="text-xl font-semibold mb-3 text-white">✨ Key Benefits</h3>
+                                                <ul className="list-disc list-inside text-gray-300 space-y-2">
+                                                    {selectedJob.result.benefits.map((benefit, i) => (
+                                                        <li key={i} className="leading-relaxed">{benefit}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
                                         )}
+
                                         {selectedJob.result.variants && (
                                             <p>
                                                 <strong>Variants:</strong> {Object.values(selectedJob.result.variants).flat().join(', ')}
@@ -464,7 +505,7 @@ export default function DashboardPage() {
                                     {exportLoading ? 'Exporting...' : 'Export to Shopify'}
                                 </button>
                                 {exportSuccess && <p className="mt-2 text-green-400">Product exported successfully!</p>}
-                                {exportError && <p className="mt-2 text-red-400">{exportError}</p>}
+                                {exportError && <p className="mt-2 text-red-400">We have encountered an error. Please try again.</p>}
                             </div>
                         </motion.div>
                     )}
