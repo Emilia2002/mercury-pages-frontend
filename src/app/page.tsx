@@ -22,7 +22,7 @@ export default function LandingPage() {
                 Go From a Link to a Live Product Page in Seconds.
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto mb-10">
-                Stop wasting hours on repetitive tasks. Paste any product AliExpress product link and let our AI craft a
+                Stop wasting hours on repetitive tasks. Paste any product link and let our AI craft a
                 high-converting Shopify page for you.
               </p>
               <div
@@ -93,7 +93,7 @@ export default function LandingPage() {
                 <div className="bg-[#38BDF8] text-black rounded-full w-16 h-16 flex items-center justify-center mb-4">
                   <MousePointerClick size={32}/></div>
                 <h3 className="text-xl font-bold mb-2">1. Paste Link</h3>
-                <p className="text-gray-400">Provide any product URL from AliExpress.</p>
+                <p className="text-gray-400">Provide any product URL.</p>
               </div>
               <div className="flex flex-col items-center p-6 z-10">
                 <div className="bg-[#38BDF8] text-black rounded-full w-16 h-16 flex items-center justify-center mb-4">

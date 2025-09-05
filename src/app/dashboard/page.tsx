@@ -264,7 +264,7 @@ export default function DashboardPage() {
                         <LinkIcon size={28} className="text-primary mb-3"/>
                         <h3 className="font-semibold text-lg">1. Paste Link</h3>
                         <p className="text-gray-400 text-sm mt-1">
-                            Enter an AliExpress product page URL that you want to optimize.
+                            Enter a product page URL that you want to optimize.
                         </p>
                     </div>
                     <div
@@ -336,7 +336,10 @@ export default function DashboardPage() {
                                     <h3 className="text-xl font-bold mb-1">Title</h3>
                                     <p className="text-lg font-semibold">{extractedData.new_title}</p>
                                     <h3 className="text-xl font-bold mb-1">Description</h3>
-                                    <p className="text-base whitespace-pre-line text-gray-400">{extractedData.description}</p>
+                                    <div
+                                        className="max-h-64 overflow-y-auto p-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 text-sm sm:text-base leading-relaxed"
+                                        dangerouslySetInnerHTML={{__html: extractedData.description}}
+                                    />
                                     <p><strong>Price:</strong> {extractedData.price}</p>
                                     <p><strong>Category:</strong> {extractedData.category}</p>
                                     <p>
@@ -384,10 +387,7 @@ export default function DashboardPage() {
                                                 <p className="text-sm text-gray-400 flex items-center gap-2">
                                                     Status: {statusBadge(job.status)}
                                                 </p>
-                                                {job.error &&
-                                                    <p className="text-sm text-red-400">We have encountered an error.
-                                                        Please try
-                                                        again later.</p>}
+
                                             </div>
                                             <div className="text-sm text-gray-400 mt-2 sm:mt-0">
                                                 {job.created_at ? new Date(job.created_at).toLocaleString() : ''}
@@ -408,10 +408,6 @@ export default function DashboardPage() {
                         >
                             <h2 className="text-2xl font-bold">Job Details</h2>
                             <p><strong>Status:</strong> {statusBadge(selectedJob.status)}</p>
-                            {selectedJob.error &&
-                                <p className="text-red-400"><strong>Error:</strong>We have encountered a problem. Please
-                                    try
-                                    again later.</p>}
 
                             {selectedJob.result && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -439,7 +435,10 @@ export default function DashboardPage() {
                                         <p><strong>Title:</strong> {selectedJob.result.new_title}</p>
                                         <p><strong>Price:</strong> {selectedJob.result.price}</p>
                                         {selectedJob.result.description && (
-                                            <p><strong>Description:</strong> {selectedJob.result.description}</p>
+                                            <div
+                                                className="max-h-48 overflow-y-auto p-3 rounded-lg border border-gray-700 bg-gray-900/30 text-gray-300 text-sm sm:text-base"
+                                                dangerouslySetInnerHTML={{__html: selectedJob.result.description}}
+                                            />
                                         )}
                                         {selectedJob.result.variants && (
                                             <p>
