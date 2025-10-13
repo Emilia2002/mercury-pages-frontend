@@ -5,7 +5,9 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Zap } from 'lucide-react';
+import {AlertCircle, Eye, EyeOff, Zap} from 'lucide-react';
+import {GoogleLogin, googleLogout} from "@react-oauth/google";
+import {jwtDecode} from "jwt-decode";
 
 export default function SignInPage() {
     const [email, setEmail] = useState('');
@@ -16,17 +18,29 @@ export default function SignInPage() {
     const auth = useAuth();
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
     const [errorMessage, setErrorMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
 
-        if (Object.keys(email).length === 0) {
-            return setErrorMessage('Email-ul este obligatoriu.');
-        }
-
         try {
+            if (!isValidEmail(email)) {
+                setError('Please enter a valid email address.');
+                return;
+            }
+
+            if (!password.trim()) {
+                setError("Please enter your password.");
+                return;
+            }
+
             const formData = new URLSearchParams();
             formData.append('username', email);
             formData.append('password', password);
@@ -39,16 +53,41 @@ export default function SignInPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error('Login failed');
+                throw new Error('Incorrect email or password.');
             }
 
             const data = await response.json();
             auth.login(data.access_token);
-            router.push('/dashboard');
+            router.push('/crm-dashboard');
         } catch (err) {
-            setError("An unknown error occurred. Please try again.");
+            setError("Incorrect email or password. Please try again.");
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async (credentialResponse: any) => {
+        const IdToken = credentialResponse.credential;
+        if (IdToken) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/google-login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id_token: IdToken}),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error('Google login failed');
+                }
+
+                const data = await response.json();
+                auth.login(data.access_token);
+                router.push('/crm-dashboard');
+            } catch (err) {
+                setError("An unknown error occurred during Google login. Please try again.");
+                googleLogout();
+            }
         }
     };
 
@@ -59,8 +98,13 @@ export default function SignInPage() {
                 <h2 className="text-3xl font-bold gradient-text text-white">Welcome Back</h2>
                 <p className="text-gray-400">Sign in to continue to your dashboard.</p>
             </div>
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                {error && <p className="text-red-500 text-center text-sm">{error}</p>}
+            {error && (
+                <div className="mt-6 flex items-center gap-2 bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded-md">
+                    <AlertCircle size={20} />
+                    <span className="text-sm">{error}</span>
+                </div>
+            )}
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
                 <div>
                     <label htmlFor="email-address" className="sr-only">Email address</label>
                     <input
@@ -74,18 +118,24 @@ export default function SignInPage() {
                         placeholder="Email address"
                     />
                 </div>
-                <div>
-                    <label htmlFor="password" className="sr-only">Password</label>
+                <div className="relative">
                     <input
                         id="password"
                         name="password"
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-700 rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="Password"
                     />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-200 focus:outline-none"
+                    >
+                        {showPassword ? <Eye size={18}/> : <EyeOff size={18}/>}
+                    </button>
                 </div>
                 <div>
                     <button
@@ -96,6 +146,9 @@ export default function SignInPage() {
                         {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </div>
+                {/*<div className="flex items-center justify-center">*/}
+                {/*<GoogleLogin onSuccess={handleGoogleLogin} onError={() => console.log("Login failed")}/>*/}
+                {/*</div>*/}
             </form>
             <p className="mt-4 text-center text-sm text-gray-400">
                 Don&apos;t have an account?{' '}

@@ -1,10 +1,10 @@
-// FILE: src/app/(auth)/signup/page.tsx
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Zap } from 'lucide-react';
+import {Zap, Eye, EyeOff, AlertCircle} from 'lucide-react';
+import {supabase} from "@/lib/supabaseClient";
 
 export default function SignUpPage() {
     const [firstName, setFirstName] = useState('');
@@ -14,81 +14,190 @@ export default function SignUpPage() {
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfPassword, setShowConfPassword] = useState(false);
     const router = useRouter();
+    const [success, setIsSuccess] = useState(false);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setError(null);
+
+        if (!firstName.trim()) {
+            setError("Please enter your first name.");
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters long.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+
+        if (!agreedToTerms) {
+            setError('You must agree to the Terms & Conditions.');
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
-            const response = await fetch(`${API_BASE_URL}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ first_name: firstName, email, password }),
-            });
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                if (responseData.detail && Array.isArray(responseData.detail)) {
-                    const firstError = responseData.detail[0];
-                    const errorMessage = `${firstError.loc[1]} - ${firstError.msg}`;
-                    throw new Error(errorMessage);
+            const {data, error} = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {first_name: firstName},
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
                 }
-                // Dacă este o altă eroare, afișăm mesajul general.
-                throw new Error(responseData.detail || 'Registration failed');
+            })
+
+            setIsLoading(false);
+
+            if (error) {
+                setError(error.message);
+                return;
             }
 
-            router.push('/signin?registered=true');
+            if (!error) {
+                await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        first_name: firstName,
+                        email,
+                        password,
+                        supabase_id: data.user?.id
+                    }),
+                });
+
+                setIsSuccess(true);
+            }
+
+            setFirstName('');
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+            setAgreedToTerms(false);
         } catch (err) {
-            setError("We have encountered a problem. Please try again later.");
+            setError('We encountered a problem signing you up. Please try again later.');
         } finally {
             setIsLoading(false);
         }
     };
 
-
     return (
         <>
             <div className="text-center">
                 <Zap className="w-10 h-10 text-white mx-auto mb-4" />
-                <h2 className="text-white text-3xl font-bold gradient-text">Create Your Account</h2>
+                <h2 className="text-white text-3xl font-bold gradient-text">
+                    Create Your Account
+                </h2>
                 <p className="text-white">to start generating pages at divine speed.</p>
             </div>
-            <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                {error && <p className="text-red-500 text-center text-sm mb-4">{error}</p>}
+            {error && (
+                <div className="mt-6 flex items-center gap-2 bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded-md">
+                    <AlertCircle size={20} />
+                    <span className="text-sm">{error}</span>
+                </div>
+            )}
+            {success && (
+                <div className="mt-6 flex items-center gap-2 bg-green-900/50 border border-green-900 text-white px-4 py-3 rounded-md">
+                    <span>✅ We&#39;ve sent you a confirmation email. Please check your inbox to verify your account.</span>
+                </div>
+            )}
+
+            <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
                 <div className="space-y-4">
                     <input
-                        id="first-name" name="first-name" type="text" required
-                        value={firstName} onChange={(e) => setFirstName(e.target.value)}
+                        id="first-name"
+                        name="first-name"
+                        type="text"
+                        required
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-700 rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
                         placeholder="First Name"
                     />
+
                     <input
-                        id="email-address" name="email" type="email" required
-                        value={email} onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-700 rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="Email address"
+                        id="email-address"
+                        name="email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary ${
+                            error?.includes('email') ? 'border-red-500' : 'border-gray-700'
+                        }`}
+                        placeholder="Enter email"
                     />
-                    <input
-                        id="password" name="password" type="password" required
-                        value={password} onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-700 rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="Password"
-                    />
-                    <input
-                        id="confirm-password" name="confirm-password" type="password" required
-                        value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-700 rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
-                        placeholder="Confirm Password"
-                    />
+
+                    <div className="relative">
+                        <input
+                            id="password"
+                            name="password"
+                            type={showPassword ? 'text' : 'password'}
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary pr-10 ${
+                                error?.includes('Passwords') ? 'border-red-500' : 'border-gray-700'
+                            }`}
+                            placeholder="Password"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-200 focus:outline-none"
+                        >
+                            {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                        </button>
+                    </div>
+                    <div className="relative">
+                        <input
+                            id="confirm-password"
+                            name="confirm-password"
+                            type={showConfPassword ? 'text' : 'password'}
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md bg-gray-900 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary ${
+                                error?.includes('Passwords') ? 'border-red-500' : 'border-gray-700'
+                            }`}
+                            placeholder="Confirm Password"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfPassword((prev) => !prev)}
+                            className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-200 focus:outline-none"
+                        >
+                            {showConfPassword ? <Eye size={18}/> : <EyeOff size={18}/>}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex items-center">
                     <input
-                        id="terms" name="terms" type="checkbox"
-                        checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        id="terms"
+                        name="terms"
+                        type="checkbox"
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
                         className="h-4 w-4 rounded border-gray-600 bg-gray-800 text-primary focus:ring-primary"
                     />
                     <label htmlFor="terms" className="ml-2 block text-sm text-gray-400">
@@ -109,6 +218,7 @@ export default function SignUpPage() {
                     </button>
                 </div>
             </form>
+
             <p className="mt-4 text-center text-sm text-white">
                 Already have an account?{' '}
                 <Link href="/signin" className="font-medium text-primary hover:text-primary/90">
