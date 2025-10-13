@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import {AlertCircle, Eye, EyeOff, Zap} from 'lucide-react';
 import {GoogleLogin, googleLogout} from "@react-oauth/google";
-import {jwtDecode} from "jwt-decode";
 
 export default function SignInPage() {
     const [email, setEmail] = useState('');
@@ -65,7 +64,7 @@ export default function SignInPage() {
             setIsLoading(false);
         }
     };
-
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     const handleGoogleLogin = async (credentialResponse: any) => {
         const IdToken = credentialResponse.credential;
         if (IdToken) {
