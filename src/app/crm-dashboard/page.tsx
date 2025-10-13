@@ -140,7 +140,9 @@ export default function CRMDashboard() {
             setUrl('');
             fetchJobs();
 
-        } catch (error: any) {
+        }
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
+        catch (error: any) {
             console.error('Error extracting data:');
             if (error.message.includes('Plan limit exceeded')) {
                 alert("You have reached the limit of free AI generations. Please upgrade to a paid plan to continue using this feature.");

@@ -37,7 +37,7 @@ interface JobResult {
 }
 
 interface Job {
-    id: string;
+    _id: string;
     url: string;
     status: "completed" | "processing" | "pending" | "failed";
     created_at?: string;
@@ -148,7 +148,8 @@ export default function MyPagesPage() {
         if (!selectedJob) return;
 
         const updatedJobs = jobs.map(job => {
-            if (job.id === selectedJob.id) {
+            if (job._id === selectedJob._id) {
+
                 return {
                     ...job,
                     result: {
@@ -166,7 +167,7 @@ export default function MyPagesPage() {
         setJobs(updatedJobs);
         setIsEditModalOpen(false);
 
-        fetch(`${API_BASE_URL}/jobs/${selectedJob.id}`, {
+        fetch(`${API_BASE_URL}/jobs/${selectedJob._id}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -375,7 +376,7 @@ export default function MyPagesPage() {
 
                                 return (
                                     <motion.div
-                                        key={page.id}
+                                        key={page._id}
                                         initial={{opacity: 0, y: 20}}
                                         animate={{opacity: 1, y: 0}}
                                         transition={{delay: 0.1 * index}}
