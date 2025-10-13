@@ -2,14 +2,25 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
 import { Loader2 } from 'lucide-react'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
+
 export default function AuthCallbackPage() {
     const router = useRouter()
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
+    // Only create Supabase client on the client-side
+    const supabase: SupabaseClient | null =
+        typeof window !== 'undefined'
+            ? createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            )
+            : null
 
     useEffect(() => {
+        if (!supabase) return // prevent SSR errors
+
         const handleCallback = async () => {
             try {
                 console.log('🔹 Starting email verification callback...')
@@ -27,7 +38,7 @@ export default function AuthCallbackPage() {
 
                 const { error: setSessionError } = await supabase.auth.setSession({
                     access_token,
-                    refresh_token
+                    refresh_token,
                 })
 
                 if (setSessionError) {
@@ -46,7 +57,6 @@ export default function AuthCallbackPage() {
                 }
 
                 const user = sessionData.session.user
-
                 if (!user) {
                     console.error('❌ No user in session')
                     setStatus('error')
@@ -56,16 +66,8 @@ export default function AuthCallbackPage() {
 
                 console.log('🔹 Supabase user:', user)
 
-                const registerPayload = {
-                    first_name: user.user_metadata?.first_name || '',
-                    email: user.email,
-                    supabase_id: user.id
-                }
-
-                console.log('✅ Backend registration success — redirecting...')
                 setStatus('success')
-
-                setTimeout(() => router.push('/crm-dashboard'))
+                setTimeout(() => router.push('/crm-dashboard'), 1000)
             } catch (err) {
                 console.error('❌ Exception during callback:', err)
                 setStatus('error')
@@ -73,7 +75,7 @@ export default function AuthCallbackPage() {
         }
 
         handleCallback()
-    }, [router, API_BASE_URL])
+    }, [router, supabase])
 
     return (
         <div className="flex items-center justify-center h-screen text-white">
