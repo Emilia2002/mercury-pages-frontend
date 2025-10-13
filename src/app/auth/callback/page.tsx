@@ -36,7 +36,7 @@ export default function AuthCallbackPage() {
                     return
                 }
 
-                const { error: setSessionError } = await supabase.auth.setSession({
+                const { error: setSessionError } = await supabase!.auth.setSession({
                     access_token,
                     refresh_token,
                 })
@@ -47,7 +47,7 @@ export default function AuthCallbackPage() {
                     return
                 }
 
-                const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+                const { data: sessionData, error: sessionError } = await supabase!.auth.getSession()
 
                 if (sessionError || !sessionData?.session) {
                     console.error('❌ No session found after setSession', sessionError)
