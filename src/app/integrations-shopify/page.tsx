@@ -9,10 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 import {
-    Circle,
     CheckCircle,
-    ExternalLink,
-    Copy,
     AlertCircle,
     Loader2,
     Lock,

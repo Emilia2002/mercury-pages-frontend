@@ -221,7 +221,7 @@ export default function MyPagesPage() {
             fetchJobs();
             alert("Product exported to Shopify successfully!");
         }
-            /* eslint-disable  @typescript-eslint/no-explicit-any */
+        /* eslint-disable  @typescript-eslint/no-explicit-any */
         catch (error: any) {
             console.error('Error during Shopify export:', error);
             if (error.message.includes('Shopify credentials not set')) {
