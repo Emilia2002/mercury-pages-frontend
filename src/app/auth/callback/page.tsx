@@ -59,7 +59,7 @@ export default function AuthCallbackPage() {
                 console.log('✅ Backend registration success — redirecting...')
                 setStatus('success')
 
-                setTimeout(() => router.push('/login'), 1500)
+                setTimeout(() => router.push('/signin'), 1500)
             } catch (err) {
                 console.error('❌ Exception during callback:', err)
                 setStatus('error')
