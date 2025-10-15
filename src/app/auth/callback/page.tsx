@@ -2,25 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabaseClient'
 import { Loader2 } from 'lucide-react'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
-
 export default function AuthCallbackPage() {
     const router = useRouter()
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-
-    // Only create Supabase client on the client-side
-    const supabase: SupabaseClient | null =
-        typeof window !== 'undefined'
-            ? createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            )
-            : null
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
 
     useEffect(() => {
-        if (!supabase) return // prevent SSR errors
-
         const handleCallback = async () => {
             try {
                 console.log('🔹 Starting email verification callback...')
@@ -36,9 +25,9 @@ export default function AuthCallbackPage() {
                     return
                 }
 
-                const { error: setSessionError } = await supabase!.auth.setSession({
+                const { error: setSessionError } = await supabase.auth.setSession({
                     access_token,
-                    refresh_token,
+                    refresh_token
                 })
 
                 if (setSessionError) {
@@ -47,7 +36,7 @@ export default function AuthCallbackPage() {
                     return
                 }
 
-                const { data: sessionData, error: sessionError } = await supabase!.auth.getSession()
+                const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
 
                 if (sessionError || !sessionData?.session) {
                     console.error('❌ No session found after setSession', sessionError)
@@ -57,6 +46,7 @@ export default function AuthCallbackPage() {
                 }
 
                 const user = sessionData.session.user
+
                 if (!user) {
                     console.error('❌ No user in session')
                     setStatus('error')
@@ -66,16 +56,19 @@ export default function AuthCallbackPage() {
 
                 console.log('🔹 Supabase user:', user)
 
+                console.log('✅ Backend registration success — redirecting...')
                 setStatus('success')
-                setTimeout(() => router.push('/crm-dashboard'), 1000)
+
+                setTimeout(() => router.push('/login'), 1500)
             } catch (err) {
                 console.error('❌ Exception during callback:', err)
                 setStatus('error')
+                router.push('/signin')
             }
         }
 
         handleCallback()
-    }, [router, supabase])
+    }, [router, API_BASE_URL])
 
     return (
         <div className="flex items-center justify-center h-screen text-white">
@@ -90,7 +83,7 @@ export default function AuthCallbackPage() {
             {status === 'success' && (
                 <div className="text-center text-green-400">
                     <h2 className="text-2xl font-semibold mb-2">✅ Email verified!</h2>
-                    <p>You’re being redirected to your dashboard...</p>
+                    <p>You’re being redirected to the login page...</p>
                 </div>
             )}
 

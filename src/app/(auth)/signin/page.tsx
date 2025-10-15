@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import {AlertCircle, Eye, EyeOff, Zap} from 'lucide-react';
-import {GoogleLogin, googleLogout} from "@react-oauth/google";
 
 export default function SignInPage() {
     const [email, setEmail] = useState('');
@@ -16,7 +15,6 @@ export default function SignInPage() {
     const router = useRouter();
     const auth = useAuth();
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-    const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
     const isValidEmail = (email: string) => {
@@ -64,31 +62,31 @@ export default function SignInPage() {
             setIsLoading(false);
         }
     };
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
-    const handleGoogleLogin = async (credentialResponse: any) => {
-        const IdToken = credentialResponse.credential;
-        if (IdToken) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/google-login`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({id_token: IdToken}),
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error('Google login failed');
-                }
-
-                const data = await response.json();
-                auth.login(data.access_token);
-                router.push('/crm-dashboard');
-            } catch (err) {
-                setError("An unknown error occurred during Google login. Please try again.");
-                googleLogout();
-            }
-        }
-    };
+    // /* eslint-disable  @typescript-eslint/no-explicit-any */
+    // const handleGoogleLogin = async (credentialResponse: any) => {
+    //     const IdToken = credentialResponse.credential;
+    //     if (IdToken) {
+    //         try {
+    //             const response = await fetch(`${API_BASE_URL}/google-login`, {
+    //                 method: 'POST',
+    //                 headers: {'Content-Type': 'application/json'},
+    //                 body: JSON.stringify({id_token: IdToken}),
+    //             });
+    //
+    //             if (!response.ok) {
+    //                 const errorData = await response.json();
+    //                 throw new Error('Google login failed');
+    //             }
+    //
+    //             const data = await response.json();
+    //             auth.login(data.access_token);
+    //             router.push('/crm-dashboard');
+    //         } catch (err) {
+    //             setError("An unknown error occurred during Google login. Please try again.");
+    //             googleLogout();
+    //         }
+    //     }
+    // };
 
     return (
         <>
