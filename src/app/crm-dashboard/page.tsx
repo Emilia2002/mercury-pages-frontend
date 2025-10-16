@@ -252,11 +252,8 @@ export default function CRMDashboard() {
                 <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000" />
             </div>
 
-            <div className="flex h-screen">
-                <div className="h-full">
+                <div className="relative z-20 flex h-screen">
                     <Sidebar/>
-                </div>
-                {/* Main Content Area */}
                 <div className="flex-1 w-full h-full overflow-y-auto p-8">
                     <Card
                         className="backdrop-blur-xl bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 shadow-2xl shadow-cyan-500/10">
@@ -538,7 +535,6 @@ export default function CRMDashboard() {
                 {/*        </Card>*/}
                 {/*    </div>*/}
                 {/*</Card>*/}
-            </div>
 
             <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-20">
                 <div className="backdrop-blur-xl bg-slate-900/40 border border-cyan-500/20 rounded-full px-6 py-2 shadow-lg shadow-cyan-500/20">
@@ -550,6 +546,7 @@ export default function CRMDashboard() {
                     </p>
                 </div>
             </div>
+        </div>
         </div>
 
     )

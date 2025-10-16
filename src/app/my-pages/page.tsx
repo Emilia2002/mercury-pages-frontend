@@ -248,11 +248,9 @@ export default function MyPagesPage() {
                 <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000"/>
             </div>
 
-            <div className="flex h-screen">
-                <div className="flex h-screen">
-                    <Sidebar/>
-                </div>
-                    <div className="flex-1 w-full h-full overflow-y-auto p-8">
+            <div className="relative z-20 flex h-screen">
+                <Sidebar/>
+            <div className="flex-1 w-full h-full overflow-y-auto p-8">
                         {/* Header */}
                         <Card
                             className="backdrop-blur-xl bg-slate-900/40 border border-pink-500/20 rounded-3xl p-6 shadow-2xl shadow-pink-500/10">
@@ -587,6 +585,6 @@ export default function MyPagesPage() {
                 )}
 
             </div>
-            </div>
+        </div>
     )
 }

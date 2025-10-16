@@ -79,8 +79,6 @@ const onboardingSteps = [
 
 export default function ShopifyIntegrationPage() {
     const auth = useAuth();
-    const router = useRouter();
-    const [currentStep, setCurrentStep] = useState(0);
     const [storeUrl, setStoreUrl] = useState('');
     const [accessToken, setAccessToken] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -123,16 +121,8 @@ export default function ShopifyIntegrationPage() {
         }
     };
 
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text).then(() => {
-            // Optional: show a temporary toast or success message
-            console.log("Copied to clipboard:", text)
-        })
-    }
-
     return (
         <div className="h-screen relative overflow-hidden bg-slate-950">
-            {/* Gradient background effect */}
             <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
             <div className="absolute inset-0 z-10 opacity-10 pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse-slow" />
