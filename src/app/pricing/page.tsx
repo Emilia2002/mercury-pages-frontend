@@ -88,7 +88,7 @@ export default function PricingPage() {
                         {/* Correct button logic: call handleSubscription */}
                         {auth.isAuthenticated ? (
                             <button
-                                onClick={() => router.push('/dashboard-crm')}
+                                onClick={() => router.push('/crm-dashboard')}
                                 className="mt-auto w-full text-center bg-gray-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors"
                             >
                                 Go to Dashboard

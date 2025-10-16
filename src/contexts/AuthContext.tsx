@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children : ReactNode }) => {
     const login = (newToken: string) => {
         Cookies.set('access_token', newToken, { expires: 1, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
         setToken(newToken);
-        router.push('/dashboard-crm');
+        router.push('/crm-dashboard');
     };
 
     const logout = () => {

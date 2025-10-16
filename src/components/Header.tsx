@@ -59,7 +59,7 @@ export const Header = () => {
                     {isLoading ? (
                         <div className="text-gray-400 text-lg">...</div>
                     ) : isAuthenticated ? (
-                        <Link href="/dashboard-crm" className="bg-[#38BDF8] text-black font-bold py-3 px-6 rounded-lg glow-on-hover text-lg" onClick={toggleMenu}>
+                        <Link href="/crm-dashboard" className="bg-[#38BDF8] text-black font-bold py-3 px-6 rounded-lg glow-on-hover text-lg" onClick={toggleMenu}>
                             My Account
                         </Link>
                     ) : (
