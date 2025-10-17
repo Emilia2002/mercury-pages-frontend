@@ -140,6 +140,7 @@ export default function MyPagesPage() {
     const [editForm, setEditForm] = useState({
         new_title: "",
         description: "",
+        benefits: "",
         price: "",
         category: "",
     });
@@ -329,7 +330,7 @@ export default function MyPagesPage() {
                                         <select
                                             value={statusFilter}
                                             onChange={(e) => setStatusFilter(e.target.value)}
-                                            className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                                         >
                                             <option value="all">All Status</option>
                                             <option value="completed">Completed</option>
@@ -341,7 +342,7 @@ export default function MyPagesPage() {
                                         <select
                                             value={sortBy}
                                             onChange={(e) => setSortBy(e.target.value)}
-                                            className="px-4 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                                         >
                                             <option value="newest">Newest First</option>
                                             <option value="oldest">Oldest First</option>
@@ -410,6 +411,9 @@ export default function MyPagesPage() {
                                             <div className="p-6">
                                                 <div className="mb-4">
                                                     <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{displayTitle}</h3>
+                                                    <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
+                                                        {page.result?.description}
+                                                    </div>
                                                     <div
                                                         className="flex items-center gap-2 text-sm text-slate-400 mb-2">
                                                         <Calendar className="w-4 h-4"/>
@@ -452,6 +456,7 @@ export default function MyPagesPage() {
                                                                     setEditForm({
                                                                         new_title: page.result?.new_title || page.result?.title || "",
                                                                         description: page.result?.description || "",
+                                                                        benefits: (page.result?.benefits_list || []).join('\n'),
                                                                         price: page.result?.price || "",
                                                                         category: page.result?.category || "",
                                                                     });
@@ -539,6 +544,16 @@ export default function MyPagesPage() {
                                         placeholder="Product description"
                                         className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
                                         rows={4}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-slate-400 text-sm mb-1">Benefits</label>
+                                    <textarea
+                                        value={editForm.benefits}
+                                        onChange={(e) => setEditForm({...editForm, benefits: e.target.value})}
+                                        placeholder="- First benefit...&#10;- Second benefit..."
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition"
+                                        rows={5}
                                     />
                                 </div>
 
