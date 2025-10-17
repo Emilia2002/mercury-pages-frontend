@@ -54,7 +54,7 @@ export default function Sidebar() {
             {/* Buton meniu mobil - vizibil pe ecrane mici */}
             <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden fixed top-4 left-4 z-50 text-white backdrop-blur-xl bg-slate-900/40 p-2 rounded-full"
+                className="lg:hidden fixed top-4 left-4 z-50 text-white bg-slate-900 p-2 rounded-full"
             >
                 <Menu className="h-6 w-6" />
             </button>
@@ -70,7 +70,7 @@ export default function Sidebar() {
             <div
                 className={`
                     lg:col-span-2
-                    backdrop-blur-xl bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 pb-6 h-full flex flex-col shadow-2xl shadow-cyan-500/10
+                    bg-slate-900 border border-cyan-500/20 rounded-3xl p-6 pb-6 h-full flex flex-col shadow-2xl shadow-cyan-500/10
                     fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out
                     ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
                     lg:relative lg:translate-x-0

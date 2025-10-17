@@ -11,8 +11,6 @@ import {
     Download,
     Wand2,
     ArrowRight,
-    RefreshCw,
-    Zap,
     Square,
     RectangleHorizontal,
     RectangleVertical,

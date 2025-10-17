@@ -193,7 +193,7 @@ export default function Home() {
           </section>
 
           {/* What We Do Section */}
-          <section className="py-20 bg-slate-950">
+          <section className="bg-slate-950">
             <div className="container mx-auto px-6">
               <div className="text-center mb-16">
                 <span className="text-cyan-400 font-semibold text-sm uppercase tracking-wide">WHAT WE DO</span>
@@ -351,8 +351,8 @@ export default function Home() {
                       <CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>AI-Generated Product Descriptions
                     </li>
                     <li className="flex items-center">
-                      <CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>Built-In Ad Generator for Facebook &
-                      Instagram
+                      <CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>Built-In Ad Generator for Facebook,
+                      Instagram, Google, Pinterest and TikTok
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>SEO Optimization for Product Pages
@@ -378,7 +378,8 @@ export default function Home() {
                       <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2" />AI-Generated Product Descriptions
                     </li>
                     <li className="flex items-center">
-                      <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2" />Built-In Ad Generator for Facebook & Instagram
+                      <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2" />Built-In Ad Generator for Facebook,
+                      Instagram, Google, Pinterest and TikTok
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2" />SEO Optimization for Product Pages
