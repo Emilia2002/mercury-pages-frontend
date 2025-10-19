@@ -102,30 +102,49 @@ export default function AdGeneratorPage() {
     const exportAdVariation = async (adSet: GeneratedAdSet, variation: AdVariation) => {
         const element = document.getElementById(`ad-preview-${variation.id}`)
         if (!element) return alert("Ad preview not found")
+
+        // Detect mobile early
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+        // Important: open window immediately on mobile (before await)
+        let newWindow: Window | null = null
+        if (isMobile) {
+            newWindow = window.open("", "_blank")
+            if (!newWindow) {
+                alert("Please allow popups to export image.")
+                return
+            }
+            newWindow.document.write("<p>Generating preview...</p>")
+        }
+
+        // Wait a moment to stabilize DOM
         await new Promise(res => setTimeout(res, 100))
+
+        // Use smaller scale on mobile
         const canvas = await html2canvas(element, {
             backgroundColor: "#111827",
             useCORS: true,
-            logging: true,
-            scale: 2,
-        });
+            scale: isMobile ? 1 : 2,
+        })
 
         const dataUrl = canvas.toDataURL("image/png")
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
         if (isMobile) {
-            const newWindow = window.open()
+            // Inject image into pre-opened tab
             if (newWindow) {
-                newWindow.document.write(`<img src="${dataUrl}" alt="Ad Image" style="width:100%;">`)
+                newWindow.document.body.innerHTML = `<img src="${dataUrl}" alt="Ad Image" style="width:100%;height:auto;">`
             }
-        }
-        else {
+        } else {
+            // Desktop: trigger file download
             const link = document.createElement("a")
             link.href = dataUrl
             link.download = `${variation.headline.replace(/\s+/g, "_")}.png`
+            document.body.appendChild(link)
             link.click()
+            link.remove()
         }
     }
+
 
     return (
         <div className="h-screen relative overflow-hidden bg-slate-950">

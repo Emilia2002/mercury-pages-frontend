@@ -470,6 +470,21 @@ export default function MyPagesPage() {
                                                                     onClick={() => handleExportToShopify(page)}> <ExternalLink className="w-4 h-4"/>
                                                             </Button>
 
+                                                            {/*{exportLoading && (*/}
+                                                            {/*    <div className="flex-1 bg-transparent text-green-400 flex items-center">*/}
+                                                            {/*        <Loader className="w-4 h-4 mr-1 animate-spin"/>*/}
+                                                            {/*        <span>Exporting to Shopify...</span>*/}
+                                                            {/*    </div>*/}
+                                                            {/*)}*/}
+                                                            {/*{exportSuccess && (*/}
+                                                            {/*    <div className="flex-1 bg-transparent text-emerald-400 flex items-center">*/}
+                                                            {/*        <CheckCircle className="w-4 h-4 mr-1"/>*/}
+                                                            {/*        <p>*/}
+                                                            {/*            Product has been successfully exported to shopify.*/}
+                                                            {/*        </p>*/}
+                                                            {/*    </div>*/}
+
+                                                            {/*)}*/}
                                                         </>
                                                     )}
 
