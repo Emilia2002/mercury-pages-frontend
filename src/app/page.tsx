@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
@@ -14,10 +14,6 @@ import {
   CheckCircle,
   MousePointerClick,
   Star,
-  TrendingUp,
-  Shield,
-  Users,
-  Award,
   Wand2,
   Rocket,
   FileText,
@@ -59,35 +55,18 @@ const SparklesOverlay = () => {
   )
 }
 
-const SectionBackground = () => (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-500" />
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent animate-pulse" />
-        <div className="absolute top-3/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent animate-pulse delay-1000" />
-      </div>
-    </div>
-);
-
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false)
   const [currentMetric, setCurrentMetric] = useState(0)
   const router = useRouter();
 
   const metrics = [
-    { value: "2 min", label: "Link to Live Page" },
-    { value: "300%", label: "Conversion Boost" },
-    { value: "100+", label: "Platforms Supported" },
-    { value: "12", label: "Ads Generated" },
-  ]
+    { value: "< 2 Min", label: "Generation Time" },
+    { value: "3+", label: "Platforms Supported" },
+    { value: "4", label: "AD generator formats" },
+    { value: "1-Click", label: "Shopify Export" },
+  ];
 
-  const trustIndicators = [
-    { icon: Users, value: "10,000+", label: "Active Users" },
-    { icon: TrendingUp, value: "2.5M+", label: "Pages Generated" },
-    { icon: Award, value: "99.9%", label: "Uptime" },
-  ]
 
   useEffect(() => {
     setIsVisible(true)
@@ -114,7 +93,7 @@ export default function Home() {
                 <div className="text-center mb-16">
                   <div className={`inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/40 rounded-full px-6 py-3 mb-8 transition-all duration-1000 hover:scale-105 hover:border-cyan-400/60 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
                     <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
-                    <span className="text-sm font-medium text-white">Trusted by 10,000+ E-commerce Brands</span>
+                    <span className="text-sm font-medium text-white">Start generating fast Product Pages</span>
                     <div className="flex ml-2">
                       {[...Array(5)].map((_, i) => (
                           <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
@@ -129,16 +108,6 @@ export default function Home() {
                   <p className={`text-lg sm:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed transition-all duration-1000 delay-400 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
                     Paste any product link and let our <span className="text-white font-semibold">AI Business Advisor</span> craft high-converting Shopify pages while optimizing your entire business strategy.
                   </p>
-
-                  <div className={`flex flex-wrap justify-center gap-6 mb-12 transition-all duration-1000 delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-                    {trustIndicators.map((indicator, index) => (
-                        <div key={index} className="flex items-center gap-2 text-gray-400">
-                          <indicator.icon className="w-4 h-4 text-cyan-400" />
-                          <span className="text-sm font-medium text-white">{indicator.value}</span>
-                          <span className="text-sm">{indicator.label}</span>
-                        </div>
-                    ))}
-                  </div>
 
                   <div className={`max-w-3xl mx-auto mb-16 transition-all duration-1000 delay-600 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
                     <div className="flex flex-col md:flex-row gap-4 md:gap-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-3 shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300">
@@ -164,30 +133,6 @@ export default function Home() {
                       </div>
                   ))}
                 </div>
-
-                {/*<div className={`grid md:grid-cols-3 gap-8 transition-all duration-1000 delay-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>*/}
-                {/*  <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-slate-800/30 to-slate-700/20 border border-slate-700/30 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/10 group">*/}
-                {/*    <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">*/}
-                {/*      <Zap className="w-8 h-8 text-cyan-400" />*/}
-                {/*    </div>*/}
-                {/*    <h3 className="text-xl font-bold mb-3 text-white">Lightning Fast</h3>*/}
-                {/*    <p className="text-gray-300">Transform any product link into a complete Shopify page in under 2 minutes. 10x faster than manual creation.</p>*/}
-                {/*  </div>*/}
-                {/*  <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-slate-800/30 to-slate-700/20 border border-slate-700/30 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/10 group">*/}
-                {/*    <div className="w-16 h-16 bg-gradient-to-br from-purple-500/10 to-purple-600/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">*/}
-                {/*      <BrainCircuit className="w-8 h-8 text-purple-400" />*/}
-                {/*    </div>*/}
-                {/*    <h3 className="text-xl font-bold mb-3 text-white">AI Business Advisor</h3>*/}
-                {/*    <p className="text-gray-300">Get intelligent insights and automated recommendations to optimize your business. Like having a marketing expert 24/7.</p>*/}
-                {/*  </div>*/}
-                {/*  <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-slate-800/30 to-slate-700/20 border border-slate-700/30 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/10 group">*/}
-                {/*    <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">*/}
-                {/*      <Target className="w-8 h-8 text-cyan-400" />*/}
-                {/*    </div>*/}
-                {/*    <h3 className="text-xl font-bold mb-3 text-white">Smart Ad Generator</h3>*/}
-                {/*    <p className="text-gray-300">Generate 12 conversion-optimized ads for all major platforms instantly. Save $50k+ in agency fees.</p>*/}
-                {/*  </div>*/}
-                {/*</div>*/}
               </div>
             </div>
           </section>
@@ -206,7 +151,7 @@ export default function Home() {
                     <MousePointerClick className="w-6 h-6 text-cyan-400" />
                   </div>
                   <h3 className="text-xl font-bold mb-4 text-white">Universal Product Import</h3>
-                  <p className="text-gray-300">Import products from 100+ platforms including Amazon, AliExpress, eBay, and more with just a URL.</p>
+                  <p className="text-gray-300">Import products from different platforms including Amazon, AliExpress, eBay, and more with just a URL.</p>
                 </div>
                 <div className="bg-slate-800/30 p-8 rounded-xl border border-slate-700/30 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 group">
                   <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">

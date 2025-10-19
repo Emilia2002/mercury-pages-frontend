@@ -1,9 +1,7 @@
-// FILE: src/app/privacy/page.tsx
 import React from 'react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 
-// --- PASTE YOUR HTML FROM TERMLY HERE ---
 const privacyPolicyHtml = `
   <h1>Privacy Policy for Mercury Pages</h1>
   <p>Last updated: August 27, 2025</p>
