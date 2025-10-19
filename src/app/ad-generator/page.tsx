@@ -26,7 +26,7 @@ const BRAND_PALETTE = {
 
 interface Product { id: string; title: string; description: string; price: string; images: string[]; category: string }
 interface JobResult { original_title?: string; new_title?: string; description?: string; images?: string[]; price?: string; category?: string; thumbnail?: string }
-interface Job { id: string; status: "completed" | "processing" | "pending" | "failed"; result?: JobResult }
+interface Job { _id: string; status: "completed" | "processing" | "pending" | "failed"; result?: JobResult }
 interface AdVariation { id: string; headline: string; description: string; cta: string; template: string }
 interface AdFormat { id: string; name: string; platform: string; dimensions: string; aspectRatio: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }
 interface GeneratedAdSet { id: string; product: Product; format: AdFormat; variations: AdVariation[]; status: "generating" | "ready" }
