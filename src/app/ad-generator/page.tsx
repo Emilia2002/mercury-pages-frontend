@@ -111,10 +111,20 @@ export default function AdGeneratorPage() {
         });
 
         const dataUrl = canvas.toDataURL("image/png")
-        const link = document.createElement("a")
-        link.href = dataUrl
-        link.download = `${variation.headline.replace(/\s+/g, "_")}.png`
-        link.click()
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+
+        if (isMobile) {
+            const newWindow = window.open()
+            if (newWindow) {
+                newWindow.document.write(`<img src="${dataUrl}" alt="Ad Image" style="width:100%;">`)
+            }
+        }
+        else {
+            const link = document.createElement("a")
+            link.href = dataUrl
+            link.download = `${variation.headline.replace(/\s+/g, "_")}.png`
+            link.click()
+        }
     }
 
     return (
@@ -145,7 +155,7 @@ export default function AdGeneratorPage() {
                             <h3 className="text-xl text-white mb-4">Select a Product</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {jobs.map(job => (
-                                    <Card key={job.id} className={`cursor-pointer p-4 ${selectedProduct?.id === job.id ? "border-slate-700/50 bg-slate-900/50" : "hover:bg-slate-800/30 border-slate-700"}`} onClick={() => handleProductSelect(job)}>
+                                    <Card key={job.id} className={`cursor-pointer p-4 ${selectedProduct?._id === job._id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleProductSelect(job)}>
                                         <img src={job.result?.thumbnail || job.result?.images?.[0] || "/placeholder.svg"} alt="" className="w-full h-32 object-cover rounded-lg mb-2" />
                                         <h4 className="text-white font-medium text-sm">{job.result?.new_title || job.result?.original_title || "Untitled"}</h4>
                                         <p className="text-slate-300 text-xs line-clamp-2">{job.result?.description}</p>
