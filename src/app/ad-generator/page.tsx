@@ -80,7 +80,7 @@ export default function AdGeneratorPage() {
 
         const newAdSet: GeneratedAdSet = {
             id: generateId(),
-            product: { id: selectedProduct.id, title: productTitle, description: productDescription, price: selectedProduct.result?.price || "", images: productImages, category: selectedProduct.result?.category || "General" },
+            product: { id: selectedProduct._id, title: productTitle, description: productDescription, price: selectedProduct.result?.price || "", images: productImages, category: selectedProduct.result?.category || "General" },
             format: selectedFormat,
             variations: [],
             status: "generating",
@@ -155,7 +155,7 @@ export default function AdGeneratorPage() {
                             <h3 className="text-xl text-white mb-4">Select a Product</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {jobs.map(job => (
-                                    <Card key={job.id} className={`cursor-pointer p-4 ${selectedProduct?._id === job._id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleProductSelect(job)}>
+                                    <Card key={job._id} className={`cursor-pointer p-4 ${selectedProduct?._id === job._id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleProductSelect(job)}>
                                         <img src={job.result?.thumbnail || job.result?.images?.[0] || "/placeholder.svg"} alt="" className="w-full h-32 object-cover rounded-lg mb-2" />
                                         <h4 className="text-white font-medium text-sm">{job.result?.new_title || job.result?.original_title || "Untitled"}</h4>
                                         <p className="text-slate-300 text-xs line-clamp-2">{job.result?.description}</p>
