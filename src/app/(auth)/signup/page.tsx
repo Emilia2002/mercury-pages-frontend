@@ -16,7 +16,6 @@ export default function SignUpPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfPassword, setShowConfPassword] = useState(false);
-    const router = useRouter();
     const [success, setIsSuccess] = useState(false);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
@@ -63,9 +62,10 @@ export default function SignUpPage() {
                 options: {
                     data: {first_name: firstName},
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
-                }
-            })
+                },
+            });
 
+            localStorage.setItem('pendingPassword', password);
             setIsLoading(false);
 
             if (error) {
@@ -74,17 +74,6 @@ export default function SignUpPage() {
             }
 
             if (!error) {
-                await fetch(`${API_BASE_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        first_name: firstName,
-                        email,
-                        password,
-                        supabase_id: data.user?.id
-                    }),
-                });
-
                 setIsSuccess(true);
             }
 

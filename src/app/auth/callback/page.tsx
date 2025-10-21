@@ -12,8 +12,6 @@ export default function AuthCallbackPage() {
     useEffect(() => {
         const handleCallback = async () => {
             try {
-                console.log('🔹 Starting email verification callback...')
-
                 const hash = window.location.hash.substring(1)
                 const params = new URLSearchParams(hash)
                 const access_token = params.get('access_token')
@@ -54,10 +52,29 @@ export default function AuthCallbackPage() {
                     return
                 }
 
-                console.log('🔹 Supabase user:', user)
+                const password = localStorage.getItem('pendingPassword')
 
-                console.log('✅ Backend registration success — redirecting...')
-                setStatus('success')
+                if (!password) {
+                    console.error('❌ No password found in localStorage')
+                    setStatus('error')
+                    return
+                }
+
+                const res = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify
+                ({
+                    first_name: user.user_metadata.first_name || '',
+                    email: user.email,
+                    password: password,
+                    supabase_id: user.id,
+                }),
+            })
+
+                if (res.ok) {
+                    setStatus('success');
+                }
 
                 setTimeout(() => router.push('/signin'), 1500)
             } catch (err) {
