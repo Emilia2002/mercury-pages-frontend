@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 
 import {
     CheckCircle,
@@ -87,10 +86,17 @@ export default function ShopifyIntegrationPage() {
     const [isConnected, setIsConnected] = useState(false)
     const [connectionError, setConnectionError] = useState("")
     const [expandedStep, setExpandedStep] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null);
+    const [success, setIsSuccess] = useState(false);
 
     const handleConnectShopify = async () => {
         if (!storeUrl || !accessToken) {
-            alert("Please enter both your store URL and access token.");
+            setError("Please enter both your store URL and access token.");
+            return;
+        }
+
+        if (!storeUrl.includes('myshopify.com')) {
+            setError("Please enter a valid Shopify store URL. It should contain 'myshopify.com'.");
             return;
         }
 
@@ -112,10 +118,10 @@ export default function ShopifyIntegrationPage() {
                 throw new Error(errorMessage);
             }
 
-            alert("Shopify credentials saved successfully!");
+            setIsSuccess(true);
         } catch (error) {
             console.error("Error saving credentials:", error);
-            alert(`Failed to connect to Shopify.`);
+            setError(`Failed to connect to Shopify.`);
         } finally {
             setIsLoading(false);
         }
@@ -260,6 +266,17 @@ export default function ShopifyIntegrationPage() {
                                     <CardDescription className="text-slate-400">
                                         Enter the credentials you copied from Shopify.
                                     </CardDescription>
+                                    {error && (
+                                        <div className="mt-6 flex items-center gap-2 bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded-md">
+                                            <AlertCircle size={20} />
+                                            <span className="text-sm">{error}</span>
+                                        </div>
+                                    )}
+                                    {success && (
+                                        <div className="mt-6 flex items-center gap-2 bg-green-900/50 border border-green-900 text-white px-4 py-3 rounded-md">
+                                            <span>✅ Shopify credentials saved successfully..</span>
+                                        </div>
+                                    )}
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     {!isConnected ? (
