@@ -106,7 +106,7 @@ export default function Home() {
                   </h1>
 
                   <p className={`text-lg sm:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed transition-all duration-1000 delay-400 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-                    Paste any product link and let our <span className="text-white font-semibold">AI Business Advisor</span> craft high-converting Shopify pages while optimizing your entire business strategy.
+                    Paste any product link and let our <span className="text-white font-semibold">AI tool</span> craft high-converting Shopify pages while optimizing your entire business strategy.
                   </p>
 
                   <div className={`max-w-3xl mx-auto mb-16 transition-all duration-1000 delay-600 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
@@ -158,7 +158,7 @@ export default function Home() {
                     <BrainCircuit className="w-6 h-6 text-purple-400" />
                   </div>
                   <h3 className="text-xl font-bold mb-4 text-white">AI Content Generation</h3>
-                  <p className="text-gray-300">Our AI creates compelling product titles, descriptions, and benefits that match your brand voice.</p>
+                  <p className="text-gray-300">Our AI creates compelling product titles, descriptions, and benefits.</p>
                 </div>
                 <div className="bg-slate-800/30 p-8 rounded-xl border border-slate-700/30 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 group">
                   <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
@@ -178,7 +178,7 @@ export default function Home() {
                 <span className="text-[#64ffda] font-semibold">BENEFITS</span>
                 <h2 className="text-4xl font-bold mt-2 text-white">Everything You Need to Launch Faster</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div className="bg-slate-800/30 backdrop-blur-sm p-8 rounded-xl border border-white/10">
                   <Zap className="w-10 h-10 text-[#64ffda] mb-4" />
                   <h3 className="text-2xl font-bold mb-2 text-white">Launch at Light Speed</h3>
@@ -193,11 +193,6 @@ export default function Home() {
                   <Rocket className="w-10 h-10 text-[#64ffda] mb-4" />
                   <h3 className="text-2xl font-bold mb-2 text-white">Elevate Your Brand</h3>
                   <p className="text-gray-400">Create stunning, professional-quality pages that build trust and make your brand look incredible, instantly.</p>
-                </div>
-                <div className="bg-slate-800/30 backdrop-blur-sm p-8 rounded-xl border border-white/10">
-                  <BrainCircuit className="w-10 h-10 text-[#64ffda] mb-4" />
-                  <h3 className="text-2xl font-bold mb-2 text-white">Train Your AI Brand Voice</h3>
-                  <p className="text-gray-400">Define your brand&#39;s unique tone, and our AI will generate content that is a perfect match for your business style.</p>
                 </div>
               </div>
             </div>
@@ -352,10 +347,9 @@ export default function Home() {
               <div className="space-y-6 max-w-4xl mx-auto">
                 {[
                   { question: "How does Mercury Pages extract product information from links?", answer: "Our advanced AI technology analyzes product URLs from over 100+ platforms including Amazon, AliExpress, eBay, and more. It extracts key details like product names, descriptions, images, and specifications to create comprehensive Shopify-ready pages." },
-                  { question: "Can I customize the AI-generated content?", answer: "You can train your AI brand voice by providing examples of your preferred tone and style. The AI will then generate content that matches your brand personality. You can also edit any generated content before exporting to Shopify." },
                   { question: "How long does it take to create a product page?", answer: "Mercury Pages can generate a complete product page in under 30 seconds. Simply paste your product link, and our AI will create optimized titles, descriptions, and content that's ready to publish to your Shopify store." },
                   { question: "Is there a limit to how many products I can import?", answer: "The Craftsman plan includes 5 product pages per month, perfect for getting started. The Artisan plan offers unlimited product pages, ideal for growing businesses that need to scale their product catalog quickly." },
-                  { question: "What happens to my data and brand voice training?", answer: "Your data is completely secure and encrypted. Brand voice profiles are stored safely in your account and can only be accessed by you. We never share your information with third parties, and you can delete your data at any time." },
+                  { question: "What happens to my data?", answer: "Your data is completely secure and encrypted. We never share your information with third parties." },
                   { question: "Can I cancel my subscription anytime?", answer: "Yes, you can cancel your subscription at any time. There are no long-term contracts or cancellation fees. If you cancel, you'll continue to have access to your plan features until the end of your current billing period." },
                 ].map((faq, index) => (
                     <div key={index} className="bg-gray-800/30 p-8 rounded-xl border border-white/10">
