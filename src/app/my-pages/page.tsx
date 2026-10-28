@@ -240,7 +240,7 @@ export default function MyPagesPage() {
     };
 
     return (
-        <div className="h-screen relative overflow-hidden bg-slate-950">
+        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#21182b]">
             {/* Background Effects */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"/>
             <div className="absolute inset-0 overflow-hidden">

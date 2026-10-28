@@ -244,7 +244,7 @@ export default function CRMDashboard() {
     }
 
     return (
-        <div className="h-screen relative overflow-hidden bg-slate-950">
+        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#21182b]">
             <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />

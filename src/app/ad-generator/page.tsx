@@ -147,7 +147,7 @@ export default function AdGeneratorPage() {
 
 
     return (
-        <div className="h-screen relative overflow-hidden bg-slate-950">
+        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#21182b]">
             <div className="relative z-10 flex h-screen">
                 <Sidebar />
                 <div className="flex-1 w-full h-full overflow-y-auto p-8">
