@@ -12,14 +12,14 @@ const poppins = Poppins({
 const CLIENT_ID = "26856400342-efo7b6dbhtfktefstohcqs9he4kg707k.apps.googleusercontent.com"
 
 export const metadata = {
-    title: 'Mercury Pages | AI Product Page Generator',
-    description: 'Deliver product pages at divine speed.',
+    title: 'Mercury Pages | Adaptive ecommerce creative',
+    description: 'Turn product links into distinctive storefronts and launch-ready creative with Mercury Pages.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
-        <body className={`${poppins.className} bg-[#111827] text-[#E5E7EB] antialiased`}>
+        <body className={`${poppins.className} bg-[#fcfafd] text-[#21182b] antialiased`}>
         <AuthProvider>
             <GoogleOAuthProvider clientId={(CLIENT_ID)}>
             {children}

@@ -1,42 +1,4 @@
-// FILE: src/components/Footer.tsx
-import React from 'react';
 import Link from 'next/link';
-import { Zap } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
-export const Footer = () => {
-    return (
-        <footer className="border-t border-white/10 mt-20">
-            <div className="container mx-auto px-8 py-12 grid md:grid-cols-4 gap-8">
-                <div className="flex flex-col gap-4">
-                    <Link href="/" className="flex items-center gap-2 text-xl font-bold">
-                        <Zap className="w-6 h-6 text-[#38BDF8]" />
-                        <span>Mercury Pages</span>
-                    </Link>
-                    <p className="text-gray-400 text-sm">Deliver product pages at divine speed.</p>
-                </div>
-                <div>
-                    <h3 className="font-bold mb-4">Product</h3>
-                    <ul className="space-y-2 text-gray-400">
-                        <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 className="font-bold mb-4">Company</h3>
-                    <ul className="space-y-2 text-gray-400">
-                        <li><Link href="#" className="hover:text-white">Contact</Link></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 className="font-bold mb-4">Legal</h3>
-                    <ul className="space-y-2 text-gray-400">
-                        <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-                        <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
-                    </ul>
-                </div>
-            </div>
-            <div className="text-center py-4 border-t border-white/10 text-gray-500 text-sm">
-                © {new Date().getFullYear()} Mercury Pages. All rights reserved.
-            </div>
-        </footer>
-    );
-};
+export const Footer = () => <footer className="border-t border-[#eae2f0] bg-white"><div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[2fr_1fr_1fr_1fr] lg:px-10"><div><Link href="/" className="flex items-center gap-2 font-bold text-[#21182b]"><span className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#e83ead] to-[#6425c7] text-white"><Sparkles className="size-4" /></span>Mercury Pages</Link><p className="mt-4 max-w-xs text-sm leading-6 text-[#766b80]">The adaptive creative workspace for ecommerce founders who care about the details.</p></div><div><h3 className="mb-4 text-sm font-semibold text-[#21182b]">Product</h3><div className="flex flex-col gap-3 text-sm text-[#766b80]"><Link href="/crm-dashboard">Workspace</Link><Link href="/ad-generator">Ad studio</Link><Link href="/pricing">Pricing</Link></div></div><div><h3 className="mb-4 text-sm font-semibold text-[#21182b]">Company</h3><div className="flex flex-col gap-3 text-sm text-[#766b80]"><Link href="/#workflow">How it works</Link><Link href="/privacy">Privacy</Link></div></div><div><h3 className="mb-4 text-sm font-semibold text-[#21182b]">Get started</h3><Link href="/signup" className="text-sm font-semibold text-[#6425c7]">Create your first page <span aria-hidden="true">→</span></Link></div></div><div className="border-t border-[#eae2f0] px-6 py-5 text-center text-xs text-[#766b80]">© {new Date().getFullYear()} Mercury Pages. Built for better product stories.</div></footer>;
