@@ -1,15 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f5f2;
+  --background: #fcfafd;
   --foreground: #21182b;
-  --muted: #746d75;
-  --border: #ded9d5;
+  --muted: #766b80;
+  --border: #eae2f0;
   --surface: #ffffff;
-  --surface-soft: #fbfaf9;
-  --fuchsia: #c12686;
+  --surface-soft: #f9f2f8;
+
+  /* Brand palette */
+  --fuchsia: #e83ead;
+  --fuchsia-soft: #f7e4f3;
   --purple: #6425c7;
-  --plum: #211329;
+  --purple-soft: #efe6fa;
+  --plum: #21182b;
+  --lavender: #f9f2f8;
+  --lavender-deep: #f1e7fa;
+
+  /* Semantic accents */
+  --success: #1f9d6f;
+  --warning: #d99a2b;
+  --error: #d4506a;
+  --info: #5b7cf0;
 }
 
 @theme inline {
@@ -17,6 +29,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-dm-sans);
   --font-mono: var(--font-geist-mono);
+  --color-fuchsia: var(--fuchsia);
+  --color-purple: var(--purple);
+  --color-plum: var(--plum);
+  --color-lavender: var(--lavender);
 }
 
 * { border-color: var(--border); }
@@ -29,5 +45,18 @@ body {
 }
 ::selection { background: #f3b7df; color: #43206f; }
 
+/* Custom scrollbar for the brand theme */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ead7ec; border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #d6b9df; background-clip: padding-box; }
+
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 .animate-float { animation: float 6s ease-in-out infinite; }
+
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(232, 62, 173, 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}

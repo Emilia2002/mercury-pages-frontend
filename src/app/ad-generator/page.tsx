@@ -14,14 +14,15 @@ import {
     Square,
     RectangleHorizontal,
     RectangleVertical,
+    Target,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { useAuth } from "@/contexts/AuthContext"
 
 const BRAND_PALETTE = {
-    primary: "#6366f1", // Indigo
-    secondary: "#f43f5e", // Rose
-    accent: "#06b6d4", // Cyan
+    primary: "#e83ead",
+    secondary: "#6425c7",
+    accent: "#21182b",
 }
 
 interface Product { id: string; title: string; description: string; price: string; images: string[]; category: string }
@@ -92,7 +93,7 @@ export default function AdGeneratorPage() {
             const completedAdSet = { ...newAdSet, status: "ready" as const, variations: [
                     { id: `${newAdSet.id}-var1`, headline: `Transform Your Life with ${productTitle}`, description: `Experience the difference. ${productDescription}`, cta: "Shop Now & Get 20% Off", template: "Product Showcase" },
                     { id: `${newAdSet.id}-var2`, headline: `Elevate Your Daily Routine`, description: `Discover premium quality with ${productTitle}.`, cta: "Discover More", template: "Lifestyle Focus" },
-                    { id: `${newAdSet.id}-var3`, headline: `Final Hours: Don’t Miss Out!`, description: `This exclusive offer on ${productTitle} ends tonight!`, cta: "Claim Your Offer", template: "Promotional" },
+                    { id: `${newAdSet.id}-var3`, headline: `Final Hours: Don\u2019t Miss Out!`, description: `This exclusive offer on ${productTitle} ends tonight!`, cta: "Claim Your Offer", template: "Promotional" },
                 ]}
             setGeneratedAdSets([completedAdSet])
             setIsGenerating(false)
@@ -103,10 +104,8 @@ export default function AdGeneratorPage() {
         const element = document.getElementById(`ad-preview-${variation.id}`)
         if (!element) return alert("Ad preview not found")
 
-        // Detect mobile early
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 
-        // Important: open window immediately on mobile (before await)
         let newWindow: Window | null = null
         if (isMobile) {
             newWindow = window.open("", "_blank")
@@ -117,12 +116,10 @@ export default function AdGeneratorPage() {
             newWindow.document.write("<p>Generating preview...</p>")
         }
 
-        // Wait a moment to stabilize DOM
         await new Promise(res => setTimeout(res, 100))
 
-        // Use smaller scale on mobile
         const canvas = await html2canvas(element, {
-            backgroundColor: "#111827",
+            backgroundColor: "#21182b",
             useCORS: true,
             scale: isMobile ? 1 : 2,
         })
@@ -130,12 +127,10 @@ export default function AdGeneratorPage() {
         const dataUrl = canvas.toDataURL("image/png")
 
         if (isMobile) {
-            // Inject image into pre-opened tab
             if (newWindow) {
                 newWindow.document.body.innerHTML = `<img src="${dataUrl}" alt="Ad Image" style="width:100%;height:auto;">`
             }
         } else {
-            // Desktop: trigger file download
             const link = document.createElement("a")
             link.href = dataUrl
             link.download = `${variation.headline.replace(/\s+/g, "_")}.png`
@@ -145,114 +140,151 @@ export default function AdGeneratorPage() {
         }
     }
 
-
     return (
-        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#2b1834]">
-            <div className="relative z-10 flex min-h-screen">
+        <div className="min-h-screen bg-[#fcfafd] text-[#21182b]">
+            <div className="flex h-screen">
                 <Sidebar />
-                <div className="flex-1 w-full h-full overflow-y-auto p-8">
-
-                    {/* Header */}
-                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-                        <Card className=" bg-[#fffdfb] border border-[#ead7ec] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
+                <div className="flex-1 w-full h-full overflow-y-auto">
+                    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
+                        {/* Header */}
+                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-3xl font-bold text-[#2b1834]">AI Ad Generator</h2>
-                                    <p className="text-[#8b718e]">Auto-generate ready-to-use ads from your extracted products</p>
+                                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Creative</p>
+                                    <h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#21182b] sm:text-4xl">Ad Creative Studio</h1>
+                                    <p className="mt-2 text-[#766b80]">Auto-generate ready-to-use ads from your extracted products.</p>
                                 </div>
-                                <Badge className="bg-pink-500 text-[#2b1834] text-xs flex items-center space-x-1">
-                                    <Sparkles className="h-3 w-3" />
-                                    <span>Auto-Generated</span>
+                                <Badge className="bg-[#f7e4f3] text-[#8e267e] border-0">
+                                    <Sparkles className="mr-1 size-3" />
+                                    Auto-Generated
                                 </Badge>
                             </div>
-                        </Card>
-                    </motion.div>
+                        </motion.div>
 
-                    {/* Products */}
-                    {jobs.length > 0 && (
-                        <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] rounded-3xl p-6 mb-6">
-                            <h3 className="text-xl text-[#2b1834] mb-4">Select a Product</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {jobs.map(job => (
-                                    <Card key={job._id} className={`cursor-pointer p-4 ${selectedProduct?._id === job._id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleProductSelect(job)}>
-                                        <img src={job.result?.thumbnail || job.result?.images?.[0] || "/placeholder.svg"} alt="" className="w-full h-32 object-cover rounded-lg mb-2" />
-                                        <h4 className="text-[#2b1834] font-medium text-sm">{job.result?.new_title || job.result?.original_title || "Untitled"}</h4>
-                                        <p className="text-[#8b718e] text-xs line-clamp-2">{job.result?.description}</p>
-                                    </Card>
-                                ))}
+                        {/* Products */}
+                        {jobs.length > 0 && (
+                            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="mt-8">
+                                <h3 className="mb-4 text-lg font-semibold tracking-[-0.02em] text-[#21182b]">Select a product</h3>
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    {jobs.map(job => (
+                                        <Card
+                                            key={job._id}
+                                            className={`cursor-pointer overflow-hidden rounded-2xl border transition-all ${selectedProduct?._id === job._id ? "border-[#e83ead] bg-[#f7e4f3] shadow-md" : "border-[#eae2f0] bg-white hover:border-[#d6b9df] hover:shadow-sm"}`}
+                                            onClick={() => handleProductSelect(job)}
+                                        >
+                                            <div className="h-32 overflow-hidden bg-[#f9f2f8]">
+                                                <img src={job.result?.thumbnail || job.result?.images?.[0] || "/placeholder.png"} alt="" className="h-full w-full object-cover" onError={(e) => (e.currentTarget.src = '/placeholder.png')} />
+                                            </div>
+                                            <div className="p-4">
+                                                <h4 className="line-clamp-1 text-sm font-semibold text-[#21182b]">{job.result?.new_title || job.result?.original_title || "Untitled"}</h4>
+                                                <p className="mt-1 line-clamp-2 text-xs text-[#766b80]">{job.result?.description}</p>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {loadingJobs && (
+                            <div className="mt-8 flex flex-col items-center py-12 text-[#aa97b0]">
+                                <div className="size-8 rounded-full border-2 border-[#e83ead] border-t-transparent animate-spin" />
+                                <p className="mt-3 text-sm">Loading your products...</p>
                             </div>
-                        </Card>
-                    )}
+                        )}
 
-                    {/* Ad Formats */}
-                    {selectedProduct && (
-                        <Card className="bg-slate-900/80 border border-pink-500/30 rounded-3xl p-6 mb-6">
-                            <h3 className="text-xl text-[#2b1834] mb-4">Choose an Ad Format</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                {adFormats.map(format => (
-                                    <Card key={format.id} className={`cursor-pointer p-4 flex items-center space-x-4 ${selectedFormat?.id === format.id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleFormatSelect(format)}>
-                                        <div style={{ backgroundColor: "rgba(99,102,241,0.2)" }} className="p-3 rounded-full">
-                                            <format.icon className="w-6 h-6" style={{ color: BRAND_PALETTE.primary }} />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-[#2b1834] font-medium">{format.name}</h4>
-                                            <p className="text-slate-400 text-sm">{format.platform}</p>
-                                        </div>
-                                    </Card>
-                                ))}
-                            </div>
-                        </Card>
-                    )}
-
-                    {/* Generate Ads */}
-                    {selectedProduct && selectedFormat && (
-                        <div className="text-center mb-6">
-                            <Button onClick={generateAds} disabled={isGenerating} size="lg" className="bg-gradient-to-r from-pink-500 to-purple-500 text-[#2b1834] px-8 py-2">
-                                <Wand2 className="mr-2 h-5 w-5" />
-                                {isGenerating ? "Generating..." : "Generate Ads"}
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </div>
-                    )}
-
-                    {/* Generated Ads */}
-                    {generatedAdSets.map(adSet => (
-                        <Card key={adSet.id} className="bg-slate-900/80 border border-pink-500/30 rounded-3xl p-6 mb-6">
-                            <h3 className="text-xl text-[#2b1834] mb-4 flex items-center"><Sparkles className="mr-2 h-5 w-5 text-pink-400" />Your AI-Generated Ads</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {adSet.variations.map((variation) => (
-                                    <Card key={variation.id} className="bg-slate-800/80 border border-slate-600 rounded-xl p-4 flex flex-col">
-                                        {/* Reverted to clean Tailwind classes */}
-                                        <Badge className="bg-purple-500/20 text-purple-400 text-xs mb-2">
-                                            {variation.template}
-                                        </Badge>
-
-                                        {/* Reverted to clean Tailwind classes */}
-                                        <div id={`ad-preview-${variation.id}`} className="bg-slate-900 rounded-lg p-3 flex-1">
-
-                                            {/* Reverted to clean Tailwind gradient classes */}
-                                            <div className={`bg-gradient-to-br from-slate-700 to-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden ${adSet.format.aspectRatio === "1:1" ? "aspect-square" : adSet.format.aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
-                                                <img src={adSet.product.images[0] || "/placeholder.svg"} alt="Ad preview" className="w-full h-full object-cover" />
-
-                                                {/* Reverted to clean Tailwind gradient classes */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-                                                <div className="absolute bottom-4 left-4 right-4">
-                                                    <h4 className="text-[#2b1834] font-bold text-sm mb-1 line-clamp-2">{variation.headline}</h4>
-                                                    <p className="text-slate-200 text-xs mb-2 line-clamp-3">{variation.description}</p>
-                                                    <Button size="sm" className="bg-white text-black text-xs px-3 py-1 rounded-full">{variation.cta}</Button>
+                        {/* Ad Formats */}
+                        {selectedProduct && (
+                            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="mt-8">
+                                <h3 className="mb-4 text-lg font-semibold tracking-[-0.02em] text-[#21182b]">Choose an ad format</h3>
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                    {adFormats.map(format => (
+                                        <Card
+                                            key={format.id}
+                                            className={`cursor-pointer rounded-2xl border p-4 transition-all ${selectedFormat?.id === format.id ? "border-[#6425c7] bg-[#efe6fa] shadow-md" : "border-[#eae2f0] bg-white hover:border-[#d6b9df] hover:shadow-sm"}`}
+                                            onClick={() => handleFormatSelect(format)}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex size-10 items-center justify-center rounded-xl bg-white text-[#6425c7] shadow-sm">
+                                                    <format.icon className="size-5" />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-[#21182b]">{format.name}</h4>
+                                                    <p className="text-xs text-[#aa97b0]">{format.platform}</p>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <Button size="sm" className="mt-2 w-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" onClick={() => exportAdVariation(adSet, variation)}>
-                                            <Download className="mr-1 h-3 w-3" />Export Ad
-                                        </Button>
-                                    </Card>
-                                ))}
-                            </div>
-                        </Card>
-                    ))}
+                                        </Card>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
 
+                        {/* Generate button */}
+                        {selectedProduct && selectedFormat && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 text-center">
+                                <Button onClick={generateAds} disabled={isGenerating} className="h-12 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-8 text-sm font-semibold text-white shadow-lg shadow-[#6425c7]/20 transition hover:opacity-90 hover:scale-[1.01] disabled:opacity-60">
+                                    <Wand2 className="mr-2 size-5" />
+                                    {isGenerating ? "Generating..." : "Generate Ads"}
+                                    <ArrowRight className="ml-2 size-4" />
+                                </Button>
+                            </motion.div>
+                        )}
+
+                        {/* Generated Ads */}
+                        {generatedAdSets.map(adSet => (
+                            <motion.div key={adSet.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mt-8">
+                                <Card className="rounded-3xl border border-[#eae2f0] bg-white p-6 shadow-sm">
+                                    <h3 className="mb-4 flex items-center text-lg font-semibold tracking-[-0.02em] text-[#21182b]">
+                                        <Sparkles className="mr-2 size-5 text-[#e83ead]" />
+                                        Your AI-Generated Ads
+                                    </h3>
+                                    {adSet.status === "generating" ? (
+                                        <div className="flex flex-col items-center py-12 text-[#aa97b0]">
+                                            <div className="size-8 rounded-full border-2 border-[#e83ead] border-t-transparent animate-spin" />
+                                            <p className="mt-3 text-sm">Creating ad variations...</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                                            {adSet.variations.map((variation) => (
+                                                <Card key={variation.id} className="flex flex-col rounded-2xl border border-[#eae2f0] bg-[#f9f2f8] p-4">
+                                                    <Badge className="mb-3 w-fit bg-[#efe6fa] text-[#6425c7] border-0 text-xs">
+                                                        {variation.template}
+                                                    </Badge>
+                                                    <div id={`ad-preview-${variation.id}`} className="flex-1 overflow-hidden rounded-xl">
+                                                        <div className={`relative flex items-center justify-center overflow-hidden rounded-xl ${adSet.format.aspectRatio === "1:1" ? "aspect-square" : adSet.format.aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"}`}>
+                                                            <img src={adSet.product.images[0] || "/placeholder.png"} alt="Ad preview" className="h-full w-full object-cover" onError={(e) => (e.currentTarget.src = '/placeholder.png')} />
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-[#21182b]/80 via-[#21182b]/20 to-transparent" />
+                                                            <div className="absolute bottom-4 left-4 right-4">
+                                                                <h4 className="line-clamp-2 text-sm font-bold text-white">{variation.headline}</h4>
+                                                                <p className="mt-1 line-clamp-3 text-xs text-white/80">{variation.description}</p>
+                                                                <span className="mt-2 inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#21182b]">{variation.cta}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <Button size="sm" className="mt-3 w-full bg-[#21182b] text-white hover:bg-[#6425c7]" onClick={() => exportAdVariation(adSet, variation)}>
+                                                        <Download className="mr-1 size-3.5" /> Export Ad
+                                                    </Button>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    )}
+                                </Card>
+                            </motion.div>
+                        ))}
+
+                        {/* Empty hint */}
+                        {jobs.length === 0 && !loadingJobs && (
+                            <div className="mt-12 flex flex-col items-center py-16 text-center">
+                                <div className="flex size-16 items-center justify-center rounded-2xl bg-[#f9f2f8] text-[#6425c7]">
+                                    <Target className="size-8" />
+                                </div>
+                                <h3 className="mt-4 text-lg font-semibold text-[#21182b]">No products yet</h3>
+                                <p className="mt-1 text-sm text-[#aa97b0]">Generate a product page first, then come back to create ads.</p>
+                                <Button onClick={() => window.location.href = '/crm-dashboard'} className="mt-6 h-10 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] text-white">
+                                    Go to Dashboard <ArrowRight className="ml-1 size-4" />
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

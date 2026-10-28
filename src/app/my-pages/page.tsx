@@ -19,6 +19,7 @@ import {
     ShoppingBag,
     Calendar,
     Sparkles,
+    ArrowRight,
 } from "lucide-react"
 import {useAuth} from "@/contexts/AuthContext";
 
@@ -49,26 +50,26 @@ interface Job {
 const statusConfig = {
     completed: {
         icon: CheckCircle,
-        color: "text-emerald-400",
-        bg: "bg-emerald-500/20",
+        color: "text-[#1f9d6f]",
+        bg: "bg-[#e6f6f0]",
         label: "Completed",
     },
     processing: {
         icon: Loader,
-        color: "text-cyan-400",
-        bg: "bg-cyan-500/20",
+        color: "text-[#6425c7]",
+        bg: "bg-[#efe6fa]",
         label: "Processing",
     },
     pending: {
         icon: Clock,
-        color: "text-yellow-400",
-        bg: "bg-yellow-500/20",
+        color: "text-[#d99a2b]",
+        bg: "bg-[#fbf1e2]",
         label: "Pending",
     },
     failed: {
         icon: XCircle,
-        color: "text-red-400",
-        bg: "bg-red-500/20",
+        color: "text-[#d4506a]",
+        bg: "bg-[#fce8ec]",
         label: "Failed",
     },
 }
@@ -81,7 +82,6 @@ export default function MyPagesPage() {
     const [sortBy, setSortBy] = useState("newest")
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loadingJobs, setLoadingJobs] = useState(true);
-    const [job] = useState<Job | null>(null);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
     useEffect(() => {
@@ -97,9 +97,7 @@ export default function MyPagesPage() {
             const response = await fetch(`${API_BASE_URL}/jobs`, {
                 headers: {Authorization: `Bearer ${auth.token}`},
             });
-
             if (!response.ok) throw new Error(`Failed to fetch jobs: ${response.status}`);
-
             const data = await response.json();
             setJobs(data as Job[]);
         } catch (err) {
@@ -123,7 +121,7 @@ export default function MyPagesPage() {
 
         if (sortBy === 'oldest') {
             filtered = filtered.sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
-        } else { // default to newest
+        } else {
             filtered = filtered.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
         }
 
@@ -150,7 +148,6 @@ export default function MyPagesPage() {
 
         const updatedJobs = jobs.map(job => {
             if (job._id === selectedJob._id) {
-
                 return {
                     ...job,
                     result: {
@@ -178,11 +175,9 @@ export default function MyPagesPage() {
         });
     };
 
-
     const handleExportToShopify = async (job: Job) => {
         if (!auth.token) {
             setExportError('No auth token.');
-            console.log("Auth token missing");
             return;
         }
 
@@ -221,16 +216,13 @@ export default function MyPagesPage() {
             setExportSuccess(true);
             fetchJobs();
             alert("Product exported to Shopify successfully!");
-        }
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        catch (error: any) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        } catch (error: any) {
             console.error('Error during Shopify export:', error);
             if (error.message.includes('Shopify credentials not set')) {
                 alert("Shopify credentials not set. Please connect your Shopify store.");
                 router.push('/integrations-shopify');
-            }
-
-            else {
+            } else {
                 alert("There has been a problem exporting to Shopify. Please try again.");
             }
             setExportError(error instanceof Error ? error.message : 'Unknown error during export.');
@@ -240,83 +232,59 @@ export default function MyPagesPage() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#2b1834]">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-[#f7f5f2]"/>
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse"/>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000"/>
-                <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000"/>
-            </div>
-
-            <div className="relative z-20 flex h-screen">
+        <div className="min-h-screen bg-[#fcfafd] text-[#21182b]">
+            <div className="flex h-screen">
                 <Sidebar/>
-            <div className="flex-1 w-full h-full overflow-y-auto p-8">
+                <div className="flex-1 w-full h-full overflow-y-auto">
+                    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
                         {/* Header */}
-                        <Card
-                            className="backdrop-blur-xl bg-[#fffdfb] border border-[#ead7ec] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
+                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-3xl font-bold text-[#2b1834] bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text">
-                                        My Pages
-                                    </h2>
-                                    <p className="text-[#8b718e]">Manage your generated product pages and track
-                                        performance</p>
+                                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Library</p>
+                                    <h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#21182b] sm:text-4xl">My Pages</h1>
+                                    <p className="mt-2 text-[#766b80]">Manage your generated product pages and track performance.</p>
                                 </div>
-                                <div className="flex items-center space-x-4">
-                                    <Badge className="bg-pink-500/20 text-pink-100 border border-pink-500/30">
-                                        <Sparkles className="mr-1 h-3 w-3"/>
-                                        Auto-Generated
-                                    </Badge>
-                                </div>
+                                <Badge className="bg-[#f7e4f3] text-[#8e267e] border-0">
+                                    <Sparkles className="mr-1 size-3" />
+                                    Auto-Generated
+                                </Badge>
                             </div>
-                        </Card>
+                        </motion.div>
 
-                        {/* Stats Overview */}
-                        <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.1}}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
-                        >
-                            <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] p-6 rounded-2xl">
+                        {/* Stats */}
+                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="mt-8 grid grid-cols-2 gap-4">
+                            <Card className="rounded-2xl border border-[#eae2f0] bg-white p-5 shadow-sm">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-slate-400 text-sm">Total Pages</p>
-                                        <p className="text-2xl font-bold text-[#2b1834]">{totalPages}</p>
+                                        <p className="text-xs font-medium text-[#766b80]">Total Pages</p>
+                                        <p className="mt-1 text-2xl font-bold tracking-[-0.03em] text-[#21182b]">{totalPages}</p>
                                     </div>
-                                    <div className="p-3 bg-cyan-500/20 rounded-lg">
-                                        <ShoppingBag className="w-6 h-6 text-cyan-400"/>
+                                    <div className="flex size-10 items-center justify-center rounded-xl bg-[#f7e4f3] text-[#e83ead]">
+                                        <ShoppingBag className="size-5" />
                                     </div>
                                 </div>
                             </Card>
-
-                            <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] p-6 rounded-2xl">
+                            <Card className="rounded-2xl border border-[#eae2f0] bg-white p-5 shadow-sm">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-slate-400 text-sm">Completed</p>
-                                        <p className="text-2xl font-bold text-[#2b1834]">{completedPages}</p>
+                                        <p className="text-xs font-medium text-[#766b80]">Completed</p>
+                                        <p className="mt-1 text-2xl font-bold tracking-[-0.03em] text-[#21182b]">{completedPages}</p>
                                     </div>
-                                    <div className="p-3 bg-emerald-500/20 rounded-lg">
-                                        <CheckCircle className="w-6 h-6 text-emerald-400"/>
+                                    <div className="flex size-10 items-center justify-center rounded-xl bg-[#e6f6f0] text-[#1f9d6f]">
+                                        <CheckCircle className="size-5" />
                                     </div>
                                 </div>
                             </Card>
                         </motion.div>
 
-                        {/* Filters and Search */}
-                        <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{delay: 0.2}}
-                            className="mb-8"
-                        >
-                            <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] p-6 rounded-2xl">
-                                <div className="flex flex-col md:flex-row gap-4">
+                        {/* Filters */}
+                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="mt-6">
+                            <Card className="rounded-2xl border border-[#eae2f0] bg-white p-5 shadow-sm">
+                                <div className="flex flex-col gap-3 md:flex-row">
                                     <div className="flex-1">
                                         <div className="relative">
-                                            <Search
-                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"/>
+                                            <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#aa97b0]" />
                                             <Input
                                                 placeholder="Search pages by title or category..."
                                                 value={searchTerm}
@@ -325,12 +293,11 @@ export default function MyPagesPage() {
                                             />
                                         </div>
                                     </div>
-
-                                    <div className="flex gap-4">
+                                    <div className="flex gap-3">
                                         <select
                                             value={statusFilter}
                                             onChange={(e) => setStatusFilter(e.target.value)}
-                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-[#2b1834] focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                                            className="h-10 rounded-xl border border-[#eae2f0] bg-white px-3 text-sm text-[#21182b] focus:outline-none focus:ring-2 focus:ring-[#e83ead]/20 focus:border-[#e83ead]"
                                         >
                                             <option value="all">All Status</option>
                                             <option value="completed">Completed</option>
@@ -338,11 +305,10 @@ export default function MyPagesPage() {
                                             <option value="pending">Pending</option>
                                             <option value="failed">Failed</option>
                                         </select>
-
                                         <select
                                             value={sortBy}
                                             onChange={(e) => setSortBy(e.target.value)}
-                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-[#2b1834] focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                                            className="h-10 rounded-xl border border-[#eae2f0] bg-white px-3 text-sm text-[#21182b] focus:outline-none focus:ring-2 focus:ring-[#e83ead]/20 focus:border-[#e83ead]"
                                         >
                                             <option value="newest">Newest First</option>
                                             <option value="oldest">Oldest First</option>
@@ -352,17 +318,12 @@ export default function MyPagesPage() {
                             </Card>
                         </motion.div>
 
-                        {/* Pages Grid */}
-                        <motion.div
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            transition={{delay: 0.3}}
-                            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-                        >
+                        {/* Pages grid */}
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
                             {loadingJobs && (
-                                <div className="col-span-full text-center py-12 text-slate-400 flex flex-col items-center">
-                                    <Loader className="w-8 h-8 animate-spin mb-3 text-cyan-500"/>
-                                    Fetching your pages...
+                                <div className="col-span-full flex flex-col items-center py-16 text-[#aa97b0]">
+                                    <div className="size-8 rounded-full border-2 border-[#e83ead] border-t-transparent animate-spin" />
+                                    <p className="mt-3 text-sm">Fetching your pages...</p>
                                 </div>
                             )}
 
@@ -370,87 +331,49 @@ export default function MyPagesPage() {
                                 const statusKey = page.status as keyof typeof statusConfig;
                                 const StatusIcon = statusConfig[statusKey]?.icon || Clock;
                                 const result = page.result || {};
-                                const displayTitle = result.new_title ||  "Untitled Product Page";
-                                const thumbnail = result.thumbnail || result.images?.[0] || '/placeholder-image.png';
-
+                                const displayTitle = result.new_title || result.title || "Untitled Product Page";
+                                const thumbnail = result.thumbnail || result.images?.[0] || '/placeholder.png';
                                 return (
-                                    <motion.div
-                                        key={page._id}
-                                        initial={{opacity: 0, y: 20}}
-                                        animate={{opacity: 1, y: 0}}
-                                        transition={{delay: 0.1 * index}}
-                                    >
-                                        <Card
-                                            className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] hover:border-cyan-500/50 transition-all duration-300 group rounded-3xl">
-                                            {/* Thumbnail */}
-                                            <div className="relative h-48 overflow-hidden rounded-t-3xl">
-                                                <img
-                                                    src={thumbnail}
-                                                    alt={displayTitle}
-                                                    className="c"
-                                                />
-                                                <div className="absolute top-4 right-4">
-                                                    <Badge
-                                                        className={`${statusConfig[statusKey].bg} ${statusConfig[statusKey].color} border-0`}
-                                                    >
-                                                        <StatusIcon className="w-3 h-3 mr-1"/>
+                                    <motion.div key={page._id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * index }}>
+                                        <Card className="group overflow-hidden rounded-2xl border border-[#eae2f0] bg-white shadow-sm transition hover:border-[#d6b9df] hover:shadow-[0_18px_50px_rgba(77,33,91,0.08)]">
+                                            <div className="relative h-44 overflow-hidden bg-[#f9f2f8]">
+                                                <img src={thumbnail} alt={displayTitle} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" onError={(e) => (e.currentTarget.src = '/placeholder.png')} />
+                                                <div className="absolute right-3 top-3">
+                                                    <Badge className={`${statusConfig[statusKey].bg} ${statusConfig[statusKey].color} border-0`}>
+                                                        <StatusIcon className="mr-1 size-3" />
                                                         {statusConfig[statusKey].label}
                                                     </Badge>
                                                 </div>
                                                 {page.exported && (
-                                                    <div className="absolute top-4 left-4">
-                                                        <Badge className="bg-emerald-500/20 text-emerald-400 border-0">
-                                                            <ShoppingBag className="w-3 h-3 mr-1"/>
+                                                    <div className="absolute left-3 top-3">
+                                                        <Badge className="bg-[#e6f6f0] text-[#1f9d6f] border-0">
+                                                            <ShoppingBag className="mr-1 size-3" />
                                                             Exported
                                                         </Badge>
                                                     </div>
                                                 )}
                                             </div>
-
-                                            {/* Content */}
-                                            <div className="p-6">
-                                                <div className="mb-4">
-                                                    <h3 className="text-lg font-semibold text-[#2b1834] mb-2 line-clamp-2">{displayTitle}</h3>
-                                                    <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
-                                                        {page.result?.description}
-                                                    </div>
-                                                    <div
-                                                        className="flex items-center gap-2 text-sm text-slate-400 mb-2">
-                                                        <Calendar className="w-4 h-4"/>
-                                                        {new Date(page.created_at || '').toLocaleDateString()}
-                                                    </div>
-                                                    <Badge variant="outline" className="text-xs text-[#2b1834]">
-                                                        {result.category || 'Uncategorized'}
-                                                    </Badge>
+                                            <div className="p-5">
+                                                <h3 className="line-clamp-2 text-base font-semibold text-[#21182b]">{displayTitle}</h3>
+                                                {result.description && (
+                                                    <p className="mt-1 line-clamp-2 text-sm text-[#766b80]" dangerouslySetInnerHTML={{ __html: result.description }} />
+                                                )}
+                                                <div className="mt-3 flex items-center gap-2 text-xs text-[#aa97b0]">
+                                                    <Calendar className="size-3.5" />
+                                                    {page.created_at ? new Date(page.created_at).toLocaleDateString() : '—'}
                                                 </div>
-
-                                                {/*/!* Stats *!/*/}
-                                                {/*{page.status === "completed" && (*/}
-                                                {/*    <div*/}
-                                                {/*        className="grid grid-cols-3 gap-4 mb-4 p-3 bg-slate-800/30 rounded-lg">*/}
-                                                {/*        /!*<div className="text-center">*!/*/}
-                                                {/*        /!*    <p className="text-xs text-slate-400">Views</p>*!/*/}
-                                                {/*        /!*    <p className="text-sm font-semibold text-[#2b1834]">{page.result?.views?.toLocaleString()}</p>*!/*/}
-                                                {/*        /!*</div>*!/*/}
-                                                {/*        /!*<div className="text-center">*!/*/}
-                                                {/*        /!*    <p className="text-xs text-slate-400">Conversions</p>*!/*/}
-                                                {/*        /!*    <p className="text-sm font-semibold text-[#2b1834]">{page.result?.conversions}</p>*!/*/}
-                                                {/*        /!*</div>*!/*/}
-                                                {/*        /!*<div className="text-center">*!/*/}
-                                                {/*        /!*    <p className="text-xs text-slate-400">Revenue</p>*!/*/}
-                                                {/*        /!*    <p className="text-sm font-semibold text-[#2b1834]">{page.result?.revenue}</p>*!/*/}
-                                                {/*        /!*</div>*!/*/}
-                                                {/*    </div>*/}
-                                                {/*)}*/}
-
-                                                {/* Actions */}
-                                                <div className="flex gap-2">
+                                                {result.category && (
+                                                    <Badge variant="outline" className="mt-3 text-xs text-[#21182b] border-[#eae2f0]">
+                                                        {result.category}
+                                                    </Badge>
+                                                )}
+                                                <div className="mt-4 flex gap-2">
                                                     {page.status === "completed" && (
                                                         <>
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
-                                                                className="bg-transparent text-[#2b1834] hover:text-[#2b1834]/80"
+                                                                className="border-[#eae2f0] bg-white text-[#21182b] hover:bg-[#f9f2f8] hover:text-[#8e267e]"
                                                                 onClick={() => {
                                                                     setSelectedJob(page);
                                                                     setEditForm({
@@ -463,157 +386,103 @@ export default function MyPagesPage() {
                                                                     setIsEditModalOpen(true);
                                                                 }}
                                                             >
-                                                                <Edit className="w-4 h-4" />
+                                                                <Edit className="size-4" />
                                                             </Button>
-
-                                                            <Button size="sm" variant="outline" className="bg-transparent text-[#2b1834] hover:text-[#2b1834]/80"
-                                                                    onClick={() => handleExportToShopify(page)}> <ExternalLink className="w-4 h-4"/>
+                                                            <Button size="sm" variant="outline" className="border-[#eae2f0] bg-white text-[#21182b] hover:bg-[#f9f2f8] hover:text-[#8e267e]" onClick={() => handleExportToShopify(page)}>
+                                                                <ExternalLink className="size-4" />
                                                             </Button>
-
-                                                            {/*{exportLoading && (*/}
-                                                            {/*    <div className="flex-1 bg-transparent text-green-400 flex items-center">*/}
-                                                            {/*        <Loader className="w-4 h-4 mr-1 animate-spin"/>*/}
-                                                            {/*        <span>Exporting to Shopify...</span>*/}
-                                                            {/*    </div>*/}
-                                                            {/*)}*/}
-                                                            {/*{exportSuccess && (*/}
-                                                            {/*    <div className="flex-1 bg-transparent text-emerald-400 flex items-center">*/}
-                                                            {/*        <CheckCircle className="w-4 h-4 mr-1"/>*/}
-                                                            {/*        <p>*/}
-                                                            {/*            Product has been successfully exported to shopify.*/}
-                                                            {/*        </p>*/}
-                                                            {/*    </div>*/}
-
-                                                            {/*)}*/}
                                                         </>
                                                     )}
-
                                                     {page.status === "failed" && (
-                                                        <Button size="sm"
-                                                                className="flex-1 bg-red-500/20 text-red-400 hover:bg-red-500/30">
-                                                            <XCircle className="w-4 h-4 mr-1"/>
+                                                        <Button size="sm" className="bg-[#fce8ec] text-[#d4506a] hover:bg-[#f9dde3]">
+                                                            <XCircle className="mr-1 size-4" />
                                                             Retry
                                                         </Button>
                                                     )}
-
                                                     {(page.status === "processing" || page.status === "pending") && (
-                                                        <Button size="sm" variant="outline"
-                                                                className="flex-1 bg-transparent" disabled>
-                                                            <Loader className="w-4 h-4 mr-1 animate-spin"/>
+                                                        <Button size="sm" variant="outline" disabled className="border-[#eae2f0] bg-white text-[#aa97b0]">
+                                                            <Loader className="mr-1 size-4 animate-spin" />
                                                             {page.status === "processing" ? "Processing..." : "In Queue"}
                                                         </Button>
                                                     )}
-
-                                                    {/*<Button size="sm" variant="outline"*/}
-                                                    {/*        className="text-red-400 hover:text-red-300 bg-transparent">*/}
-                                                    {/*    <Trash2 className="w-4 h-4"/>*/}
-                                                    {/*</Button>*/}
                                                 </div>
                                             </div>
                                         </Card>
                                     </motion.div>
-                                )
+                                );
                             })}
                         </motion.div>
 
-                        {/* Empty State */}
-                        {sortedPages.length === 0 && (
-                            <motion.div initial={{opacity: 0}} animate={{opacity: 1}} className="text-center py-12">
-                                <div
-                                    className="w-24 h-24 mx-auto mb-4 bg-slate-800/50 rounded-full flex items-center justify-center">
-                                    <ShoppingBag className="w-12 h-12 text-slate-400"/>
+                        {/* Empty state */}
+                        {!loadingJobs && sortedPages.length === 0 && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
+                                <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#f9f2f8] text-[#6425c7]">
+                                    <ShoppingBag className="size-8" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-[#2b1834] mb-2">No pages found</h3>
-                                <p className="text-slate-400 mb-6">
-                                    {searchTerm || statusFilter !== "all"
-                                        ? "Try adjusting your search or filters"
-                                        : "Start by generating your first product page"}
+                                <h3 className="mt-4 text-lg font-semibold text-[#21182b]">No pages found</h3>
+                                <p className="mt-1 text-sm text-[#aa97b0]">
+                                    {searchTerm || statusFilter !== "all" ? "Try adjusting your search or filters" : "Start by generating your first product page"}
                                 </p>
-                                <Button
-                                    className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600">
-                                    Generate New Page
+                                <Button onClick={() => router.push('/crm-dashboard')} className="mt-6 h-10 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] text-white">
+                                    Generate New Page <ArrowRight className="ml-1 size-4" />
                                 </Button>
                             </motion.div>
                         )}
                     </div>
+                </div>
+
+                {/* Edit modal */}
                 {isEditModalOpen && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-lg relative shadow-xl">
-                            <h3 className="text-xl font-semibold text-[#2b1834] mb-4">Edit Product Page</h3>
-
-                            <div className="space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#21182b]/40 backdrop-blur-sm p-4">
+                        <div className="w-full max-w-lg rounded-3xl border border-[#eae2f0] bg-white p-6 shadow-2xl">
+                            <h3 className="text-lg font-semibold text-[#21182b]">Edit Product Page</h3>
+                            <div className="mt-5 space-y-4">
                                 <div>
-                                    <label className="block text-slate-400 text-sm mb-1">Title</label>
-                                    <Input
-                                        value={editForm.new_title}
-                                        onChange={(e) => setEditForm({...editForm, new_title: e.target.value})}
-                                        placeholder="Product title"
-                                    />
+                                    <label className="mb-1 block text-xs font-medium text-[#766b80]">Title</label>
+                                    <Input value={editForm.new_title} onChange={(e) => setEditForm({...editForm, new_title: e.target.value})} placeholder="Product title" />
                                 </div>
-
                                 <div>
-                                    <label className="block text-slate-400 text-sm mb-1">Description</label>
+                                    <label className="mb-1 block text-xs font-medium text-[#766b80]">Description</label>
                                     <textarea
                                         value={editForm.description}
                                         onChange={(e) => setEditForm({...editForm, description: e.target.value})}
                                         placeholder="Product description"
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-[#2b1834] focus:outline-none"
+                                        className="w-full rounded-xl border border-[#eae2f0] bg-white px-3.5 py-2.5 text-sm text-[#21182b] placeholder:text-[#aa97b0] focus:outline-none focus:ring-2 focus:ring-[#e83ead]/20 focus:border-[#e83ead]"
                                         rows={4}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-slate-400 text-sm mb-1">Benefits</label>
+                                    <label className="mb-1 block text-xs font-medium text-[#766b80]">Benefits</label>
                                     <textarea
                                         value={editForm.benefits}
                                         onChange={(e) => setEditForm({...editForm, benefits: e.target.value})}
                                         placeholder="- First benefit...&#10;- Second benefit..."
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-[#2b1834] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition"
+                                        className="w-full rounded-xl border border-[#eae2f0] bg-white px-3.5 py-2.5 text-sm text-[#21182b]] placeholder:text-[#aa97b0] focus:outline-none focus:ring-2 focus:ring-[#e83ead]/20 focus:border-[#e83ead]"
                                         rows={5}
                                     />
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-slate-400 text-sm mb-1">Price</label>
-                                        <Input
-                                            type="text"
-                                            value={editForm.price}
-                                            onChange={(e) => setEditForm({...editForm, price: e.target.value})}
-                                            placeholder="0.00"
-                                        />
+                                        <label className="mb-1 block text-xs font-medium text-[#766b80]">Price</label>
+                                        <Input type="text" value={editForm.price} onChange={(e) => setEditForm({...editForm, price: e.target.value})} placeholder="0.00" />
                                     </div>
-
                                     <div>
-                                        <label className="block text-slate-400 text-sm mb-1">Category</label>
-                                        <Input
-                                            type="text"
-                                            value={editForm.category}
-                                            onChange={(e) => setEditForm({...editForm, category: e.target.value})}
-                                            placeholder="Category name"
-                                        />
+                                        <label className="mb-1 block text-xs font-medium text-[#766b80]">Category</label>
+                                        <Input type="text" value={editForm.category} onChange={(e) => setEditForm({...editForm, category: e.target.value})} placeholder="Category name" />
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="flex justify-end mt-6 space-x-3">
-                                <Button
-                                    variant="outline"
-                                    className="bg-transparent text-[#8b718e] hover:text-[#2b1834]"
-                                    onClick={() => setIsEditModalOpen(false)}
-                                >
+                            <div className="mt-6 flex justify-end gap-3">
+                                <Button variant="outline" className="border-[#eae2f0] bg-white text-[#766b80] hover:bg-[#f9f2f8] hover:text-[#21182b]" onClick={() => setIsEditModalOpen(false)}>
                                     Cancel
                                 </Button>
-                                <Button
-                                    className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
-                                    onClick={() => handleSaveEdit()}
-                                >
+                                <Button className="bg-gradient-to-r from-[#e83ead] to-[#6425c7] text-white hover:opacity-90" onClick={() => handleSaveEdit()}>
                                     Save Changes
                                 </Button>
                             </div>
                         </div>
                     </div>
                 )}
-
             </div>
         </div>
     )

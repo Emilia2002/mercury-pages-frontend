@@ -4,13 +4,23 @@ import React, {useEffect, useState, useCallback} from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import Sidebar from '@/components/SidebarNew'
 import {
     Globe,
-    Link,
+    Link as LinkIcon,
     Sparkles,
     ShoppingBag,
     Brain,
+    ArrowRight,
+    Wand2,
+    CheckCircle,
+    Loader,
+    Clock,
+    XCircle,
+    TrendingUp,
+    FileText,
+    Target,
 } from "lucide-react"
 import {useAuth} from "@/contexts/AuthContext";
 import {useRouter} from "next/navigation";
@@ -45,6 +55,22 @@ interface Job {
     result?: JobResult;
 }
 
+interface BackendJob {
+    _id: string;
+    url: string;
+    status: string;
+    created_at?: string;
+    error?: string;
+    result?: JobResult;
+}
+
+const statusConfig: Record<string, { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string; color: string; bg: string }> = {
+    completed: { icon: CheckCircle, label: "Completed", color: "text-[#1f9d6f]", bg: "bg-[#e6f6f0]" },
+    processing: { icon: Loader, label: "Processing", color: "text-[#6425c7]", bg: "bg-[#efe6fa]" },
+    pending: { icon: Clock, label: "Pending", color: "text-[#d99a2b]", bg: "bg-[#fbf1e2]" },
+    failed: { icon: XCircle, label: "Failed", color: "text-[#d4506a]", bg: "bg-[#fce8ec]" },
+}
+
 export default function CRMDashboard() {
     const auth = useAuth();
     const router = useRouter();
@@ -66,27 +92,14 @@ export default function CRMDashboard() {
         }
     }, [auth.isLoading, auth.isAuthenticated, router]);
 
-    interface BackendJob {
-        _id: string;
-        url: string;
-        status: string;
-        created_at?: string;
-        error?: string;
-        result?: JobResult;
-    }
-
     const fetchJobs = useCallback(async () => {
         if (!auth.token) return;
-
         try {
             const response = await fetch(`${API_BASE_URL}/jobs`, {
                 headers: {Authorization: `Bearer ${auth.token}`},
             });
-
             if (!response.ok) throw new Error(`Failed to fetch jobs: ${response.status}`);
-
             const data: BackendJob[] = await response.json();
-
             const jobsWithId: Job[] = data.map((job) => ({
                 id: job._id,
                 url: job.url,
@@ -95,7 +108,6 @@ export default function CRMDashboard() {
                 error: job.error,
                 result: job.result,
             }));
-
             setJobs(jobsWithId);
         } catch (err) {
             console.error('Error fetching jobs:', err);
@@ -139,17 +151,13 @@ export default function CRMDashboard() {
             setExtractedData(data);
             setUrl('');
             fetchJobs();
-
-        }
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-        catch (error: any) {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        } catch (error: any) {
             console.error('Error extracting data:');
             if (error.message.includes('Plan limit exceeded')) {
                 alert("You have reached the limit of free AI generations. Please upgrade to a paid plan to continue using this feature.");
                 router.push('/pricing');
-            }
-
-            else {
+            } else {
                 alert("There has been a problem generating the product page. Please try again.");
             }
         } finally {
@@ -160,7 +168,6 @@ export default function CRMDashboard() {
     const handleExportToShopify = async () => {
         if (!auth.token) {
             setExportError('No auth token.');
-            console.log("Auth token missing");
             return;
         }
         let payloadVariants: Record<string, string[]> = {};
@@ -210,14 +217,13 @@ export default function CRMDashboard() {
             setExportSuccess(true);
             fetchJobs();
             alert("Product exported to Shopify successfully!");
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         } catch (error: any) {
             console.error('Error during Shopify export:', error);
             if (error.message.includes('Shopify credentials not set')) {
                 alert("Shopify credentials not set. Please connect your Shopify store.");
                 router.push('/integrations-shopify');
-            }
-
-            else {
+            } else {
                 alert("There has been a problem exporting to Shopify. Please try again.");
             }
             setExportError(error instanceof Error ? error.message : 'Unknown error during export.');
@@ -243,311 +249,284 @@ export default function CRMDashboard() {
         return normalized;
     }
 
-    return (
-        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#2b1834]">
-            <div className="absolute inset-0 bg-[#f7f5f2]" />
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
-                <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000" />
-            </div>
+    const totalPages = jobs.length;
+    const completedPages = jobs.filter(job => job.status === 'completed').length;
+    const usageUsed = Math.min(totalPages, 10);
+    const usageTotal = 10;
 
-                <div className="relative z-20 flex h-screen">
-                    <Sidebar/>
-                <div className="flex-1 w-full h-full overflow-y-auto p-8">
-                    <Card
-                        className="border border-[#ead7ec] bg-[#fffdfb] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="md:text-3xl font-bold text-[#2b1834] sm:text-xl">
-                                    Dashboard
-                                </h2>
-                                <p className="text-[#8b718e]">Welcome back! Your AI workspace awaits</p>
-                            </div>
-                            <div className="flex items-center space-x-4">
+    const recentJobs = [...jobs]
+        .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+        .slice(0, 6);
+
+    return (
+        <div className="min-h-screen bg-[#fcfafd] text-[#21182b]">
+            <div className="flex h-screen">
+                <Sidebar />
+                <div className="flex-1 w-full h-full overflow-y-auto">
+                    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
+                        {/* Welcome header */}
+                        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Welcome back</p>
+                                    <h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#21182b] sm:text-4xl">Your AI workspace</h1>
+                                    <p className="mt-2 text-[#766b80]">Generate polished product pages and launch-ready ad creative in minutes.</p>
+                                </div>
                                 <Button
                                     onClick={() => router.push('/integrations-shopify')}
-                                    className="bg-gradient-to-r from-green-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white transition-all duration-300 ease-out hover:scale-[1.02] shadow-lg shadow-cyan-500/30"
-                                disabled={isLoading}>
-                                    <ShoppingBag className="mr-2 h-4 w-4" />
+                                    variant="outline"
+                                    className="h-10 rounded-xl border-[#eae2f0] bg-white text-[#21182b] hover:border-[#d6b9df] hover:bg-[#f9f2f8]"
+                                >
+                                    <ShoppingBag className="mr-2 size-4 text-[#6425c7]" />
                                     Connect Shopify
                                 </Button>
                             </div>
-                        </div>
-                    </Card>
+                        </motion.div>
 
-                    {/*<div className="grid grid-cols-4 gap-6">*/}
-                    {/*    {[*/}
-                    {/*        {*/}
-                    {/*            title: "Pages Generated",*/}
-                    {/*            value: "1,247",*/}
-                    {/*            change: "+23%",*/}
-                    {/*            icon: FileText,*/}
-                    {/*            color: "text-white",*/}
-                    {/*            bg: "bg-cyan-500/10",*/}
-                    {/*            border: "border-cyan-500/20",*/}
-                    {/*        },*/}
-                    {/*        {*/}
-                    {/*            title: "Ads Created",*/}
-                    {/*            value: "89",*/}
-                    {/*            change: "+15%",*/}
-                    {/*            icon: Target,*/}
-                    {/*            color: "text-white",*/}
-                    {/*            bg: "bg-purple-500/10",*/}
-                    {/*            border: "border-purple-500/20",*/}
-                    {/*        },*/}
-                    {/*        {*/}
-                    {/*            title: "Shopify Exports",*/}
-                    {/*            value: "156",*/}
-                    {/*            change: "+31%",*/}
-                    {/*            icon: ShoppingBag,*/}
-                    {/*            color: "text-white",*/}
-                    {/*            bg: "bg-pink-500/10",*/}
-                    {/*            border: "border-pink-500/20",*/}
-                    {/*        },*/}
-                    {/*        {*/}
-                    {/*            title: "Active Projects",*/}
-                    {/*            value: "12",*/}
-                    {/*            change: "+8%",*/}
-                    {/*            icon: Briefcase,*/}
-                    {/*            color: "text-white",*/}
-                    {/*            bg: "bg-emerald-500/10",*/}
-                    {/*            border: "border-emerald-500/20",*/}
-                    {/*        },*/}
-                    {/*    ].map((stat, index) => (*/}
-                    {/*        <Card*/}
-                    {/*            key={index}*/}
-                    {/*            className={`backdrop-blur-xl ${stat.bg} border ${stat.border} rounded-3xl p-6 transition-all duration-300 ease-out hover:scale-[1.02] hover:shadow-lg`}*/}
-                    {/*        >*/}
-                    {/*            <div className="flex items-center justify-between">*/}
-                    {/*                <div>*/}
-                    {/*                    <p className="text-white text-sm">{stat.title}</p>*/}
-                    {/*                    <p className="text-2xl font-bold text-white">{stat.value}</p>*/}
-                    {/*                    <p className={`text-sm font-bold ${stat.color}`}>{stat.change}</p>*/}
-                    {/*                </div>*/}
-                    {/*                <stat.icon className={`h-8 w-8 ${stat.color === "text-white" ? "text-cyan-400" : stat.color}`} />*/}
-                    {/*            </div>*/}
-                    {/*        </Card>*/}
-                    {/*    ))}*/}
-                    {/*</div>*/}
+                        {/* Usage indicators */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
+                            className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3"
+                        >
+                            <Card className="rounded-2xl border border-[#eae2f0] bg-white p-5 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-medium text-[#766b80]">Pages generated</p>
+                                        <p className="mt-1 text-2xl font-bold tracking-[-0.03em] text-[#21182b]">{totalPages}</p>
+                                    </div>
+                                    <div className="flex size-10 items-center justify-center rounded-xl bg-[#f7e4f3] text-[#e83ead]">
+                                        <FileText className="size-5" />
+                                    </div>
+                                </div>
+                            </Card>
+                            <Card className="rounded-2xl border border-[#eae2f0] bg-white p-5 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs font-medium text-[#766b80]">Completed</p>
+                                        <p className="mt-1 text-2xl font-bold tracking-[-0.03em] text-[#21182b]">{completedPages}</p>
+                                    </div>
+                                    <div className="flex size-10 items-center justify-center rounded-xl bg-[#e6f6f0] text-[#1f9d6f]">
+                                        <CheckCircle className="size-5" />
+                                    </div>
+                                </div>
+                            </Card>
+                            <Card className="rounded-2xl border border-[#eae2f0] bg-white p-5 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <p className="text-xs font-medium text-[#766b80]">Monthly usage</p>
+                                        <p className="mt-1 text-2xl font-bold tracking-[-0.03em] text-[#21182b]">{usageUsed}<span className="text-base font-medium text-[#aa97b0]"> / {usageTotal}</span></p>
+                                        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[#ead7ec]">
+                                            <div className="h-full rounded-full bg-gradient-to-r from-[#e83ead] to-[#6425c7] transition-all duration-500" style={{ width: `${(usageUsed / usageTotal) * 100}%` }} />
+                                        </div>
+                                    </div>
+                                    <div className="flex size-10 items-center justify-center rounded-xl bg-[#efe6fa] text-[#6425c7]">
+                                        <TrendingUp className="size-5" />
+                                    </div>
+                                </div>
+                            </Card>
+                        </motion.div>
 
-                    <div className="grid grid-cols-1 gap-6">
-                        {/* Generate Product Page Section */}
-                        <Card className="border border-[#ead7ec] bg-[#fffdfb] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-xl font-semibold text-white flex items-center">
-                                    <Sparkles className="mr-2 h-5 w-5 text-cyan-400" />
-                                    Generate Product Page
-                                </h3>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="relative">
-                                    <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8b718e] h-4 w-4" />
-                                    <Input
-                                        type = "text"
-                                        value = {url}
-                                        onChange={(e) => setUrl(e.target.value)}
-                                        placeholder="Paste product URL here..."
-                                        className="pl-10 bg-white border border-[#ead7ec] rounded-xl text-[#2b1834] placeholder:text-[#a18aa9] focus:border-[#8e267e] focus:ring-2 focus:ring-[#8e267e]/10"
-                                    />
+                        {/* Product URL generator */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+                            className="mt-8"
+                        >
+                            <Card className="overflow-hidden rounded-3xl border border-[#eae2f0] bg-white shadow-[0_18px_50px_rgba(77,33,91,0.04)]">
+                                <div className="flex items-center gap-3 border-b border-[#f0e9f1] px-6 py-5">
+                                    <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#e83ead] to-[#6425c7] text-white shadow-lg shadow-[#e83ead]/20">
+                                        <Sparkles className="size-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#21182b]">Generate a product page</h3>
+                                        <p className="text-sm text-[#766b80]">Paste any product URL and let AI build a polished page.</p>
+                                    </div>
                                 </div>
 
-                                <Button
-                                    onClick={handleExtractData}
-                                    disabled={isLoading}
-                                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white transition-all duration-300 ease-out hover:scale-[1.02] shadow-lg shadow-cyan-500/30">
-                                    <Brain className="mr-2 h-4 w-4" />
-                                    {isLoading ? 'Generating' : 'Generate page'}
-                                </Button>
+                                <div className="p-6">
+                                    <div className="flex flex-col gap-3 sm:flex-row">
+                                        <div className="relative flex-1">
+                                            <LinkIcon className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#aa97b0]" />
+                                            <Input
+                                                type="text"
+                                                value={url}
+                                                onChange={(e) => setUrl(e.target.value)}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleExtractData()}
+                                                placeholder="Paste product URL here..."
+                                                className="h-12 pl-10 text-sm"
+                                            />
+                                        </div>
+                                        <Button
+                                            onClick={handleExtractData}
+                                            disabled={isLoading}
+                                            className="h-12 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-6 text-sm font-semibold text-white shadow-lg shadow-[#6425c7]/20 transition hover:opacity-90 hover:scale-[1.01] disabled:opacity-60"
+                                        >
+                                            <Brain className="mr-2 size-4" />
+                                            {isLoading ? 'Generating...' : 'Generate page'}
+                                        </Button>
+                                    </div>
 
-                                {/* AI Preview Card */}
-                                <Card className="bg-slate-800/30 border border-slate-600/30 rounded-xl p-4">
+                                    {/* AI Preview */}
                                     {isLoading ? (
-                                        <div className="flex flex-col items-center justify-center h-64 text-center">
-                                            <div className="w-12 h-12 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
-                                            <p className="text-[#8b718e] mb-2">AI is analyzing the product...</p>
-                                            <p className="text-sm text-slate-500">This may take a few moments</p>
+                                        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-[#eae2f0] bg-[#f9f2f8] py-16 text-center">
+                                            <div className="size-10 rounded-full border-2 border-[#e83ead] border-t-transparent animate-spin" />
+                                            <p className="mt-4 text-sm font-medium text-[#21182b]">AI is analyzing the product...</p>
+                                            <p className="mt-1 text-xs text-[#aa97b0]">This may take a few moments</p>
                                         </div>
                                     ) : extractedData ? (
-                                        <>
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ duration: 0.5 }}
-                                                className="bg-gray-800/30 p-6 rounded-xl border border-white/10 space-y-6"
-                                            >
-                                                <h2 className="text-2xl font-bold mb-4 text-white">Extracted Product Data</h2>
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                    <div className="md:col-span-1">
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            {extractedData.images.slice(0, 4).map((imgSrc, index) => (
-                                                                <img
-                                                                    key={index}
-                                                                    src={imgSrc || '/placeholder.png'}
-                                                                    alt={`Product image ${index + 1}`}
-                                                                    className="w-full h-32 object-contain rounded-lg shadow-md bg-gray-800"
-                                                                    onError={(e) => (e.currentTarget.src = '/product-placeholder.png')}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="md:col-span-2 space-y-4">
-                                                        <h3 className="text-xl font-bold mb-1 text-white">Title</h3>
-                                                        <p className="text-lg font-semibold text-slate-200">{extractedData.new_title}</p>
-
-                                                        <h3 className="text-xl font-bold mb-1 text-white">Description</h3>
-                                                        <div
-                                                            className="rounded-lg text-gray-300 text-sm sm:text-base leading-relaxed space-y-4"
-                                                            dangerouslySetInnerHTML={{__html: extractedData.description}}
-                                                        />
-
-                                                        {extractedData.benefits_list && extractedData.benefits_list.length > 0 && (
-                                                            <div className="mt-6">
-                                                                <h3 className="text-xl font-semibold mb-3 text-white">✨
-                                                                    Key Benefits</h3>
-                                                                <ul className="list-disc list-inside text-gray-300 space-y-2">
-                                                                    {extractedData.benefits_list.map((benefit, i) => (
-                                                                        <li key={i}
-                                                                            className="leading-relaxed">{benefit}</li>
-                                                                    ))}
-                                                                </ul>
+                                        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mt-6 rounded-2xl border border-[#eae2f0] bg-[#f9f2f8] p-6">
+                                            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                                <div className="md:col-span-1">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        {extractedData.images.slice(0, 4).map((imgSrc, index) => (
+                                                            <div key={index} className="aspect-square overflow-hidden rounded-xl border border-[#eae2f0] bg-white">
+                                                                <img src={imgSrc || '/placeholder.png'} alt={`Product image ${index + 1}`} className="h-full w-full object-contain" onError={(e) => (e.currentTarget.src = '/placeholder.png')} />
                                                             </div>
-                                                        )}
-
-                                                        <p className="text-slate-200">
-                                                            <strong>Price:</strong> {extractedData.price}</p>
-
-                                                        <p className="text-slate-200">
-                                                            <strong>Category:</strong> {extractedData.category}</p>
-                                                        <p className="text-slate-200">
-                                                            <strong>Availability:</strong> In Stock
-                                                        </p>
-                                                        {extractedData.variants && (
-                                                            <p className="text-slate-200">
-                                                                <strong>Variants:</strong> {Object.values(extractedData.variants).flat().join(', ')}
-                                                            </p>
-                                                        )}
+                                                        ))}
                                                     </div>
                                                 </div>
-                                            </motion.div>
-
-                                            <Button
-                                                onClick={handleExportToShopify}
-                                                disabled={exportLoading}
-                                                size="sm"
-                                                className="w-full mt-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30"
-                                            >
-                                                {exportLoading ? 'Exporting...' : 'Export to Shopify'}
-                                                <ShoppingBag className="ml-2 h-3 w-3" />
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center h-64 text-center">
-                                            <Globe className="w-16 h-16 text-slate-600 mb-4" />
-                                            <p className="text-slate-400 mb-2">Enter a product URL to get started</p>
-                                            <p className="text-sm text-slate-500">AI will analyze and generate an optimized product page</p>
-                                        </div>
-                                    )}
-                                </Card>
-
-                                <Card className="p-6 bg-slate-900/50 backdrop-blur-xl border-slate-800/50">
-                                    <h3 className="text-lg font-semibold text-white mb-4">AI-Powered Features</h3>
-                                    <div className="space-y-3">
-                                        {[
-                                            {
-                                                icon: "🎯",
-                                                title: "Smart Content Extraction",
-                                                desc: "Automatically extracts product details, images, and descriptions",
-                                            },
-                                            { icon: "✨", title: "SEO Optimization", desc: "Generates optimized meta tags and structured data" },
-                                            {
-                                                icon: "🎨",
-                                                title: "Design Enhancement",
-                                                desc: "Applies modern design patterns and conversion optimization",
-                                            },
-                                            { icon: "📱", title: "Mobile Responsive", desc: "Ensures perfect display across all devices" },
-                                        ].map((feature, index) => (
-                                            <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-slate-800/30">
-                                                <span className="text-lg">{feature.icon}</span>
-                                                <div>
-                                                    <h4 className="text-white font-medium">{feature.title}</h4>
-                                                    <p className="text-sm text-slate-400">{feature.desc}</p>
+                                                <div className="md:col-span-2 space-y-4">
+                                                    <div>
+                                                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Title</p>
+                                                        <p className="mt-1 text-lg font-semibold text-[#21182b]">{extractedData.new_title}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Description</p>
+                                                        <div className="mt-1 text-sm leading-relaxed text-[#766b80]" dangerouslySetInnerHTML={{__html: extractedData.description}} />
+                                                    </div>
+                                                    {extractedData.benefits_list && extractedData.benefits_list.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Key benefits</p>
+                                                            <ul className="mt-2 space-y-1.5">
+                                                                {extractedData.benefits_list.map((benefit, i) => (
+                                                                    <li key={i} className="flex items-start gap-2 text-sm text-[#766b80]">
+                                                                        <CheckCircle className="mt-0.5 size-3.5 shrink-0 text-[#1f9d6f]" />
+                                                                        {benefit}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                                                        {extractedData.price && <span className="text-[#21182b]"><strong>Price:</strong> {extractedData.price}</span>}
+                                                        {extractedData.category && <span className="text-[#21182b]"><strong>Category:</strong> {extractedData.category}</span>}
+                                                        <span className="text-[#21182b]"><strong>Availability:</strong> In Stock</span>
+                                                        {extractedData.variants && Object.keys(extractedData.variants).length > 0 && (
+                                                            <span className="text-[#21182b]"><strong>Variants:</strong> {Object.values(extractedData.variants).flat().join(', ')}</span>
+                                                        )}
+                                                    </div>
+                                                    <Button
+                                                        onClick={handleExportToShopify}
+                                                        disabled={exportLoading}
+                                                        className="h-10 rounded-xl bg-[#21182b] px-5 text-sm font-semibold text-white transition hover:bg-[#6425c7] disabled:opacity-60"
+                                                    >
+                                                        <ShoppingBag className="mr-2 size-4" />
+                                                        {exportLoading ? 'Exporting...' : 'Export to Shopify'}
+                                                    </Button>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                </Card>
+                                        </motion.div>
+                                    ) : (
+                                        <div className="mt-6 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#eae2f0] bg-[#f9f2f8] py-16 text-center">
+                                            <div className="flex size-14 items-center justify-center rounded-2xl bg-white text-[#6425c7] shadow-sm">
+                                                <Globe className="size-7" />
+                                            </div>
+                                            <p className="mt-4 text-sm font-medium text-[#21182b]">Enter a product URL to get started</p>
+                                            <p className="mt-1 text-xs text-[#aa97b0]">AI will analyze and generate an optimized product page</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </Card>
+                        </motion.div>
+
+                        {/* Recent product pages */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}
+                            className="mt-8"
+                        >
+                            <div className="mb-4 flex items-center justify-between">
+                                <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#21182b]">Recent product pages</h3>
+                                <button onClick={() => router.push('/my-pages')} className="flex items-center gap-1 text-sm font-medium text-[#8e267e] transition hover:text-[#e83ead]">
+                                    View all <ArrowRight className="size-3.5" />
+                                </button>
                             </div>
-                        </Card>
+
+                            {loadingJobs ? (
+                                <Card className="rounded-2xl border border-[#eae2f0] bg-white p-10 text-center shadow-sm">
+                                    <div className="mx-auto size-8 rounded-full border-2 border-[#e83ead] border-t-transparent animate-spin" />
+                                    <p className="mt-4 text-sm text-[#aa97b0]">Fetching your pages...</p>
+                                </Card>
+                            ) : recentJobs.length === 0 ? (
+                                <Card className="rounded-2xl border border-dashed border-[#eae2f0] bg-white p-10 text-center shadow-sm">
+                                    <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-[#f9f2f8] text-[#6425c7]">
+                                        <FileText className="size-6" />
+                                    </div>
+                                    <p className="mt-4 text-sm font-medium text-[#21182b]">No pages yet</p>
+                                    <p className="mt-1 text-xs text-[#aa97b0]">Generate your first product page above to see it here.</p>
+                                </Card>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {recentJobs.map((job, index) => {
+                                        const status = statusConfig[job.status] || statusConfig.pending;
+                                        const StatusIcon = status.icon;
+                                        const title = job.result?.title || job.url;
+                                        const thumbnail = job.result?.images?.[0] || '/placeholder.png';
+                                        return (
+                                            <motion.div key={job.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.03 * index }}>
+                                                <Card className="group overflow-hidden rounded-2xl border border-[#eae2f0] bg-white shadow-sm transition hover:border-[#d6b9df] hover:shadow-[0_18px_50px_rgba(77,33,91,0.08)]">
+                                                    <div className="relative h-36 overflow-hidden bg-[#f9f2f8]">
+                                                        <img src={thumbnail} alt={title} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" onError={(e) => (e.currentTarget.src = '/placeholder.png')} />
+                                                        <div className="absolute right-3 top-3">
+                                                            <Badge className={`${status.bg} ${status.color} border-0`}>
+                                                                <StatusIcon className="mr-1 size-3" />
+                                                                {status.label}
+                                                            </Badge>
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-4">
+                                                        <p className="line-clamp-1 text-sm font-semibold text-[#21182b]">{title}</p>
+                                                        <p className="mt-1 line-clamp-1 text-xs text-[#aa97b0]">{job.url}</p>
+                                                        <div className="mt-3 flex items-center gap-2 text-[11px] text-[#aa97b0]">
+                                                            <Clock className="size-3" />
+                                                            {job.created_at ? new Date(job.created_at).toLocaleDateString() : '—'}
+                                                        </div>
+                                                    </div>
+                                                </Card>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </motion.div>
+
+                        {/* Ad Creative Studio entry point */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}
+                            className="mt-8"
+                        >
+                            <Card className="overflow-hidden rounded-3xl border border-[#21182b] bg-gradient-to-br from-[#21182b] to-[#3a1f47] p-8 text-white">
+                                <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+                                    <div className="max-w-lg">
+                                        <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#f3a9dc]">
+                                            <Wand2 className="size-3.5" />
+                                            Ad Creative Studio
+                                        </div>
+                                        <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em]">Turn your products into launch-ready ad creative.</h3>
+                                        <p className="mt-2 text-sm leading-6 text-[#d6c2de]">Generate on-brand ad variations across social, story, and display formats from any product in your workspace.</p>
+                                    </div>
+                                    <Button
+                                        onClick={() => router.push('/ad-generator')}
+                                        className="h-12 shrink-0 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-6 text-sm font-semibold text-white shadow-lg shadow-[#e83ead]/30 transition hover:opacity-90 hover:scale-[1.01]"
+                                    >
+                                        <Target className="mr-2 size-4" />
+                                        Open Ad Studio
+                                        <ArrowRight className="ml-1 size-4" />
+                                    </Button>
+                                </div>
+                            </Card>
+                        </motion.div>
                     </div>
-
-
-                </div>
-
-                {/*<Card className="col-span-2 backdrop-blur-xl bg-slate-900/40 border border-purple-500/20 rounded-3xl p-6 pb-6 h-fit shadow-2xl shadow-purple-500/10">*/}
-                {/*    <div className="space-y-6">*/}
-                {/*        /!* Quick Actions *!/*/}
-                {/*        <div>*/}
-                {/*            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">*/}
-                {/*                <Zap className="mr-2 h-5 w-5 text-cyan-400" />*/}
-                {/*                Quick Actions*/}
-                {/*            </h3>*/}
-                {/*            <div className="space-y-2">*/}
-                {/*                {[*/}
-                {/*                    { icon: Sparkles, label: "Generate Page", color: "hover:text-cyan-400" },*/}
-                {/*                    { icon: Target, label: "Create Ad", color: "hover:text-purple-400", href: "/ad-generator" },*/}
-                {/*                    { icon: Share2, label: "Export to Shopify", color: "hover:text-pink-400" },*/}
-                {/*                    { icon: BarChart3, label: "View Analytics", color: "hover:text-emerald-400" },*/}
-                {/*                ].map((action, index) => (*/}
-                {/*                    <Button*/}
-                {/*                        key={index}*/}
-                {/*                        variant="ghost"*/}
-                {/*                        size="sm"*/}
-                {/*                        onClick={() => action.href ? router.push(action.href) : null}*/}
-                {/*                        className={`w-full justify-start text-slate-200 hover:bg-slate-700/30 ${action.color} transition-all duration-300 ease-out hover:scale-[1.02]`}*/}
-                {/*                    >*/}
-                {/*                        <action.icon className="mr-3 h-4 w-4" />*/}
-                {/*                        {action.label}*/}
-                {/*                    </Button>*/}
-                {/*                ))}*/}
-                {/*            </div>*/}
-                {/*        </div>*/}
-
-                {/*        /!* AI Assistant Card *!/*/}
-                {/*        <Card className="backdrop-blur-xl bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border border-cyan-400/30 rounded-2xl p-4">*/}
-                {/*            <div className="text-center space-y-3">*/}
-                {/*                <div className="flex justify-center">*/}
-                {/*                    <Brain className="h-8 w-8 text-cyan-400" />*/}
-                {/*                </div>*/}
-                {/*                <div>*/}
-                {/*                    <h4 className="text-white font-semibold">Mercury AI</h4>*/}
-                {/*                    <p className="text-slate-200 text-sm">Your AI Assistant</p>*/}
-                {/*                </div>*/}
-                {/*                <Button*/}
-                {/*                    size="sm"*/}
-                {/*                    className="w-full bg-gradient-to-r from-cyan-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 border border-cyan-400/30 text-cyan-300 transition-all duration-300 ease-out hover:scale-[1.02]"*/}
-                {/*                >*/}
-                {/*                    Start Chat*/}
-                {/*                </Button>*/}
-                {/*            </div>*/}
-                {/*        </Card>*/}
-                {/*    </div>*/}
-                {/*</Card>*/}
-
-            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-20">
-                <div className="backdrop-blur-xl bg-slate-900/40 border border-cyan-500/20 rounded-full px-6 py-2 shadow-lg shadow-cyan-500/20">
-                    <p className="text-slate-200 text-sm">
-                        Powered by{" "}
-                        <span className="text-white bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text font-semibold">
-              Mercury AI
-            </span>
-                    </p>
                 </div>
             </div>
         </div>
-        </div>
-
     )
 }
