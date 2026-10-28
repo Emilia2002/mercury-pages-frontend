@@ -1,77 +1,31 @@
-// FILE: src/components/Header.tsx
 'use client';
 
-import React, { useState } from 'react';
 import Link from 'next/link';
-import { Zap, Menu, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext'; // Correct the import path if necessary
+import { Menu, X, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Header = () => {
-    const { isAuthenticated, isLoading } = useAuth();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const close = () => setIsMenuOpen(false);
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
-
-    return (
-        <header className="py-4 px-8 flex justify-between items-center sticky top-0 z-50 backdrop-blur-lg border-b border-white/10">
-            <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
-                <Zap className="w-7 h-7 text-[#38BDF8]" />
-                <span>Mercury Pages</span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
-                <Link href="/#benefits" className="text-gray-300 hover:text-white transition-colors">Benefits</Link>
-                <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</Link>
-                {/* Conditionally render links based on authentication status */}
-                {isLoading ? (
-                    <div className="text-gray-400">...</div>
-                ) : isAuthenticated ? (
-                    <>
-                        <Link href="/crm-dashboard" className="bg-[#38BDF8] text-black font-bold py-2 px-4 rounded-lg glow-on-hover">
-                            My Account
-                        </Link>
-                    </>
-                ) : (
-                    <>
-                        <Link href="/signin" className="text-gray-300 hover:text-white transition-colors">Login</Link>
-                        <Link href="/signup" className="bg-[#38BDF8] text-black font-bold py-2 px-4 rounded-lg glow-on-hover">
-                            Get Started Free
-                        </Link>
-                    </>
-                )}
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center">
-                <button onClick={toggleMenu} className="text-white">
-                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
-            </div>
-
-            {/* Mobile Navigation */}
-            <div className={`fixed inset-0 top-[76px] bg-black/90 backdrop-blur-md z-40 transition-transform transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'} md:hidden`}>
-                <nav className="flex flex-col items-center gap-6 py-8">
-                    <Link href="/#benefits" className="text-gray-300 text-lg hover:text-white transition-colors" onClick={toggleMenu}>Benefits</Link>
-                    <Link href="/pricing" className="text-gray-300 text-lg hover:text-white transition-colors" onClick={toggleMenu}>Pricing</Link>
-                    {isLoading ? (
-                        <div className="text-gray-400 text-lg">...</div>
-                    ) : isAuthenticated ? (
-                        <Link href="/crm-dashboard" className="bg-[#38BDF8] text-black font-bold py-3 px-6 rounded-lg glow-on-hover text-lg" onClick={toggleMenu}>
-                            My Account
-                        </Link>
-                    ) : (
-                        <>
-                            <Link href="/signin" className="text-gray-300 text-lg hover:text-white transition-colors" onClick={toggleMenu}>Login</Link>
-                            <Link href="/signup" className="bg-[#38BDF8] text-black font-bold py-3 px-6 rounded-lg glow-on-hover text-lg" onClick={toggleMenu}>
-                                Get Started Free
-                            </Link>
-                        </>
-                    )}
-                </nav>
-            </div>
-        </header>
-    );
+  return (
+    <header className="sticky top-0 z-50 border-b border-[#eae2f0]/80 bg-[#fcfafd]/85 px-6 backdrop-blur-xl lg:px-10">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 text-[#21182b]" onClick={close}>
+          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#e83ead] to-[#6425c7] text-white shadow-lg shadow-[#6425c7]/20"><Sparkles className="size-4" /></span>
+          <span className="text-lg font-bold tracking-[-0.03em]">Mercury Pages</span>
+        </Link>
+        <nav className="hidden items-center gap-8 text-sm font-medium text-[#766b80] md:flex">
+          <Link href="/#workflow" className="transition hover:text-[#6425c7]">How it works</Link>
+          <Link href="/#studio" className="transition hover:text-[#6425c7]">Creative studio</Link>
+          <Link href="/pricing" className="transition hover:text-[#6425c7]">Pricing</Link>
+          {!isLoading && (isAuthenticated ? <Link href="/crm-dashboard" className="rounded-full bg-[#21182b] px-5 py-2.5 text-white transition hover:bg-[#6425c7]">Open workspace</Link> : <><Link href="/signin" className="transition hover:text-[#6425c7]">Sign in</Link><Link href="/signup" className="rounded-full bg-[#21182b] px-5 py-2.5 text-white transition hover:bg-[#6425c7]">Start creating <span aria-hidden="true">→</span></Link></>)}
+        </nav>
+        <button aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="rounded-lg p-2 text-[#21182b] md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X /> : <Menu />}</button>
+      </div>
+      {isMenuOpen && <nav className="flex flex-col gap-5 border-t border-[#eae2f0] py-6 text-sm font-medium text-[#766b80] md:hidden"><Link href="/#workflow" onClick={close}>How it works</Link><Link href="/#studio" onClick={close}>Creative studio</Link><Link href="/pricing" onClick={close}>Pricing</Link>{!isLoading && (isAuthenticated ? <Link href="/crm-dashboard" onClick={close} className="rounded-full bg-[#21182b] px-5 py-3 text-center text-white">Open workspace</Link> : <><Link href="/signin" onClick={close}>Sign in</Link><Link href="/signup" onClick={close} className="rounded-full bg-[#21182b] px-5 py-3 text-center text-white">Start creating</Link></>)}</nav>}
+    </header>
+  );
 };
