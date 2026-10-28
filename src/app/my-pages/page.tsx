@@ -240,9 +240,9 @@ export default function MyPagesPage() {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#21182b]">
+        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#2b1834]">
             {/* Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"/>
+            <div className="absolute inset-0 bg-[#f7f5f2]"/>
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse"/>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000"/>
@@ -254,10 +254,10 @@ export default function MyPagesPage() {
             <div className="flex-1 w-full h-full overflow-y-auto p-8">
                         {/* Header */}
                         <Card
-                            className="backdrop-blur-xl bg-slate-900/40 border border-pink-500/20 rounded-3xl p-6 shadow-2xl shadow-pink-500/10">
+                            className="backdrop-blur-xl bg-[#fffdfb] border border-[#ead7ec] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text">
+                                    <h2 className="text-3xl font-bold text-[#2b1834] bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text">
                                         My Pages
                                     </h2>
                                     <p className="text-slate-300">Manage your generated product pages and track
@@ -283,7 +283,7 @@ export default function MyPagesPage() {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-slate-400 text-sm">Total Pages</p>
-                                        <p className="text-2xl font-bold text-white">{totalPages}</p>
+                                        <p className="text-2xl font-bold text-[#2b1834]">{totalPages}</p>
                                     </div>
                                     <div className="p-3 bg-cyan-500/20 rounded-lg">
                                         <ShoppingBag className="w-6 h-6 text-cyan-400"/>
@@ -295,7 +295,7 @@ export default function MyPagesPage() {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-slate-400 text-sm">Completed</p>
-                                        <p className="text-2xl font-bold text-white">{completedPages}</p>
+                                        <p className="text-2xl font-bold text-[#2b1834]">{completedPages}</p>
                                     </div>
                                     <div className="p-3 bg-emerald-500/20 rounded-lg">
                                         <CheckCircle className="w-6 h-6 text-emerald-400"/>
@@ -330,7 +330,7 @@ export default function MyPagesPage() {
                                         <select
                                             value={statusFilter}
                                             onChange={(e) => setStatusFilter(e.target.value)}
-                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-[#2b1834] focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                                         >
                                             <option value="all">All Status</option>
                                             <option value="completed">Completed</option>
@@ -342,7 +342,7 @@ export default function MyPagesPage() {
                                         <select
                                             value={sortBy}
                                             onChange={(e) => setSortBy(e.target.value)}
-                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                                            className="px-2 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-[#2b1834] focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
                                         >
                                             <option value="newest">Newest First</option>
                                             <option value="oldest">Oldest First</option>
@@ -410,7 +410,7 @@ export default function MyPagesPage() {
                                             {/* Content */}
                                             <div className="p-6">
                                                 <div className="mb-4">
-                                                    <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">{displayTitle}</h3>
+                                                    <h3 className="text-lg font-semibold text-[#2b1834] mb-2 line-clamp-2">{displayTitle}</h3>
                                                     <div className="flex items-center gap-2 text-sm text-slate-400 mb-2">
                                                         {page.result?.description}
                                                     </div>
@@ -419,7 +419,7 @@ export default function MyPagesPage() {
                                                         <Calendar className="w-4 h-4"/>
                                                         {new Date(page.created_at || '').toLocaleDateString()}
                                                     </div>
-                                                    <Badge variant="outline" className="text-xs text-white">
+                                                    <Badge variant="outline" className="text-xs text-[#2b1834]">
                                                         {result.category || 'Uncategorized'}
                                                     </Badge>
                                                 </div>
@@ -430,15 +430,15 @@ export default function MyPagesPage() {
                                                 {/*        className="grid grid-cols-3 gap-4 mb-4 p-3 bg-slate-800/30 rounded-lg">*/}
                                                 {/*        /!*<div className="text-center">*!/*/}
                                                 {/*        /!*    <p className="text-xs text-slate-400">Views</p>*!/*/}
-                                                {/*        /!*    <p className="text-sm font-semibold text-white">{page.result?.views?.toLocaleString()}</p>*!/*/}
+                                                {/*        /!*    <p className="text-sm font-semibold text-[#2b1834]">{page.result?.views?.toLocaleString()}</p>*!/*/}
                                                 {/*        /!*</div>*!/*/}
                                                 {/*        /!*<div className="text-center">*!/*/}
                                                 {/*        /!*    <p className="text-xs text-slate-400">Conversions</p>*!/*/}
-                                                {/*        /!*    <p className="text-sm font-semibold text-white">{page.result?.conversions}</p>*!/*/}
+                                                {/*        /!*    <p className="text-sm font-semibold text-[#2b1834]">{page.result?.conversions}</p>*!/*/}
                                                 {/*        /!*</div>*!/*/}
                                                 {/*        /!*<div className="text-center">*!/*/}
                                                 {/*        /!*    <p className="text-xs text-slate-400">Revenue</p>*!/*/}
-                                                {/*        /!*    <p className="text-sm font-semibold text-white">{page.result?.revenue}</p>*!/*/}
+                                                {/*        /!*    <p className="text-sm font-semibold text-[#2b1834]">{page.result?.revenue}</p>*!/*/}
                                                 {/*        /!*</div>*!/*/}
                                                 {/*    </div>*/}
                                                 {/*)}*/}
@@ -450,7 +450,7 @@ export default function MyPagesPage() {
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
-                                                                className="bg-transparent text-white hover:text-white/80"
+                                                                className="bg-transparent text-[#2b1834] hover:text-[#2b1834]/80"
                                                                 onClick={() => {
                                                                     setSelectedJob(page);
                                                                     setEditForm({
@@ -466,7 +466,7 @@ export default function MyPagesPage() {
                                                                 <Edit className="w-4 h-4" />
                                                             </Button>
 
-                                                            <Button size="sm" variant="outline" className="bg-transparent text-white hover:text-white/80"
+                                                            <Button size="sm" variant="outline" className="bg-transparent text-[#2b1834] hover:text-[#2b1834]/80"
                                                                     onClick={() => handleExportToShopify(page)}> <ExternalLink className="w-4 h-4"/>
                                                             </Button>
 
@@ -523,7 +523,7 @@ export default function MyPagesPage() {
                                     className="w-24 h-24 mx-auto mb-4 bg-slate-800/50 rounded-full flex items-center justify-center">
                                     <ShoppingBag className="w-12 h-12 text-slate-400"/>
                                 </div>
-                                <h3 className="text-xl font-semibold text-white mb-2">No pages found</h3>
+                                <h3 className="text-xl font-semibold text-[#2b1834] mb-2">No pages found</h3>
                                 <p className="text-slate-400 mb-6">
                                     {searchTerm || statusFilter !== "all"
                                         ? "Try adjusting your search or filters"
@@ -539,7 +539,7 @@ export default function MyPagesPage() {
                 {isEditModalOpen && (
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
                         <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-lg relative shadow-xl">
-                            <h3 className="text-xl font-semibold text-white mb-4">Edit Product Page</h3>
+                            <h3 className="text-xl font-semibold text-[#2b1834] mb-4">Edit Product Page</h3>
 
                             <div className="space-y-4">
                                 <div>
@@ -557,7 +557,7 @@ export default function MyPagesPage() {
                                         value={editForm.description}
                                         onChange={(e) => setEditForm({...editForm, description: e.target.value})}
                                         placeholder="Product description"
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-[#2b1834] focus:outline-none"
                                         rows={4}
                                     />
                                 </div>
@@ -567,7 +567,7 @@ export default function MyPagesPage() {
                                         value={editForm.benefits}
                                         onChange={(e) => setEditForm({...editForm, benefits: e.target.value})}
                                         placeholder="- First benefit...&#10;- Second benefit..."
-                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition"
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-[#2b1834] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition"
                                         rows={5}
                                     />
                                 </div>
@@ -598,7 +598,7 @@ export default function MyPagesPage() {
                             <div className="flex justify-end mt-6 space-x-3">
                                 <Button
                                     variant="outline"
-                                    className="bg-transparent text-slate-300 hover:text-white"
+                                    className="bg-transparent text-slate-300 hover:text-[#2b1834]"
                                     onClick={() => setIsEditModalOpen(false)}
                                 >
                                     Cancel

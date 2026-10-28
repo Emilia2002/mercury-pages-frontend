@@ -1,188 +1,108 @@
 "use client"
 
-import React, { useState } from "react";
+import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import {
-    Zap,
-    TrendingUp,
-    Globe,
-    Search,
-    Bell,
-    Settings,
-    Plus,
-    Link,
-    Copy,
-    Filter,
-    BarChart3,
-    FileText,
-    Target,
-    Briefcase,
-    Database,
-    Crown,
-    LogOut,
-    HelpCircle,
-    ChevronRight,
-    Sparkles,
-    ShoppingBag,
-    Eye,
-    ExternalLink,
-    Rocket,
-    Brain,
-    Palette,
-    Share2,
-    CheckCircle,
-    Clock,
-    AlertCircle,
-    XCircle,
-    Menu,
-    X, MessageCircleIcon
-} from "lucide-react";
-import {useRouter} from "next/navigation";
-import {useAuth} from "@/contexts/AuthContext";
+  BarChart3,
+  ChevronRight,
+  FileText,
+  LogOut,
+  Menu,
+  Rocket,
+  Settings,
+  ShoppingBag,
+  Target,
+  TrendingUp,
+  X,
+} from "lucide-react"
+
+const mainItems = [
+  { icon: BarChart3, label: "Dashboard", href: "/crm-dashboard" },
+  { icon: FileText, label: "My Pages", href: "/my-pages" },
+  { icon: Target, label: "Ad Generator", href: "/ad-generator" },
+  { icon: ShoppingBag, label: "Shopify Integration", href: "/integrations-shopify" },
+]
 
 export default function Sidebar() {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const auth = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const auth = useAuth()
+  const router = useRouter()
+  const pathname = usePathname()
 
-    const handleLogout = () => {
-        auth.logout();
-    };
+  const navigate = (href: string) => {
+    setIsMobileMenuOpen(false)
+    router.push(href)
+  }
 
-    const router = useRouter();
-    return (
-        <>
-            {/* Buton meniu mobil - vizibil pe ecrane mici */}
-            <button
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden fixed top-4 left-4 z-50 text-white bg-slate-900 p-2 rounded-full"
-            >
-                <Menu className="h-6 w-6" />
-            </button>
+  const sidebar = (
+    <aside className="flex h-full w-72 flex-col border-r border-[#e7dfea] bg-[#fffdfb] px-5 py-6 shadow-[12px_0_40px_rgba(77,33,91,0.04)]">
+      <div className="mb-10 flex items-center gap-3 px-2">
+        <div className="flex size-10 items-center justify-center rounded-2xl bg-[#f1e5f4] text-[#8e267e]">
+          <Rocket className="size-5" />
+        </div>
+        <div>
+          <p className="font-serif text-xl font-semibold tracking-[-0.03em] text-[#2b1834]">Mercury</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#a18aa9]">Pages studio</p>
+        </div>
+      </div>
 
-            {/* Suprapunere pentru meniul mobil */}
-            {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                ></div>
-            )}
+      <div className="flex-1">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#aa97b0]">Workspace</p>
+        <nav className="flex flex-col gap-1.5" aria-label="Workspace navigation">
+          {mainItems.map((item) => {
+            const active = pathname === item.href
+            return (
+              <Button
+                key={item.href}
+                variant="ghost"
+                onClick={() => navigate(item.href)}
+                className={`h-11 w-full justify-start rounded-xl px-3 text-sm transition-colors ${active ? "bg-[#f5eaf5] font-semibold text-[#8e267e] shadow-sm" : "text-[#725d78] hover:bg-[#faf5fa] hover:text-[#8e267e]"}`}
+              >
+                <item.icon className="mr-3 size-[18px]" />
+                {item.label}
+              </Button>
+            )
+          })}
+        </nav>
 
-            <div
-                className={`
-                    lg:col-span-2
-                    bg-slate-900 border border-cyan-500/20 rounded-3xl p-6 pb-6 h-full flex flex-col shadow-2xl shadow-cyan-500/10
-                    fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out
-                    ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-                    lg:relative lg:translate-x-0
-                `}
-            >
-                <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="absolute top-4 right-4 lg:hidden text-white p-2 rounded-full"
-                >
-                    <X className="h-6 w-6" />
-                </button>
+        <p className="mb-3 mt-9 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#aa97b0]">Account</p>
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/account")}
+          className={`h-11 w-full justify-start rounded-xl px-3 text-sm ${pathname === "/account" ? "bg-[#f5eaf5] font-semibold text-[#8e267e]" : "text-[#725d78] hover:bg-[#faf5fa] hover:text-[#8e267e]"}`}
+        >
+          <Settings className="mr-3 size-[18px]" />
+          Preferences
+        </Button>
+      </div>
 
-                <div className="space-y-6 flex-1">
-                    <div className="text-center mt-8 lg:mt-0">
-                        <div className="flex items-center justify-center mb-2">
-                            <Rocket className="h-8 w-8 text-cyan-400 mr-2" />
-                            <h1 className="text-xl font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text">
-                                Mercury Pages
-                            </h1>
-                        </div>
-                        <p className="text-slate-300 text-sm">AI-Powered Page Generator</p>
-                    </div>
+      <div className="rounded-2xl border border-[#ead7ec] bg-gradient-to-br from-[#fbf1fb] to-[#f8f4ff] p-4">
+        <p className="text-sm font-semibold text-[#3a2241]">Ready to scale?</p>
+        <p className="mt-1 text-xs leading-5 text-[#8b718e]">Unlock unlimited generations and faster exports.</p>
+        <Button onClick={() => navigate("/pricing")} className="mt-4 h-9 w-full rounded-lg bg-[#8e267e] text-xs text-white hover:bg-[#752068]">
+          Upgrade plan <ChevronRight className="ml-1 size-3.5" />
+        </Button>
+      </div>
 
-                    <div>
-                        <h4 className="text-cyan-300 text-sm font-semibold uppercase tracking-wider mb-3">Main Menu</h4>
-                        <nav className="space-y-2">
-                            {[
-                                { icon: BarChart3, label: "Dashboard",  active: false, href: "/crm-dashboard" },
-                                { icon: FileText, label: "My Pages", href: "/my-pages" },
-                                { icon: Target, label: "Ad Generator", href: "/ad-generator" },
-                                { icon: TrendingUp, label: "Shopify Integration", href: "/integrations-shopify" },
-                            ].map((item, index) => (
-                                <Button
-                                    key={index}
-                                    onClick={() => item.href ? router.push(item.href) : null}
-                                    className={`w-full justify-start text-base text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-200 transition-all duration-300 ease-out hover:scale-[1.02] h-11 group p-3 rounded-lg ${
-                                        item.active
-                                            ? "bg-cyan-500/20 text-white border border-cyan-500/30 shadow-lg shadow-cyan-500/20"
-                                            : ""
-                                    }`}
-                                >
-                                    <item.icon
-                                        className={`mr-3 h-5 w-5 ${item.active ? "text-cyan-300" : "group-hover:text-cyan-300"}`}
-                                    />
-                                    {item.label}
-                                </Button>
-                            ))}
-                        </nav>
+      <Button variant="ghost" onClick={() => auth.logout()} className="mt-3 h-10 justify-start rounded-xl px-3 text-sm text-[#8b718e] hover:bg-[#faf5fa] hover:text-[#8e267e]">
+        <LogOut className="mr-3 size-[18px]" />
+        Log out
+      </Button>
+    </aside>
+  )
 
-                        {/*<nav className="space-y-2">*/}
-                        {/*    {[*/}
-                        {/*        { icon: MessageCircleIcon, label: "AI Assistant" },*/}
-                        {/*    ].map((item, index) => (*/}
-                        {/*        <Button*/}
-                        {/*            key={index}*/}
-                        {/*            className="w-full justify-start text-base text-slate-200 hover:bg-purple-500/10 hover:text-purple-200 transition-all duration-300 ease-out hover:scale-[1.02] h-11 group p-3 rounded-lg"*/}
-                        {/*        >*/}
-                        {/*            <item.icon className="mr-3 h-5 w-5 group-hover:text-purple-300" />*/}
-                        {/*            {item.label}*/}
-                        {/*        </Button>*/}
-                        {/*    ))}*/}
-                        {/*</nav>*/}
-                    </div>
-
-
-                    <div>
-                        <h4 className="text-pink-300 text-sm font-semibold uppercase tracking-wider mb-3">Settings</h4>
-                        <nav className="space-y-2">
-                            {[
-                                { icon: Settings, label: "Preferences" },
-                            ].map((item, index) => (
-                                <Button
-                                    key={index}
-                                    className="w-full justify-start text-base text-slate-200 hover:bg-pink-500/10 hover:text-pink-200 transition-all duration-300 ease-out hover:scale-[1.02] h-11 group p-3 rounded-lg"
-                                    onClick={() => router.push('/account') }
-                                >
-                                    <item.icon className="mr-3 h-5 w-5 group-hover:text-pink-300" />
-                                    {item.label}
-                                </Button>
-                            ))}
-                        </nav>
-                    </div>
-                </div>
-
-                <div className="flex-shrink-0 space-y-2 pt-2 border-t border-slate-700/50">
-                    <div className="backdrop-blur-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/30 rounded-xl p-4 shadow-lg shadow-purple-500/20">
-                        <div className="text-center space-y-3">
-                            <div>
-                                <p className="text-slate-300 text-sm">Unlimited AI generations</p>
-                            </div>
-                            <Button
-
-                                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 transition-all duration-300 ease-out hover:scale-[1.02] text-sm font-medium shadow-lg shadow-purple-500/30 p-2 rounded-lg"
-                                onClick={() =>router.push('/pricing') }
-                            >
-                                Upgrade Now
-                                <ChevronRight className="ml-2 h-3 w-3" />
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Button
-                            className="w-full justify-start text-base text-slate-300 hover:bg-slate-700/30 hover:text-white transition-all duration-300 ease-out hover:scale-[1.02] p-3 rounded-lg"
-                            onClick={handleLogout}
-                        >
-                            <LogOut className="mr-3 h-5 w-5" />
-                            Logout
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
+  return (
+    <>
+      <Button variant="outline" size="icon" onClick={() => setIsMobileMenuOpen(true)} className="fixed left-4 top-4 z-40 rounded-xl border-[#ead7ec] bg-[#fffdfb] text-[#8e267e] lg:hidden" aria-label="Open navigation">
+        <Menu className="size-5" />
+      </Button>
+      {isMobileMenuOpen && <button className="fixed inset-0 z-40 bg-[#2b1834]/20 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} aria-label="Close navigation overlay" />}
+      <div className={`fixed inset-y-0 left-0 z-50 transition-transform duration-300 lg:relative lg:z-auto lg:block ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} className="absolute right-3 top-3 z-10 text-[#8b718e] lg:hidden" aria-label="Close navigation"><X className="size-5" /></Button>
+        {sidebar}
+      </div>
+    </>
+  )
 }

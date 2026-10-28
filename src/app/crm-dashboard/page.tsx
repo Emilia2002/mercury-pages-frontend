@@ -244,8 +244,8 @@ export default function CRMDashboard() {
     }
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#21182b]">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#2b1834]">
+            <div className="absolute inset-0 bg-[#f7f5f2]" />
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -256,7 +256,7 @@ export default function CRMDashboard() {
                     <Sidebar/>
                 <div className="flex-1 w-full h-full overflow-y-auto p-8">
                     <Card
-                        className="backdrop-blur-xl bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 shadow-2xl shadow-cyan-500/10">
+                        className="border border-[#ead7ec] bg-[#fffdfb] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="md:text-3xl font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text sm:text-xl">
@@ -333,7 +333,7 @@ export default function CRMDashboard() {
 
                     <div className="grid grid-cols-1 gap-6">
                         {/* Generate Product Page Section */}
-                        <Card className="backdrop-blur-xl bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 shadow-2xl shadow-cyan-500/10">
+                        <Card className="border border-[#ead7ec] bg-[#fffdfb] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-xl font-semibold text-white flex items-center">
                                     <Sparkles className="mr-2 h-5 w-5 text-cyan-400" />
