@@ -147,20 +147,20 @@ export default function AdGeneratorPage() {
 
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#21182b]">
-            <div className="relative z-10 flex h-screen">
+        <div className="min-h-screen relative overflow-hidden bg-[#f7f5f2] text-[#2b1834]">
+            <div className="relative z-10 flex min-h-screen">
                 <Sidebar />
                 <div className="flex-1 w-full h-full overflow-y-auto p-8">
 
                     {/* Header */}
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-                        <Card className=" bg-slate-900/40 border border-pink-500/20 rounded-3xl p-6 shadow-2xl shadow-pink-500/10">
+                        <Card className=" bg-[#fffdfb] border border-[#ead7ec] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-3xl font-bold text-white">AI Ad Generator</h2>
+                                    <h2 className="text-3xl font-bold text-[#2b1834]">AI Ad Generator</h2>
                                     <p className="text-slate-300">Auto-generate ready-to-use ads from your extracted products</p>
                                 </div>
-                                <Badge className="bg-pink-500 text-white text-xs flex items-center space-x-1">
+                                <Badge className="bg-pink-500 text-[#2b1834] text-xs flex items-center space-x-1">
                                     <Sparkles className="h-3 w-3" />
                                     <span>Auto-Generated</span>
                                 </Badge>
@@ -171,12 +171,12 @@ export default function AdGeneratorPage() {
                     {/* Products */}
                     {jobs.length > 0 && (
                         <Card className="bg-slate-900/50 border border-pink-500/30 rounded-3xl p-6 mb-6">
-                            <h3 className="text-xl text-white mb-4">Select a Product</h3>
+                            <h3 className="text-xl text-[#2b1834] mb-4">Select a Product</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {jobs.map(job => (
                                     <Card key={job._id} className={`cursor-pointer p-4 ${selectedProduct?._id === job._id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleProductSelect(job)}>
                                         <img src={job.result?.thumbnail || job.result?.images?.[0] || "/placeholder.svg"} alt="" className="w-full h-32 object-cover rounded-lg mb-2" />
-                                        <h4 className="text-white font-medium text-sm">{job.result?.new_title || job.result?.original_title || "Untitled"}</h4>
+                                        <h4 className="text-[#2b1834] font-medium text-sm">{job.result?.new_title || job.result?.original_title || "Untitled"}</h4>
                                         <p className="text-slate-300 text-xs line-clamp-2">{job.result?.description}</p>
                                     </Card>
                                 ))}
@@ -187,7 +187,7 @@ export default function AdGeneratorPage() {
                     {/* Ad Formats */}
                     {selectedProduct && (
                         <Card className="bg-slate-900/80 border border-pink-500/30 rounded-3xl p-6 mb-6">
-                            <h3 className="text-xl text-white mb-4">Choose an Ad Format</h3>
+                            <h3 className="text-xl text-[#2b1834] mb-4">Choose an Ad Format</h3>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 {adFormats.map(format => (
                                     <Card key={format.id} className={`cursor-pointer p-4 flex items-center space-x-4 ${selectedFormat?.id === format.id ? "bg-purple-500/20 border-purple-400" : "hover:bg-slate-800/30 border-slate-600"}`} onClick={() => handleFormatSelect(format)}>
@@ -195,7 +195,7 @@ export default function AdGeneratorPage() {
                                             <format.icon className="w-6 h-6" style={{ color: BRAND_PALETTE.primary }} />
                                         </div>
                                         <div>
-                                            <h4 className="text-white font-medium">{format.name}</h4>
+                                            <h4 className="text-[#2b1834] font-medium">{format.name}</h4>
                                             <p className="text-slate-400 text-sm">{format.platform}</p>
                                         </div>
                                     </Card>
@@ -207,7 +207,7 @@ export default function AdGeneratorPage() {
                     {/* Generate Ads */}
                     {selectedProduct && selectedFormat && (
                         <div className="text-center mb-6">
-                            <Button onClick={generateAds} disabled={isGenerating} size="lg" className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-2">
+                            <Button onClick={generateAds} disabled={isGenerating} size="lg" className="bg-gradient-to-r from-pink-500 to-purple-500 text-[#2b1834] px-8 py-2">
                                 <Wand2 className="mr-2 h-5 w-5" />
                                 {isGenerating ? "Generating..." : "Generate Ads"}
                                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -218,7 +218,7 @@ export default function AdGeneratorPage() {
                     {/* Generated Ads */}
                     {generatedAdSets.map(adSet => (
                         <Card key={adSet.id} className="bg-slate-900/80 border border-pink-500/30 rounded-3xl p-6 mb-6">
-                            <h3 className="text-xl text-white mb-4 flex items-center"><Sparkles className="mr-2 h-5 w-5 text-pink-400" />Your AI-Generated Ads</h3>
+                            <h3 className="text-xl text-[#2b1834] mb-4 flex items-center"><Sparkles className="mr-2 h-5 w-5 text-pink-400" />Your AI-Generated Ads</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {adSet.variations.map((variation) => (
                                     <Card key={variation.id} className="bg-slate-800/80 border border-slate-600 rounded-xl p-4 flex flex-col">
@@ -238,7 +238,7 @@ export default function AdGeneratorPage() {
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
                                                 <div className="absolute bottom-4 left-4 right-4">
-                                                    <h4 className="text-white font-bold text-sm mb-1 line-clamp-2">{variation.headline}</h4>
+                                                    <h4 className="text-[#2b1834] font-bold text-sm mb-1 line-clamp-2">{variation.headline}</h4>
                                                     <p className="text-slate-200 text-xs mb-2 line-clamp-3">{variation.description}</p>
                                                     <Button size="sm" className="bg-white text-black text-xs px-3 py-1 rounded-full">{variation.cta}</Button>
                                                 </div>
