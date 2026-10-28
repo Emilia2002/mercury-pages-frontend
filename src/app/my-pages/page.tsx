@@ -260,7 +260,7 @@ export default function MyPagesPage() {
                                     <h2 className="text-3xl font-bold text-[#2b1834] bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text">
                                         My Pages
                                     </h2>
-                                    <p className="text-slate-300">Manage your generated product pages and track
+                                    <p className="text-[#8b718e]">Manage your generated product pages and track
                                         performance</p>
                                 </div>
                                 <div className="flex items-center space-x-4">
@@ -279,7 +279,7 @@ export default function MyPagesPage() {
                             transition={{delay: 0.1}}
                             className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
                         >
-                            <Card className="bg-slate-900/50 backdrop-blur-xl border-slate-700/50 p-6 rounded-2xl">
+                            <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] p-6 rounded-2xl">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-slate-400 text-sm">Total Pages</p>
@@ -291,7 +291,7 @@ export default function MyPagesPage() {
                                 </div>
                             </Card>
 
-                            <Card className="bg-slate-900/50 backdrop-blur-xl border-slate-700/50 p-6 rounded-2xl">
+                            <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] p-6 rounded-2xl">
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-slate-400 text-sm">Completed</p>
@@ -311,7 +311,7 @@ export default function MyPagesPage() {
                             transition={{delay: 0.2}}
                             className="mb-8"
                         >
-                            <Card className="bg-slate-900/50 backdrop-blur-xl border-slate-700/50 p-6 rounded-2xl">
+                            <Card className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] p-6 rounded-2xl">
                                 <div className="flex flex-col md:flex-row gap-4">
                                     <div className="flex-1">
                                         <div className="relative">
@@ -381,7 +381,7 @@ export default function MyPagesPage() {
                                         transition={{delay: 0.1 * index}}
                                     >
                                         <Card
-                                            className="bg-slate-900/50 backdrop-blur-xl border-slate-700/50 hover:border-cyan-500/50 transition-all duration-300 group rounded-3xl">
+                                            className="bg-[#fffdfb] border border-[#ead7ec] shadow-[0_18px_50px_rgba(77,33,91,0.06)] hover:border-cyan-500/50 transition-all duration-300 group rounded-3xl">
                                             {/* Thumbnail */}
                                             <div className="relative h-48 overflow-hidden rounded-t-3xl">
                                                 <img
@@ -598,7 +598,7 @@ export default function MyPagesPage() {
                             <div className="flex justify-end mt-6 space-x-3">
                                 <Button
                                     variant="outline"
-                                    className="bg-transparent text-slate-300 hover:text-[#2b1834]"
+                                    className="bg-transparent text-[#8b718e] hover:text-[#2b1834]"
                                     onClick={() => setIsEditModalOpen(false)}
                                 >
                                     Cancel
