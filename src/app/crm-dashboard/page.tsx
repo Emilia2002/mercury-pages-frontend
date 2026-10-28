@@ -259,10 +259,10 @@ export default function CRMDashboard() {
                         className="border border-[#ead7ec] bg-[#fffdfb] rounded-3xl p-6 shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h2 className="md:text-3xl font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text sm:text-xl">
+                                <h2 className="md:text-3xl font-bold text-[#2b1834] sm:text-xl">
                                     Dashboard
                                 </h2>
-                                <p className="text-slate-300">Welcome back! Your AI workspace awaits</p>
+                                <p className="text-[#8b718e]">Welcome back! Your AI workspace awaits</p>
                             </div>
                             <div className="flex items-center space-x-4">
                                 <Button
@@ -343,13 +343,13 @@ export default function CRMDashboard() {
 
                             <div className="space-y-4">
                                 <div className="relative">
-                                    <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-300 h-4 w-4" />
+                                    <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#8b718e] h-4 w-4" />
                                     <Input
                                         type = "text"
                                         value = {url}
                                         onChange={(e) => setUrl(e.target.value)}
                                         placeholder="Paste product URL here..."
-                                        className="pl-10 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder:text-slate-300 focus:border-cyan-400/50"
+                                        className="pl-10 bg-white border border-[#ead7ec] rounded-xl text-[#2b1834] placeholder:text-[#a18aa9] focus:border-[#8e267e] focus:ring-2 focus:ring-[#8e267e]/10"
                                     />
                                 </div>
 
@@ -366,7 +366,7 @@ export default function CRMDashboard() {
                                     {isLoading ? (
                                         <div className="flex flex-col items-center justify-center h-64 text-center">
                                             <div className="w-12 h-12 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
-                                            <p className="text-slate-300 mb-2">AI is analyzing the product...</p>
+                                            <p className="text-[#8b718e] mb-2">AI is analyzing the product...</p>
                                             <p className="text-sm text-slate-500">This may take a few moments</p>
                                         </div>
                                     ) : extractedData ? (
