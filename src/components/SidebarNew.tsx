@@ -3,23 +3,12 @@
 import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
-import {
-  BarChart3,
-  ChevronRight,
-  FileText,
-  LogOut,
-  Menu,
-  Rocket,
-  Settings,
-  ShoppingBag,
-  Target,
-  X,
-  Wand2,
-} from "lucide-react"
+import { ChartBar as BarChart3, ChevronRight, FileText, LayoutTemplate, LogOut, Menu, Rocket, Settings, ShoppingBag, Target, X, Wand as Wand2 } from "lucide-react"
 
 const mainItems = [
   { icon: BarChart3, label: "Dashboard", href: "/crm-dashboard" },
   { icon: FileText, label: "My Pages", href: "/my-pages" },
+  { icon: LayoutTemplate, label: "Page Editor", href: "/page-editor" },
   { icon: Target, label: "Ad Creative Studio", href: "/ad-generator" },
   { icon: ShoppingBag, label: "Shopify Integration", href: "/integrations-shopify" },
 ]
