@@ -202,6 +202,8 @@ export default function MyPagesPage() {
         }
 
         const payload = {
+            job_id: job._id,
+            idempotency_key: `shopify-export-${job._id}`,
             new_title: job.result?.new_title || job.result?.title || "Untitled Product",
             description: job.result?.description,
             images: job.result?.images,

@@ -6,7 +6,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import Sidebar from '@/components/SidebarNew';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Check, CreditCard, Gauge, Mail, ShieldCheck, Sparkles, Store, X } from 'lucide-react';
 
 interface UserInfo {
     email: string;
@@ -87,88 +90,68 @@ export default function AccountPage() {
     };
 
     if (auth.isLoading || isLoadingData) {
-        return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+        return <div className="flex min-h-screen items-center justify-center bg-[#fcfafd] text-sm text-[#766b80]">Loading your account...</div>;
     }
 
-    if (!auth.isAuthenticated || !userInfo) {
-        return null;
-    }
+    if (!auth.isAuthenticated || !userInfo) return null;
+
+    const pageLimit = userInfo.pages_limit_month || 0;
+    const usagePercent = pageLimit ? Math.min(100, Math.round((userInfo.pages_generated_month / pageLimit) * 100)) : 0;
 
     return (
-        <div className="h-screen relative overflow-hidden bg-slate-950">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
-            <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
-                <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000" />
-            </div>
-
-            <div className="flex h-screen">
+        <div className="min-h-screen bg-[#fcfafd] text-[#21182b]">
+            <div className="flex min-h-screen">
                 <Sidebar />
-
-                <div className="flex-1 w-full h-full overflow-y-auto p-8 space-y-6">
-                    {/* Header */}
-                    <Card className="backdrop-blur-xl bg-slate-900/40 border border-pink-500/20 rounded-3xl p-6 shadow-2xl shadow-pink-500/10">
-                        <div className="flex items-center justify-between">
+                <main className="min-w-0 flex-1 overflow-y-auto">
+                    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-12">
+                        <header className="mb-8 flex flex-col gap-5 border-b border-[#eae2f0] pb-8 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text">
-                                    My Account
-                                </h2>
-                                <p className="text-slate-300">Manage your subscription</p>
+                                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Workspace settings</p>
+                                <h1 className="mt-2 font-[var(--font-playfair)] text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">My account</h1>
+                                <p className="mt-3 max-w-xl text-base leading-7 text-[#766b80]">Keep your plan, usage, and store connection in one place.</p>
                             </div>
-                        </div>
-                    </Card>
+                            <Badge className={userInfo.subscription_active ? 'w-fit border-0 bg-[#e6f6f0] px-3 py-1.5 text-[#1f7f5a]' : 'w-fit border-0 bg-[#fce8ec] px-3 py-1.5 text-[#a52f4a]'}>
+                                {userInfo.subscription_active ? <Check data-icon="inline-start" /> : <X data-icon="inline-start" />} {userInfo.subscription_active ? 'Plan active' : 'Plan inactive'}
+                            </Badge>
+                        </header>
 
-                    {/* Subscription Details */}
-                    <Card className="bg-slate-900/50 backdrop-blur-xl border-slate-700/50 p-6 rounded-2xl">
-                        <h2 className="text-2xl font-bold mb-6 text-white">Subscription Details</h2>
-                        <div className="space-y-4">
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Current Plan:</span>
-                                <span className="font-bold text-white">{userInfo.subscription_plan}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Subscription status:</span>
-                                <span
-                                    className={`font-bold ${userInfo.subscription_active ? 'text-green-400' : 'text-red-400'}`}>
-                  {userInfo.subscription_active ? 'Active' : 'Inactive'}
-                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Pages Generated this month:</span>
-                                <span className="font-bold text-white">{userInfo.pages_generated_month}</span>
-                            </div>
-                        </div>
-                        <div className="mt-8 pt-6 border-t border-white/10 flex gap-4">
-                            {userInfo.subscription_active ? (
-                                <>
-                                    <button
-                                        onClick={handleManageSubscription}
-                                        className="bg-cyan-500 text-black font-bold py-2 px-4 rounded-lg border border-white"
-                                    >
-                                        Manage Subscription
-                                    </button>
-                                    <button
-                                        onClick={handleCancelSubscription}
-                                        className="bg-cyan-500 text-black font-bold py-2 px-4 rounded-lg border border-white"
-                                    >
-                                        Cancel Subscription
-                                    </button>
-                                </>
-                            ) : (
-                                <Link
-                                    href="/pricing"
-                                    className="bg-[#38BDF8] text-black font-bold py-2 px-4 rounded-lg text-center"
-                                >
-                                    Upgrade Plan
-                                </Link>
-                            )}
-                        </div>
-                    </Card>
+                        <section className="grid gap-5 lg:grid-cols-[1.4fr_0.8fr]">
+                            <Card className="overflow-hidden border-0 bg-[#21182b] text-white shadow-xl shadow-[#6425c7]/10">
+                                <CardHeader className="relative pb-5">
+                                    <div className="absolute -right-12 -top-16 size-48 rounded-full bg-[#e83ead]/20 blur-3xl" />
+                                    <div className="relative flex items-start justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-[#f0b6e2]">Current plan</p>
+                                            <CardTitle className="mt-2 text-3xl capitalize">{userInfo.subscription_plan}</CardTitle>
+                                            <CardDescription className="mt-2 text-[#d9cedd]">Built for brands launching with momentum.</CardDescription>
+                                        </div>
+                                        <div className="flex size-11 items-center justify-center rounded-2xl bg-white/10"><Sparkles /></div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex items-center gap-3 text-sm text-[#e7ddea]"><CreditCard data-icon="inline-start" /> Billing is managed securely through Stripe.</div>
+                                    {userInfo.subscription_active ? <Button onClick={handleManageSubscription} className="bg-white text-[#21182b] hover:bg-[#f7e4f3]">Manage billing</Button> : <Button asChild className="bg-[#e83ead] text-white hover:bg-[#d92d9e]"><Link href="/pricing">View plans</Link></Button>}
+                                </CardContent>
+                            </Card>
 
+                            <Card className="border-[#eae2f0] bg-white shadow-sm">
+                                <CardHeader className="pb-3"><CardTitle className="text-lg">Monthly usage</CardTitle><CardDescription>Your generated storefront pages</CardDescription></CardHeader>
+                                <CardContent>
+                                    <div className="flex items-end justify-between"><span className="text-4xl font-semibold tracking-[-0.05em]">{userInfo.pages_generated_month}</span><span className="mb-1 text-sm text-[#766b80]">{pageLimit ? `of ${pageLimit}` : 'pages'}</span></div>
+                                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#f1e7fa]"><div className="h-full rounded-full bg-gradient-to-r from-[#e83ead] to-[#6425c7]" style={{ width: `${pageLimit ? usagePercent : 12}%` }} /></div>
+                                    <div className="mt-3 flex items-center gap-2 text-xs text-[#766b80]"><Gauge data-icon="inline-start" /> {pageLimit ? `${usagePercent}% of your monthly allowance` : 'Usage resets monthly'}</div>
+                                </CardContent>
+                            </Card>
+                        </section>
 
-                </div>
+                        <section className="mt-5 grid gap-5 md:grid-cols-2">
+                            <Card className="border-[#eae2f0] bg-white shadow-sm"><CardHeader><div className="flex items-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-[#f7e4f3] text-[#8e267e]"><Mail /></div><div><CardTitle className="text-lg">Profile</CardTitle><CardDescription>Your Mercury Pages login</CardDescription></div></div></CardHeader><CardContent><p className="font-medium">{userInfo.email}</p><p className="mt-1 text-sm text-[#766b80]">{userInfo.is_verified ? 'Verified account' : 'Email verification pending'}</p></CardContent></Card>
+                            <Card className="border-[#eae2f0] bg-white shadow-sm"><CardHeader><div className="flex items-center gap-3"><div className="flex size-10 items-center justify-center rounded-xl bg-[#e6f6f0] text-[#1f7f5a]"><Store /></div><div><CardTitle className="text-lg">Shopify connection</CardTitle><CardDescription>Ready when you are</CardDescription></div></div></CardHeader><CardContent><p className="truncate font-medium">{userInfo.shopify_store_url || 'No store connected'}</p><div className="mt-3 flex items-center gap-2 text-sm text-[#1f7f5a]"><ShieldCheck data-icon="inline-start" /> Credentials protected</div><Button asChild variant="outline" className="mt-5 w-full"><Link href="/integrations-shopify">Manage Shopify connection</Link></Button></CardContent></Card>
+                        </section>
+
+                        {userInfo.subscription_active && <div className="mt-8 flex justify-end"><Button variant="ghost" onClick={handleCancelSubscription} className="text-[#a52f4a] hover:bg-[#fce8ec] hover:text-[#a52f4a]">Cancel subscription</Button></div>}
+                    </div>
+                </main>
             </div>
         </div>
     );
