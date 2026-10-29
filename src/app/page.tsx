@@ -548,10 +548,10 @@ export default function Home() {
               <div className="relative rounded-3xl bg-[#21182b] p-8 text-white shadow-xl shadow-[#21182b]/15">
                 <span className="absolute right-6 top-6 rounded-full bg-[#f7e4f3] px-3 py-1 text-xs font-semibold text-[#8e267e]">Premium</span>
                 <p className="text-sm font-semibold text-[#f3c9e8]">Premium</p>
-                <p className="mt-4 text-5xl font-bold tracking-[-0.06em]">€30<span className="text-base font-medium text-[#c7b8cc]"> / month</span></p>
+                <p className="mt-4 text-5xl font-bold tracking-[-0.06em]">€39<span className="text-base font-medium text-[#c7b8cc]"> / month</span></p>
                 <p className="mt-3 text-sm leading-6 text-[#d9cedd]">For brands building and exporting at full speed.</p>
                 <ul className="mt-7 space-y-3 text-sm text-[#f7f0f8]">
-                  {['Unlimited product pages', 'AI descriptions and SEO optimization', 'AI image generator inside the editor', 'Shopify export and product syncing', 'Priority processing'].map((item) => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-[#f0a9dc]" /> {item}</li>)}
+                  {['Unlimited product pages', 'AI descriptions and SEO optimization', 'AI image generator inside the editor', 'Shopify export and product syncing'].map((item) => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-[#f0a9dc]" /> {item}</li>)}
                 </ul>
                 <Link href="/pricing" className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-5 py-3 text-sm font-semibold text-white">Choose Premium <ArrowRight className="ml-2 size-4" /></Link>
               </div>

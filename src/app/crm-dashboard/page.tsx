@@ -255,7 +255,7 @@ export default function CRMDashboard() {
     const totalPages = jobs.length;
     const completedPages = jobs.filter(job => job.status === 'completed').length;
     const usageUsed = Math.min(totalPages, 10);
-    const usageTotal = 10;
+    const usageTotal = 5;
 
     const recentJobs = [...jobs]
         .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())

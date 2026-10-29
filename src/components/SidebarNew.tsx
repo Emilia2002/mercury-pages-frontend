@@ -69,12 +69,12 @@ export default function Sidebar() {
       <div className="mb-3 rounded-2xl border border-[#eae2f0] bg-[#f9f2f8] p-4">
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold text-[#21182b]">Monthly generations</p>
-          <span className="text-[10px] font-semibold text-[#8e267e]">Free plan</span>
+          {/*<span className="text-[10px] font-semibold text-[#8e267e]">Free plan</span>*/}
         </div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#ead7ec]">
-          <div className="h-full w-2/5 rounded-full bg-gradient-to-r from-[#e83ead] to-[#6425c7]" />
-        </div>
-        <p className="mt-2 text-[11px] text-[#766b80]">4 of 10 used this month</p>
+        {/*<div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#ead7ec]">*/}
+        {/*  <div className="h-full w-2/5 rounded-full bg-gradient-to-r from-[#e83ead] to-[#6425c7]" />*/}
+        {/*</div>*/}
+        <p className="mt-2 text-[11px] text-[#766b80]">4 of 5 used this month</p>
       </div>
 
       {/* Upgrade card */}

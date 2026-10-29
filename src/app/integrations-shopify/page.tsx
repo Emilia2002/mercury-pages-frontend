@@ -163,11 +163,11 @@ export default function ShopifyIntegrationPage() {
                         <div className="space-y-4">
                             <Card className="bg-white/90 backdrop-blur-xl border border-[#eae2f0] rounded-3xl p-6 shadow-lg shadow-[#6425c7]/5">
                                 <CardHeader>
-                                    <CardTitle className="text-white flex items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2">
                                         <Store className="w-5 h-5 text-purple-400" />
                                         Setup Instructions
                                     </CardTitle>
-                                    <CardDescription className="text-slate-400">
+                                    <CardDescription className="text-slate-600">
                                         Follow these steps inside your Shopify admin panel.
                                     </CardDescription>
                                 </CardHeader>
@@ -190,16 +190,16 @@ export default function ShopifyIntegrationPage() {
                                             className="flex items-start gap-4 cursor-pointer"
                                             onClick={() => setExpandedStep(expandedStep === step.id ? null : step.id)}
                                         >
-                                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg font-bold">
+                                            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold">
                                                 {index + 1}
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-center">
-                                                    <CardTitle className="text-white text-lg flex items-center gap-2">
+                                                    <CardTitle className="text-lg flex items-center gap-2">
                                                         <step.icon className="w-4 h-4 text-pink-300" />
                                                         {step.title}
                                                     </CardTitle>
-                                                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+                                                    <Button variant="ghost" size="icon" className="text-slate-600">
                                                         <AnimatePresence mode="wait">
                                                             {expandedStep === step.id ? (
                                                                 <motion.div
@@ -225,7 +225,7 @@ export default function ShopifyIntegrationPage() {
                                                         </AnimatePresence>
                                                     </Button>
                                                 </div>
-                                                <CardDescription className="text-slate-400 mt-1">
+                                                <CardDescription className="text-slate-600 mt-1">
                                                     {step.description}
                                                 </CardDescription>
                                             </div>
@@ -264,11 +264,11 @@ export default function ShopifyIntegrationPage() {
                         >
                             <Card className="bg-white/90 backdrop-blur-xl border border-[#eae2f0] rounded-3xl p-6 shadow-lg shadow-[#6425c7]/5">
                                 <CardHeader>
-                                    <CardTitle className="text-white flex items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2">
                                         <Store className="w-5 h-5 text-purple-400" />
                                         Connect Your Store
                                     </CardTitle>
-                                    <CardDescription className="text-slate-400">
+                                    <CardDescription className="text-slate-600">
                                         Enter the credentials you copied from Shopify.
                                     </CardDescription>
                                     {error && (
@@ -278,7 +278,7 @@ export default function ShopifyIntegrationPage() {
                                         </div>
                                     )}
                                     {success && (
-                                        <div className="mt-6 flex items-center gap-2 bg-green-900/50 border border-green-900 text-white px-4 py-3 rounded-md">
+                                        <div className="mt-6 flex items-center gap-2 bg-green-900/50 border border-green-900 px-4 py-3 rounded-md">
                                             <span>✅ Shopify credentials saved successfully..</span>
                                         </div>
                                     )}
@@ -287,13 +287,13 @@ export default function ShopifyIntegrationPage() {
                                     {!isConnected ? (
                                         <>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-white">Store URL</label>
+                                                <label className="text-sm font-medium">Store URL</label>
                                                 <div className="relative">
                                                     <Input
                                                         placeholder="your-store-name.myshopify.com"
                                                         value={storeUrl}
                                                         onChange={(e) => setStoreUrl(e.target.value)}
-                                                        className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
+                                                        className="bg-white/10 border-white/20 placeholder:text-slate-600"
                                                     />
                                                 </div>
                                                 <p className="text-xs text-slate-500">
@@ -302,14 +302,14 @@ export default function ShopifyIntegrationPage() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-white">Admin API Access Token</label>
+                                                <label className="text-sm font-medium">Admin API Access Token</label>
                                                 <div className="relative">
                                                     <Input
                                                         type="password"
                                                         placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                                                         value={accessToken}
                                                         onChange={(e) => setAccessToken(e.target.value)}
-                                                        className="bg-white/10 border-white/20 text-white placeholder:text-slate-400"
+                                                        className="bg-white/10 border-white/20 placeholder:text-slate-400"
                                                     />
                                                 </div>
                                             </div>
@@ -354,13 +354,13 @@ export default function ShopifyIntegrationPage() {
                                                 <CheckCircle className="w-8 h-8 text-green-400" />
                                             </div>
                                             <div>
-                                                <h3 className="text-lg font-semibold text-white">Successfully Connected!</h3>
+                                                <h3 className="text-lg font-semibold">Successfully Connected!</h3>
                                                 <p className="text-slate-300">Your Shopify store is now integrated with Mercury Pages.</p>
                                             </div>
                                             <Badge className="bg-green-500/20 text-green-100 border-green-500/30">{storeUrl}</Badge>
                                             <Button
                                                 variant="outline"
-                                                className="border-white/20 text-white hover:bg-white/10 bg-transparent"
+                                                className="border-white/20 hover:bg-white/10 bg-transparent"
                                                 onClick={() => {
                                                     setIsConnected(false)
                                                     setStoreUrl("")

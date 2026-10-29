@@ -105,7 +105,7 @@ export default function PricingPage() {
                         <span className="absolute top-0 -translate-y-1/2 bg-[#f7e4f3] text-[#8e267e] text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
                         <h3 className="text-2xl font-bold mb-2">Premium</h3>
                         <p className="text-[#d9cedd] mb-6">For growing brands that test and launch regularly.</p>
-                        <p className="text-5xl font-bold mb-6">€30<span className="text-lg font-normal text-[#c7b8cc]">/mo</span></p>
+                        <p className="text-5xl font-bold mb-6">€39<span className="text-lg font-normal text-[#c7b8cc]">/mo</span></p>
                         <ul className="space-y-4 mb-8">
                             <li className="flex items-center">
                                 <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>Unlimited Product Pages
