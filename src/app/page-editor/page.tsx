@@ -764,6 +764,36 @@ export default function PageEditorPage() {
     else router.push("/crm-dashboard")
   }
 
+  const handleExportToShopify = async () => {
+    if (!auth.token) return router.push("/signin")
+    const jobId = searchParams.get("jobId")
+    if (!jobId) return router.push("/my-pages")
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+    const images = mediaAssets.map((asset) => asset.url).filter(Boolean)
+    const buybox = sections.find((section) => section.type === "buybox")
+    const description = sections.filter((section) => section.visible).map((section) => String(section.settings.subtitle || section.settings.body || "")).filter(Boolean).join("\\n\\n")
+    const response = await fetch(`${baseUrl}/shopify/export`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.token}` },
+      body: JSON.stringify({
+        new_title: pageTitle,
+        description,
+        images,
+        variants: {},
+        price: buybox?.settings.price,
+        job_id: jobId,
+      }),
+    })
+    if (response.ok) return
+    const error = await response.json().catch(() => ({})) as { detail?: string }
+    if (response.status === 400 && error.detail?.toLowerCase().includes("shopify")) {
+      router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/page-editor?jobId=${jobId}`)}`)
+      return
+    }
+    window.alert(error.detail || "We could not export this page to Shopify.")
+  }
+
   const previewWidth = previewMode === "mobile" ? "max-w-[390px]" : "max-w-full"
 
   return (
@@ -818,6 +848,9 @@ export default function PageEditorPage() {
               {saveStatus === "saving" && <span className="flex items-center gap-1 text-[#6425c7]"><Loader2 className="size-3.5 animate-spin" /> Saving...</span>}
               {saveStatus === "unsaved" && <span className="text-[#d99a2b]">Unsaved changes</span>}
             </div>
+            <button onClick={handleExportToShopify} className="flex h-9 items-center gap-2 rounded-lg border border-[#d8ecd9] bg-[#f2fbf4] px-3 text-sm font-semibold text-[#247a4b] transition hover:bg-[#e6f6ea]" title="Export this page to Shopify">
+              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/shopify/default.svg" alt="" className="size-4" /> Export to Shopify
+            </button>
             <button onClick={handleSave} className="flex h-9 items-center gap-2 rounded-lg bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
               <Save className="size-4" /> Save
             </button>
