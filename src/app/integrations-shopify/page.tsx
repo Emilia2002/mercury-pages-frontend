@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -76,7 +76,7 @@ const onboardingSteps = [
     },
 ]
 
-export default function ShopifyIntegrationPage() {
+function ShopifyIntegrationContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const auth = useAuth();
@@ -335,5 +335,13 @@ export default function ShopifyIntegrationPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function ShopifyIntegrationPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#fcfafd]" />}>
+            <ShopifyIntegrationContent />
+        </Suspense>
     )
 }
