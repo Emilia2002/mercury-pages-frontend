@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { useAuth } from '@/contexts/AuthContext';
-
 import {
     CheckCircle,
     AlertCircle,
@@ -77,65 +76,46 @@ const onboardingSteps = [
 ]
 
 export default function ShopifyIntegrationPage() {
-    const auth = useAuth();
-    const [storeUrl, setStoreUrl] = useState('');
-    const [accessToken, setAccessToken] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-    const [isConnecting, setIsConnecting] = useState(false)
-    const [isConnected, setIsConnected] = useState(false)
-    const [connectionError, setConnectionError] = useState("")
-    const [expandedStep, setExpandedStep] = useState<string | null>(null)
-    const [error, setError] = useState<string | null>(null);
-    const [success, setIsSuccess] = useState(false);
+    const [storeUrl, setStoreUrl] = useState('');
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
+    const [connectionError, setConnectionError] = useState("");
+    const [expandedStep, setExpandedStep] = useState<string | null>(null);
+    const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-    const handleConnectShopify = async () => {
-        if (!storeUrl || !accessToken) {
-            setError("Please enter both your store URL and access token.");
-            return;
-        }
+    const normalizeShopDomain = (value: string) => value.trim().replace(/^https?:\/\//i, '').split('/')[0].toLowerCase();
 
-        const normalizedStoreUrl = storeUrl
-            .trim()
-            .replace(/^https?:\/\//i, '')
-            .replace(/\/.*$/, '')
-            .replace(/\/$/, '')
-            .toLowerCase();
+    useEffect(() => {
+        const status = searchParams.get('status');
+        const callbackError = searchParams.get('error') || searchParams.get('message');
+        const shop = searchParams.get('shop');
 
-        if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(normalizedStoreUrl)) {
-            setError("Please enter a valid Shopify store URL, such as your-store.myshopify.com.");
-            return;
-        }
-
-        setIsLoading(true);
-        setIsConnecting(true);
-        setError("");
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/users/me/shopify`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${auth.token}`,
-                },
-                body: JSON.stringify({ store_url: normalizedStoreUrl, access_token: accessToken.trim() }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.detail || `HTTP Error: ${response.status} ${response.statusText}`;
-                throw new Error(errorMessage);
-            }
-
-            setIsSuccess(true);
+        if (status === 'success' || status === 'connected') {
             setIsConnected(true);
-        } catch (error) {
-            console.error("Error saving credentials:", error);
-            setError(`Failed to connect to Shopify.`);
-        } finally {
-            setIsLoading(false);
-            setIsConnecting(false);
+            setStoreUrl(shop ? normalizeShopDomain(shop) : '');
+            setStatusMessage('Shopify connected successfully. Your store is ready for export.');
+            router.replace('/integrations-shopify');
+        } else if (callbackError) {
+            setConnectionError(callbackError);
         }
+    }, [router, searchParams]);
+
+    const handleConnectShopify = () => {
+        const normalizedShop = normalizeShopDomain(storeUrl);
+        if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(normalizedShop)) {
+            setConnectionError('Enter a valid Shopify domain, such as your-store.myshopify.com.');
+            return;
+        }
+
+        setConnectionError('');
+        setIsConnecting(true);
+        const returnTo = searchParams.get('returnTo');
+        const params = new URLSearchParams({ shop: normalizedShop });
+        if (returnTo?.startsWith('/')) params.set('returnTo', returnTo);
+        window.location.assign(`${API_BASE_URL}/auth/shopify/start?${params.toString()}`);
     };
 
     return (
@@ -271,114 +251,47 @@ export default function ShopifyIntegrationPage() {
                         >
                             <Card className="bg-white/90 backdrop-blur-xl border border-[#eae2f0] rounded-3xl p-6 shadow-lg shadow-[#6425c7]/5">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <Store className="w-5 h-5 text-purple-400" />
-                                        Connect Your Store
-                                    </CardTitle>
-                                    <CardDescription className="text-slate-600">
-                                        Enter the credentials you copied from Shopify.
-                                    </CardDescription>
-                                    {error && (
-                                        <div className="mt-6 flex items-center gap-2 bg-red-900/50 border border-red-600 text-red-200 px-4 py-3 rounded-md">
-                                            <AlertCircle size={20} />
-                                            <span className="text-sm">{error}</span>
-                                        </div>
-                                    )}
-                                    {success && (
-                                        <div className="mt-6 flex items-center gap-2 bg-green-900/50 border border-green-900 px-4 py-3 rounded-md">
-                                            <span>✅ Shopify credentials saved successfully..</span>
-                                        </div>
-                                    )}
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    {!isConnected ? (
-                                        <>
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium">Store URL</label>
-                                                <div className="relative">
-                                                    <Input
-                                                        placeholder="your-store-name.myshopify.com"
-                                                        value={storeUrl}
-                                                        onChange={(e) => setStoreUrl(e.target.value)}
-                                                        className="bg-white/10 border-white/20 placeholder:text-slate-600"
-                                                    />
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Store className="w-5 h-5 text-purple-400" />
+                                            Connect Your Store
+                                        </CardTitle>
+                                        <CardDescription className="text-slate-600">
+                                            Authorize Mercury Pages securely in your Shopify admin.
+                                        </CardDescription>
+                                        {connectionError && (
+                                            <div role="alert" className="mt-6 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+                                                <AlertCircle size={20} aria-hidden="true" />
+                                                <span className="text-sm">{connectionError}</span>
+                                            </div>
+                                        )}
+                                        {statusMessage && (
+                                            <div role="status" className="mt-6 flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+                                                <CheckCircle size={20} aria-hidden="true" />
+                                                <span className="text-sm">{statusMessage}</span>
+                                            </div>
+                                        )}
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        {!isConnected ? (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <label htmlFor="shop-domain" className="text-sm font-medium">Shopify store domain</label>
+                                                    <Input id="shop-domain" placeholder="your-store-name.myshopify.com" value={storeUrl} onChange={(event) => setStoreUrl(event.target.value)} autoComplete="url" />
+                                                    <p className="text-xs text-slate-500">We&apos;ll redirect you to Shopify to approve access. No access token is needed.</p>
                                                 </div>
-                                                <p className="text-xs text-slate-500">
-                                                    e.g., your-store-name.myshopify.com (without https://)
-                                                </p>
+                                                <Button onClick={handleConnectShopify} disabled={!storeUrl || isConnecting} className="w-full bg-gradient-to-r from-purple-500 to-pink-500 shadow-md shadow-purple-500/20 hover:from-purple-600 hover:to-pink-600">
+                                                    {isConnecting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Connecting to Shopify...</> : 'Connect Shopify'}
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center gap-4 text-center">
+                                                <div className="flex size-16 items-center justify-center rounded-full bg-green-100"><CheckCircle className="size-8 text-green-600" /></div>
+                                                <div><h3 className="text-lg font-semibold">Shopify connected</h3><p className="text-slate-600">Your store is ready for product page exports.</p></div>
+                                                {storeUrl && <Badge className="border-green-200 bg-green-50 text-green-700">{storeUrl}</Badge>}
+                                                <Button variant="outline" asChild><a href="/page-editor">Continue to your page</a></Button>
                                             </div>
-
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium">Admin API Access Token</label>
-                                                <div className="relative">
-                                                    <Input
-                                                        type="password"
-                                                        placeholder="shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                                        value={accessToken}
-                                                        onChange={(e) => setAccessToken(e.target.value)}
-                                                        className="bg-white/10 border-white/20 placeholder:text-slate-400"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <AnimatePresence>
-                                                {connectionError && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, y: -10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, y: -10 }}
-                                                        className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
-                                                    >
-                                                        <AlertCircle className="w-4 h-4 text-red-400" />
-                                                        <p className="text-sm text-red-400">{connectionError}</p>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-
-                                            <Button
-                                                onClick={handleConnectShopify}
-                                                disabled={!storeUrl || !accessToken || isConnecting}
-                                                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-md shadow-purple-500/20"
-                                            >
-                                                {isConnecting ? (
-                                                    <>
-                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                                        Connecting...
-                                                    </>
-                                                ) : (
-                                                    "Connect Store"
-                                                )}
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <motion.div
-                                            initial={{ scale: 0.9, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="text-center space-y-4"
-                                        >
-                                            <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center">
-                                                <CheckCircle className="w-8 h-8 text-green-400" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg font-semibold">Successfully Connected!</h3>
-                                                <p className="text-slate-300">Your Shopify store is now integrated with Mercury Pages.</p>
-                                            </div>
-                                            <Badge className="bg-green-500/20 text-green-100 border-green-500/30">{storeUrl}</Badge>
-                                            <Button
-                                                variant="outline"
-                                                className="border-white/20 hover:bg-white/10 bg-transparent"
-                                                onClick={() => {
-                                                    setIsConnected(false)
-                                                    setStoreUrl("")
-                                                    setAccessToken("")
-                                                }}
-                                            >
-                                                Disconnect
-                                            </Button>
-                                        </motion.div>
-                                    )}
-                                </CardContent>
+                                        )}
+                                    </CardContent>
                             </Card>
                         </motion.div>
                     </div>
