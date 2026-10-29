@@ -4,7 +4,7 @@ import { useState } from "react"
 import { ImagePlus, Loader2, RefreshCw, X } from "lucide-react"
 import { generateProductImage, type GeneratedImageAsset, type ImagePurpose, type ImageStyle } from "@/lib/image-generation"
 
-export function GenerateImageDialog({ open, apiUrl, token, productContext, templateId, onClose, onGenerated }: { open: boolean; apiUrl: string; token: string; productContext: string; templateId?: string; onClose: () => void; onGenerated: (asset: GeneratedImageAsset) => void }) {
+export function GenerateImageDialog({ open, apiUrl, token, productContext, templateId, jobId, onClose, onGenerated }: { open: boolean; apiUrl: string; token: string; productContext: string; templateId?: string; jobId?: string; onClose: () => void; onGenerated: (asset: GeneratedImageAsset) => void }) {
   const [purpose, setPurpose] = useState<ImagePurpose>("hero")
   const [style, setStyle] = useState<ImageStyle>("studio")
   const [aspectRatio, setAspectRatio] = useState<"square" | "portrait" | "landscape">("landscape")
@@ -16,7 +16,7 @@ export function GenerateImageDialog({ open, apiUrl, token, productContext, templ
   if (!open) return null
   const generate = async () => {
     setLoading(true); setError(null)
-    try { setAsset(await generateProductImage(apiUrl, token, { productContext, purpose, style, aspectRatio, prompt: prompt.trim() || undefined, templateId })) }
+    try { setAsset(await generateProductImage(apiUrl, token, { productContext, purpose, style, aspectRatio, prompt: prompt.trim() || undefined, templateId, jobId })) }
     catch (err) { setError(err instanceof Error ? err.message : "Image generation failed.") }
     finally { setLoading(false) }
   }

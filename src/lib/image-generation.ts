@@ -8,6 +8,8 @@ export interface GenerateImageInput {
   aspectRatio: "square" | "portrait" | "landscape"
   prompt?: string
   templateId?: string
+  jobId?: string
+  pageId?: string
 }
 
 export interface GeneratedImageAsset {
@@ -25,10 +27,29 @@ export async function generateProductImage(
   token: string,
   input: GenerateImageInput,
 ): Promise<GeneratedImageAsset> {
+  if (!input.jobId && !input.pageId) {
+    throw new Error("Open a generated page before creating an AI image.")
+  }
+
+  const size = input.aspectRatio === "square"
+    ? "1024x1024"
+    : input.aspectRatio === "portrait"
+      ? "1024x1536"
+      : "1536x1024"
+
   const response = await fetch(`${apiUrl}/image-generation`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify(input),
+    body: JSON.stringify({
+      product_context: input.productContext,
+      purpose: input.purpose,
+      style: input.style,
+      size,
+      instruction: input.prompt,
+      template_id: input.templateId,
+      job_id: input.jobId,
+      page_id: input.pageId,
+    }),
   })
 
   const payload = await response.json().catch(() => null) as { image_url?: string; url?: string; asset?: { id?: string; url?: string }; detail?: string } | null
