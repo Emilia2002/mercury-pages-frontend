@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Sidebar from "@/components/SidebarNew"
 import { useAuth } from "@/contexts/AuthContext"
@@ -534,6 +534,7 @@ function SectionContent({ section }: { section: PageSection }) {
 export default function PageEditorPage() {
   const auth = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [sections, setSections] = useState<PageSection[]>(initialSections)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
@@ -688,9 +689,13 @@ export default function PageEditorPage() {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
         const response = await fetch(`${baseUrl}/jobs`, { headers: { Authorization: `Bearer ${auth.token}` } })
         if (!response.ok) throw new Error("Unable to load your generated product")
-        const jobs = await response.json() as Array<{ status?: string; result?: AIExtractResponse }>
-        const latest = jobs.find((job) => job.status === "completed" && job.result)
-        if (!latest?.result) { setGenerationState("empty"); return }
+        const jobs = await response.json() as Array<{ _id?: string; id?: string; status?: string; result?: AIExtractResponse }>
+        const selectedJobId = searchParams.get("jobId")
+        const selected = selectedJobId
+          ? jobs.find((job) => (job._id || job.id) === selectedJobId)
+          : undefined
+        const latest = selected || jobs.find((job) => job.status === "completed" && job.result)
+        if (!latest?.result || latest.status !== "completed") { setGenerationState("empty"); return }
         const generated = mapAIExtractToSections(latest.result) as PageSection[]
         setSections(generated)
         setPageTitle(`${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`)
@@ -701,7 +706,7 @@ export default function PageEditorPage() {
       }
     }
     void loadLatestGeneration()
-  }, [auth.isAuthenticated, auth.token])
+  }, [auth.isAuthenticated, auth.token, searchParams])
 
   const handleBack = () => {
     if (saveStatus === "unsaved") setShowExitModal(true)

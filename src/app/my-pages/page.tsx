@@ -372,6 +372,14 @@ export default function MyPagesPage() {
                                                         <>
                                                             <Button
                                                                 size="sm"
+                                                                className="flex-1 bg-gradient-to-r from-[#e83ead] to-[#6425c7] text-white hover:opacity-90"
+                                                                onClick={() => router.push(`/page-editor?jobId=${encodeURIComponent(page._id)}`)}
+                                                            >
+                                                                <Edit className="mr-1.5 size-4" />
+                                                                Open in editor
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
                                                                 variant="outline"
                                                                 className="border-[#eae2f0] bg-white text-[#21182b] hover:bg-[#f9f2f8] hover:text-[#8e267e]"
                                                                 onClick={() => {
