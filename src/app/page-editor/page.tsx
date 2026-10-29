@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Sidebar from "@/components/SidebarNew"
@@ -546,7 +546,7 @@ function SectionContent({ section }: { section: PageSection }) {
 }
 
 // ---------- Main page ----------
-export default function PageEditorPage() {
+function PageEditorContent() {
   const auth = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -1010,5 +1010,13 @@ export default function PageEditorPage() {
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+export default function PageEditorPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#f9f2f8] text-sm text-[#766b80]">Loading editor...</div>}>
+      <PageEditorContent />
+    </Suspense>
   )
 }
