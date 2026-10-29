@@ -246,19 +246,24 @@ export default function MyPagesPage() {
             }
 
             setExportSuccess(true);
-            const exportData = await response.json().catch(() => ({})) as { product?: { product?: { id?: number } } };
-            const shopifyProductId = exportData.product?.product?.id ? String(exportData.product.product.id) : undefined;
+            const exportData = await response.json().catch(() => ({})) as { shopify_product_id?: string | number; product?: { product?: { id?: number } } };
+            const shopifyProductId = exportData.shopify_product_id
+                ? String(exportData.shopify_product_id)
+                : exportData.product?.product?.id
+                    ? String(exportData.product.product.id)
+                    : undefined;
             setJobs((current) => current.map((item) => item._id === job._id ? { ...item, exported: true, shopify_product_id: shopifyProductId } : item));
             alert(shopifyProductId ? `Product exported to Shopify (product ${shopifyProductId}).` : "Product exported to Shopify successfully!");
         /* eslint-disable @typescript-eslint/no-explicit-any */
         } catch (error: any) {
             console.error('Error during Shopify export:', error);
-            if (error instanceof Error && error.message.includes('Shopify credentials not set')) {
+            const message = error instanceof Error ? error.message : 'Unknown error during export.';
+            if (/Shopify credentials not set|complete onboarding/i.test(message)) {
                 alert("Shopify credentials not set. Please connect your Shopify store.");
             } else {
-                alert("There has been a problem exporting to Shopify. Please try again.");
+                alert(`Shopify export failed: ${message}`);
             }
-            setExportError(error instanceof Error ? error.message : 'Unknown error during export.');
+            setExportError(message);
         } finally {
             setExportLoading(false);
         }

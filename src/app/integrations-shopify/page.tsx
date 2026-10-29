@@ -95,8 +95,15 @@ export default function ShopifyIntegrationPage() {
             return;
         }
 
-        if (!storeUrl.includes('myshopify.com')) {
-            setError("Please enter a valid Shopify store URL. It should contain 'myshopify.com'.");
+        const normalizedStoreUrl = storeUrl
+            .trim()
+            .replace(/^https?:\/\//i, '')
+            .replace(/\/.*$/, '')
+            .replace(/\/$/, '')
+            .toLowerCase();
+
+        if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/i.test(normalizedStoreUrl)) {
+            setError("Please enter a valid Shopify store URL, such as your-store.myshopify.com.");
             return;
         }
 
@@ -111,7 +118,7 @@ export default function ShopifyIntegrationPage() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${auth.token}`,
                 },
-                body: JSON.stringify({ store_url: storeUrl, access_token: accessToken }),
+                body: JSON.stringify({ store_url: normalizedStoreUrl, access_token: accessToken.trim() }),
             });
 
             if (!response.ok) {
