@@ -66,10 +66,10 @@ export default function PricingPage() {
                 <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
                     {/* Craftsman Plan */}
                     <div className="bg-white p-8 rounded-3xl border border-[#eae2f0] flex flex-col shadow-sm">
-                        <h3 className="text-2xl font-bold mb-2 text-white">Craftsman</h3>
-                        <p className="text-gray-400 mb-6">For getting started and launching your first products.</p>
-                        <p className="text-5xl font-bold mb-6 text-white">€0<span className="text-lg font-normal text-gray-400">/mo</span></p>
-                        <ul className="space-y-4 text-gray-300 mb-8">
+                        <h3 className="text-2xl font-bold mb-2 text-[#21182b]">Craftsman</h3>
+                        <p className="text-[#766b80] mb-6">For getting started and launching your first products.</p>
+                        <p className="text-5xl font-bold mb-6 text-[#21182b]">€0<span className="text-lg font-normal text-[#9b8da2]">/mo</span></p>
+                        <ul className="space-y-4 text-[#766b80] mb-8">
 
                             <li className="flex items-center">
                                 <CheckCircle className="w-5 h-5 text-[#34D399] mr-2"/>5 Product Pages / month
@@ -100,34 +100,34 @@ export default function PricingPage() {
                         )}
                     </div>
 
-                    {/* Artisan Plan (Highlighted) */}
+                    {/* Premium Plan (Highlighted) */}
                     <div className="bg-[#21182b] text-white p-8 rounded-3xl border border-[#6425c7] relative flex flex-col shadow-2xl shadow-[#6425c7]/20">
-                        <span className="absolute top-0 -translate-y-1/2 bg-[#F472B6] text-white text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
-                        <h3 className="text-2xl font-bold mb-2">Artisan</h3>
-                        <p className="text-gray-800 mb-6">For growing brands that test and launch regularly.</p>
-                        <p className="text-5xl font-bold mb-6">€30<span className="text-lg font-normal text-gray-800">/mo</span></p>
+                        <span className="absolute top-0 -translate-y-1/2 bg-[#f7e4f3] text-[#8e267e] text-xs font-bold px-3 py-1 rounded-full">Most Popular</span>
+                        <h3 className="text-2xl font-bold mb-2">Premium</h3>
+                        <p className="text-[#d9cedd] mb-6">For growing brands that test and launch regularly.</p>
+                        <p className="text-5xl font-bold mb-6">€30<span className="text-lg font-normal text-[#c7b8cc]">/mo</span></p>
                         <ul className="space-y-4 mb-8">
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>Unlimited Product Pages
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>Unlimited Product Pages
                             </li>
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>AI Image Generator inside the editor
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>AI Image Generator inside the editor
                             </li>
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>Shopify Export and Product Sync
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>Shopify Export and Product Sync
                             </li>
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>AI-Generated Product Descriptions
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>AI-Generated Product Descriptions
                             </li>
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>Built-In Ad Generator for Facebook
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>Built-In Ad Generator for Facebook
                                 & Instagram
                             </li>
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>SEO Optimization for Product Pages
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>SEO Optimization for Product Pages
                             </li>
                             <li className="flex items-center">
-                                <CheckCircle className="w-5 h-5 text-[#0a192f] mr-2"/>Priority AI Processing
+                                <CheckCircle className="w-5 h-5 text-[#f0a9dc] mr-2"/>Priority AI Processing
                             </li>
                         </ul>
                         {/* Correct button logic: call handleSubscription */}

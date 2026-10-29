@@ -46,6 +46,7 @@ interface Job {
     error?: string;
     result?: JobResult;
     exported?: boolean;
+    shopify_product_id?: string;
 }
 
 const statusConfig = {
@@ -195,6 +196,10 @@ export default function MyPagesPage() {
             setExportError('No auth token.');
             return;
         }
+        if (job.status !== "completed") {
+            setExportError("Only completed product pages can be exported.");
+            return;
+        }
 
         const payload = {
             new_title: job.result?.new_title || job.result?.title || "Untitled Product",
@@ -218,25 +223,36 @@ export default function MyPagesPage() {
                 body: JSON.stringify(payload),
             });
 
+            if (response.status === 400) {
+                const errorData = await response.json().catch(() => ({})) as { detail?: string };
+                const detail = errorData.detail || "Shopify export could not be completed.";
+                if (/credentials|onboarding|connect.*shopify/i.test(detail)) {
+                    router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/my-pages?exportJob=${job._id}`)}`);
+                    return;
+                }
+                throw new Error(detail);
+            }
+
             if (!response.ok && response.status !== 400) {
                 const errorData = await response.json();
                 throw new Error(errorData.detail || 'Failed to export product.');
             }
 
-            if (!response.ok && response.status === 400) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Shopify credentials not set.');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({})) as { detail?: string };
+                throw new Error(errorData.detail || "Shopify export could not be completed.");
             }
 
             setExportSuccess(true);
-            fetchJobs();
-            alert("Product exported to Shopify successfully!");
+            const exportData = await response.json().catch(() => ({})) as { product?: { product?: { id?: number } } };
+            const shopifyProductId = exportData.product?.product?.id ? String(exportData.product.product.id) : undefined;
+            setJobs((current) => current.map((item) => item._id === job._id ? { ...item, exported: true, shopify_product_id: shopifyProductId } : item));
+            alert(shopifyProductId ? `Product exported to Shopify (product ${shopifyProductId}).` : "Product exported to Shopify successfully!");
         /* eslint-disable @typescript-eslint/no-explicit-any */
         } catch (error: any) {
             console.error('Error during Shopify export:', error);
-            if (error.message.includes('Shopify credentials not set')) {
+            if (error instanceof Error && error.message.includes('Shopify credentials not set')) {
                 alert("Shopify credentials not set. Please connect your Shopify store.");
-                router.push('/integrations-shopify');
             } else {
                 alert("There has been a problem exporting to Shopify. Please try again.");
             }
@@ -363,7 +379,7 @@ export default function MyPagesPage() {
                                                     <div className="absolute left-3 top-3">
                                                         <Badge className="bg-[#e6f6f0] text-[#1f9d6f] border-0">
                                                             <ShoppingBag className="mr-1 size-3" />
-                                                            Exported
+                                                            {page.shopify_product_id ? "Synced to Shopify" : "Exported"}
                                                         </Badge>
                                                     </div>
                                                 )}
@@ -394,11 +410,9 @@ export default function MyPagesPage() {
                                                                 Open in editor
                                                             </Button>
 
-                                                            <Button size="sm" variant="outline" className="border-[#eae2f0] bg-white text-[#21182b] hover:bg-[#f9f2f8] hover:text-[#8e267e]" onClick={() => handleExportToShopify(page)}>
-                                                                <ExternalLink className="size-4" />
-                                                            </Button>
-                                                            <Button size="sm" variant="outline" aria-label={`Delete ${displayTitle}`} className="border-[#f3d7df] bg-white text-[#b43c59] hover:bg-[#fce8ec]" onClick={() => handleDeletePage(page)}>
-                                                                <Trash2 className="size-4" />
+                                                            <Button size="sm" variant="outline" disabled={exportLoading} className="border-[#d8ecd9] bg-[#f2fbf4] text-[#247a4b] hover:bg-[#e6f6ea]" onClick={() => handleExportToShopify(page)}>
+                                                                {exportLoading ? <Loader className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}
+                                                                <span className="hidden sm:inline">{page.exported ? "Exported" : "Export"}</span>
                                                             </Button>
                                                         </>
                                                     )}
@@ -414,6 +428,10 @@ export default function MyPagesPage() {
                                                             {page.status === "processing" ? "Processing..." : "In Queue"}
                                                         </Button>
                                                     )}
+                                                    <Button size="sm" variant="outline" aria-label={`Delete ${displayTitle}`} className="border-[#f3d7df] bg-white text-[#b43c59] hover:bg-[#fce8ec]" onClick={() => handleDeletePage(page)}>
+                                                        <Trash2 className="size-4" />
+                                                        <span className="sr-only">Delete page</span>
+                                                    </Button>
                                                 </div>
                                             </div>
                                         </Card>
