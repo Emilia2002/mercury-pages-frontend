@@ -7,7 +7,10 @@ import Sidebar from "@/components/SidebarNew"
 import { useAuth } from "@/contexts/AuthContext"
 import { mapAIExtractToSections, type AIExtractResponse } from "@/lib/product-page-adapter"
 import { getPageTemplate } from "@/lib/page-templates"
-import { Plus, Copy, Trash2, Eye, EyeOff, GripVertical, Monitor, Smartphone, Undo2, Redo2, Save, Check, Loader as Loader2, ChevronLeft, Sparkles, Settings2, LayoutGrid, X, ArrowUp, ArrowDown } from "lucide-react"
+import { GenerateImageDialog } from "@/components/page-editor/GenerateImageDialog"
+import type { GeneratedImageAsset } from "@/lib/image-generation"
+import { MediaLibrary, type EditorMediaAsset } from "@/components/page-editor/MediaLibrary"
+import { Plus, Copy, Trash2, Eye, EyeOff, GripVertical, Monitor, Smartphone, Undo2, Redo2, Save, Check, Loader as Loader2, ChevronLeft, Sparkles, Settings2, LayoutGrid, X, ArrowUp, ArrowDown, ImagePlus, Search, RefreshCw, CheckCircle2 } from "lucide-react"
 
 // ---------- Types ----------
 type SectionType = "hero" | "gallery" | "buybox" | "benefits" | "specs" | "story" | "reviews" | "faq" | "cta"
@@ -135,6 +138,17 @@ function resolveColor(v: string): string {
   return v
 }
 const SWATCHES = ["#e83ead","#6425c7","#21182b","#ffffff","#fcfafd","#f9f2f8","#f7e4f3","#efe6fa","#1f9d6f","#d99a2b","#d4506a","#5b7cf0"]
+
+function mediaFromSections(sections: PageSection[]): EditorMediaAsset[] {
+  const assets: EditorMediaAsset[] = []
+  sections.forEach((section) => {
+    const images = section.type === "gallery" && Array.isArray(section.settings.images)
+      ? section.settings.images as Array<{ url?: string; alt?: string }>
+      : section.settings.imageUrl ? [{ url: String(section.settings.imageUrl), alt: String(section.settings.imageAlt || section.name) }] : []
+    images.forEach((image, index) => { if (image.url) assets.push({ id: `${section.id}-${index}`, url: image.url, alt: image.alt || section.name, source: "original" }) })
+  })
+  return assets.filter((asset, index, all) => all.findIndex((candidate) => candidate.url === asset.url) === index)
+}
 
 // ---------- Icon map for benefits ----------
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -536,6 +550,7 @@ export default function PageEditorPage() {
   const auth = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const templateId = searchParams.get("template") || "modern-minimal"
   const [sections, setSections] = useState<PageSection[]>(initialSections)
   const [templateName, setTemplateName] = useState("Demo template")
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -546,6 +561,10 @@ export default function PageEditorPage() {
   const [showExitModal, setShowExitModal] = useState(false)
   const [generationState, setGenerationState] = useState<"loading" | "loaded" | "empty" | "error">("loading")
   const [generationError, setGenerationError] = useState<string | null>(null)
+  const [mediaAssets, setMediaAssets] = useState<EditorMediaAsset[]>(() => mediaFromSections(initialSections()))
+  const [showMedia, setShowMedia] = useState(true)
+  const [showImageGenerator, setShowImageGenerator] = useState(false)
+  const [imageTargetId, setImageTargetId] = useState<string | null>(null)
 
   // Undo / redo
   const undoStack = useRef<PageSection[][]>([])
@@ -628,6 +647,33 @@ export default function PageEditorPage() {
     setDragOverIndex(null)
   }
 
+  const addMediaToSection = useCallback((asset: EditorMediaAsset, sectionId: string) => {
+    updateSections((prev) => prev.map((section) => {
+      if (section.id !== sectionId) return section
+      if (section.type === "gallery") {
+        const images = Array.isArray(section.settings.images) ? [...section.settings.images as Array<Record<string, unknown>>] : []
+        return { ...section, settings: { ...section.settings, images: [...images, { url: asset.url, alt: asset.alt }] } }
+      }
+      return { ...section, settings: { ...section.settings, imageUrl: asset.url, imageAlt: asset.alt } }
+    }))
+  }, [updateSections])
+
+  const handleCanvasDrop = (event: React.DragEvent, sectionId: string) => {
+    event.preventDefault()
+    const media = event.dataTransfer.getData("application/x-mercury-media")
+    if (media) { try { addMediaToSection(JSON.parse(media) as EditorMediaAsset, sectionId) } catch { /* Ignore malformed drag payloads. */ } }
+    const componentType = event.dataTransfer.getData("application/x-mercury-component") as SectionType
+    if (componentType && SECTION_TYPES.includes(componentType)) addSection(componentType)
+  }
+
+  const handleGeneratedAsset = (asset: GeneratedImageAsset) => {
+    const editorAsset: EditorMediaAsset = { ...asset, alt: asset.alt, source: "generated" }
+    setMediaAssets((prev) => [editorAsset, ...prev.filter((candidate) => candidate.id !== editorAsset.id)])
+    if (imageTargetId) addMediaToSection(editorAsset, imageTargetId)
+    setShowImageGenerator(false)
+    setImageTargetId(null)
+  }
+
   // Section actions
   const addSection = (type: SectionType) => {
     const ns = makeDefaultSection(type)
@@ -701,6 +747,7 @@ export default function PageEditorPage() {
         const templateId = latest.result.template_id || (latest as { template_id?: string }).template_id
         const generated = mapAIExtractToSections(latest.result, templateId) as PageSection[]
         setSections(generated)
+        setMediaAssets(mediaFromSections(generated))
         setTemplateName(getPageTemplate(templateId).name)
         setPageTitle(`${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`)
         setGenerationState("loaded")
@@ -789,6 +836,13 @@ export default function PageEditorPage() {
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[#766b80]">Sections</h3>
               <span className="text-xs text-[#aa97b0]">{sections.length}</span>
             </div>
+            <div className="border-b border-[#eae2f0] p-3">
+              <div className="mb-2 flex items-center justify-between"><span className="text-[10px] font-semibold uppercase tracking-wider text-[#766b80]">Component library</span><LayoutGrid className="size-3.5 text-[#aa97b0]" /></div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {SECTION_TYPES.map((type) => <button key={type} draggable onDragStart={(event) => { event.dataTransfer.setData("application/x-mercury-component", type); event.dataTransfer.effectAllowed = "copy" }} onClick={() => addSection(type)} className="rounded-md border border-dashed border-[#d6b9df] px-2 py-1.5 text-left text-[10px] font-medium text-[#8e267e] hover:bg-[#f9f2f8]">+ {SECTION_LABELS[type]}</button>)}
+              </div>
+              <p className="mt-2 text-[10px] text-[#aa97b0]">Drag a component onto the canvas or click to add it.</p>
+            </div>
             <div className="flex-1 overflow-y-auto p-2">
               {sections.map((section, i) => (
                 <div
@@ -862,6 +916,8 @@ export default function PageEditorPage() {
                     <div
                       key={section.id}
                       onClick={() => setSelectedId(section.id)}
+                      onDragOver={(event) => { if (event.dataTransfer.types.includes("application/x-mercury-media") || event.dataTransfer.types.includes("application/x-mercury-component")) { event.preventDefault(); event.dataTransfer.dropEffect = "copy" } }}
+                      onDrop={(event) => handleCanvasDrop(event, section.id)}
                       className={`relative cursor-pointer transition ${selectedId === section.id ? "ring-2 ring-[#e83ead] ring-inset" : "hover:ring-2 hover:ring-[#d6b9df] hover:ring-inset"}`}
                     >
                       {selectedId === section.id && (
@@ -879,6 +935,8 @@ export default function PageEditorPage() {
 
           {/* Right: inspector */}
           <aside className="hidden w-80 shrink-0 flex-col border-l border-[#eae2f0] bg-white lg:flex">
+            <div className="flex items-center justify-between border-b border-[#eae2f0] px-4 py-3"><span className="text-xs font-semibold uppercase tracking-wider text-[#766b80]">Inspector</span><button onClick={() => setShowMedia((value) => !value)} className="text-xs font-medium text-[#8e267e] hover:text-[#e83ead]">{showMedia ? "Hide media" : "Show media"}</button></div>
+            {showMedia && <MediaLibrary assets={mediaAssets} onSelect={(asset) => { if (selectedId) addMediaToSection(asset, selectedId) }} onGenerate={() => { setImageTargetId(selectedId); setShowImageGenerator(true) }} />}
             {/* Section quick actions */}
             {selected && (
               <div className="flex items-center gap-1 border-b border-[#eae2f0] px-4 py-2">
@@ -888,6 +946,7 @@ export default function PageEditorPage() {
                 <button onClick={() => toggleVisible(selected.id)} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#766b80] transition hover:bg-[#f9f2f8] hover:text-[#21182b]" title={selected.visible ? "Hide" : "Show"}>
                   {selected.visible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />} {selected.visible ? "Hide" : "Show"}
                 </button>
+                {(["hero", "gallery", "story"].includes(selected.type)) && <button onClick={() => { setImageTargetId(selected.id); setShowImageGenerator(true) }} className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#8e267e] transition hover:bg-[#f7e4f3]" title="Generate image"><ImagePlus className="size-3.5" /> AI image</button>}
                 <button onClick={() => deleteSection(selected.id)} className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#d4506a] transition hover:bg-[#fce8ec]" title="Delete">
                   <Trash2 className="size-3.5" /> Delete
                 </button>
@@ -899,6 +958,8 @@ export default function PageEditorPage() {
           </aside>
         </div>
       </div>
+
+      <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
 
       {/* Exit confirmation modal */}
       <AnimatePresence>
