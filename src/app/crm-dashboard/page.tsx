@@ -422,6 +422,9 @@ export default function CRMDashboard() {
                                                         <ShoppingBag className="mr-2 size-4" />
                                                         {exportLoading ? 'Exporting...' : 'Export to Shopify'}
                                                     </Button>
+                                                    <Button onClick={() => router.push('/page-editor')} className="ml-2 h-10 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-5 text-sm font-semibold text-white">
+                                                        Edit generated page
+                                                    </Button>
                                                 </div>
                                             </div>
                                         </motion.div>

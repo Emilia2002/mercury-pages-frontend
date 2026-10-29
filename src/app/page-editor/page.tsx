@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Sidebar from "@/components/SidebarNew"
 import { useAuth } from "@/contexts/AuthContext"
+import { mapAIExtractToSections, type AIExtractResponse } from "@/lib/product-page-adapter"
 import { Plus, Copy, Trash2, Eye, EyeOff, GripVertical, Monitor, Smartphone, Undo2, Redo2, Save, Check, Loader as Loader2, ChevronLeft, Sparkles, Settings2, LayoutGrid, X, ArrowUp, ArrowDown } from "lucide-react"
 
 // ---------- Types ----------
@@ -540,6 +541,8 @@ export default function PageEditorPage() {
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved")
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showExitModal, setShowExitModal] = useState(false)
+  const [generationState, setGenerationState] = useState<"loading" | "loaded" | "empty" | "error">("loading")
+  const [generationError, setGenerationError] = useState<string | null>(null)
 
   // Undo / redo
   const undoStack = useRef<PageSection[][]>([])
@@ -673,10 +676,32 @@ export default function PageEditorPage() {
     return () => window.removeEventListener("keydown", handler)
   }, [undo, redo, handleSave])
 
-  // Auth guard
+  // Auth guard and latest generated product loading
   useEffect(() => {
     if (!auth.isLoading && !auth.isAuthenticated) router.push("/signin")
   }, [auth.isLoading, auth.isAuthenticated, router])
+
+  useEffect(() => {
+    if (!auth.isAuthenticated || !auth.token) return
+    const loadLatestGeneration = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+        const response = await fetch(`${baseUrl}/jobs`, { headers: { Authorization: `Bearer ${auth.token}` } })
+        if (!response.ok) throw new Error("Unable to load your generated product")
+        const jobs = await response.json() as Array<{ status?: string; result?: AIExtractResponse }>
+        const latest = jobs.find((job) => job.status === "completed" && job.result)
+        if (!latest?.result) { setGenerationState("empty"); return }
+        const generated = mapAIExtractToSections(latest.result) as PageSection[]
+        setSections(generated)
+        setPageTitle(`${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`)
+        setGenerationState("loaded")
+      } catch (error) {
+        setGenerationState("error")
+        setGenerationError(error instanceof Error ? error.message : "Unable to load generated product")
+      }
+    }
+    void loadLatestGeneration()
+  }, [auth.isAuthenticated, auth.token])
 
   const handleBack = () => {
     if (saveStatus === "unsaved") setShowExitModal(true)
@@ -740,6 +765,10 @@ export default function PageEditorPage() {
         </header>
 
         {/* 3-panel layout */}
+        {generationState === "loading" && <div className="border-b border-[#eae2f0] bg-[#f9f2f8] px-4 py-2 text-xs text-[#766b80]">Loading your latest generated product…</div>}
+        {generationState === "error" && <div role="alert" className="border-b border-[#f4c6ce] bg-[#fce8ec] px-4 py-2 text-xs text-[#a8324b]">{generationError}. You can use the sample page while we retry.</div>}
+        {generationState === "empty" && <div className="border-b border-[#eae2f0] bg-[#f9f2f8] px-4 py-2 text-xs text-[#766b80]">No generated product yet. Showing the sample page as a demo.</div>}
+
         <div className="flex flex-1 overflow-hidden">
           {/* Left: section navigator */}
           <aside className="hidden w-64 shrink-0 flex-col border-r border-[#eae2f0] bg-white md:flex">
