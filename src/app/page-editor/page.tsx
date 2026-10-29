@@ -959,7 +959,7 @@ export default function PageEditorPage() {
         </div>
       </div>
 
-      <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
+      <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} jobId={searchParams.get("jobId") || undefined} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
 
       {/* Exit confirmation modal */}
       <AnimatePresence>
