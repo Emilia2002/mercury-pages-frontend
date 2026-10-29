@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Sidebar from "@/components/SidebarNew"
+import { useAuth } from "@/contexts/AuthContext"
 
 const onboardingSteps = [
     {
@@ -78,6 +79,7 @@ const onboardingSteps = [
 export default function ShopifyIntegrationPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const auth = useAuth();
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
     const [storeUrl, setStoreUrl] = useState('');
     const [isConnecting, setIsConnecting] = useState(false);
@@ -103,10 +105,15 @@ export default function ShopifyIntegrationPage() {
         }
     }, [router, searchParams]);
 
-    const handleConnectShopify = () => {
+    const handleConnectShopify = async () => {
         const normalizedShop = normalizeShopDomain(storeUrl);
         if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(normalizedShop)) {
             setConnectionError('Enter a valid Shopify domain, such as your-store.myshopify.com.');
+            return;
+        }
+
+        if (!auth.token) {
+            setConnectionError('Please sign in before connecting Shopify.');
             return;
         }
 
@@ -115,7 +122,37 @@ export default function ShopifyIntegrationPage() {
         const returnTo = searchParams.get('returnTo');
         const params = new URLSearchParams({ shop: normalizedShop });
         if (returnTo?.startsWith('/')) params.set('returnTo', returnTo);
-        window.location.assign(`${API_BASE_URL}/auth/shopify/start?${params.toString()}`);
+        const startUrl = `${API_BASE_URL}/auth/shopify/start?${params.toString()}`;
+
+        console.log('[v0] Starting Shopify OAuth:', { startUrl, shop: normalizedShop });
+
+        try {
+            const response = await fetch(startUrl, {
+                headers: { Authorization: `Bearer ${auth.token}` },
+            });
+            const responseText = await response.text();
+            console.log('[v0] Shopify OAuth start response:', {
+                status: response.status,
+                body: responseText,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Shopify OAuth start failed (${response.status}): ${responseText}`);
+            }
+
+            const { authorization_url: authorizationUrl } = JSON.parse(responseText) as {
+                authorization_url?: string;
+            };
+            if (!authorizationUrl) {
+                throw new Error('Shopify OAuth response did not include an authorization URL.');
+            }
+
+            window.location.assign(authorizationUrl);
+        } catch (error) {
+            console.error('[v0] Shopify OAuth start error:', error);
+            setConnectionError(error instanceof Error ? error.message : 'Unable to start Shopify connection.');
+            setIsConnecting(false);
+        }
     };
 
     return (
