@@ -52,16 +52,25 @@ export async function generateProductImage(
     }),
   })
 
-  const payload = await response.json().catch(() => null) as { image_url?: string; url?: string; asset?: { id?: string; url?: string }; detail?: string } | null
+  const payload = await response.json().catch(() => null) as {
+    image_url?: string
+    url?: string
+    asset_id?: string
+    b64_json?: string
+    asset?: { id?: string; url?: string; b64_json?: string }
+    detail?: string
+  } | null
   if (!response.ok) {
     throw new Error(payload?.detail || (response.status === 404 ? "AI image generation is not enabled on the backend yet." : "Image generation failed. Please try again."))
   }
 
-  const url = payload?.image_url || payload?.url || payload?.asset?.url
+  const remoteUrl = payload?.image_url || payload?.url || payload?.asset?.url
+  const base64Image = payload?.b64_json || payload?.asset?.b64_json
+  const url = remoteUrl || (base64Image ? `data:image/png;base64,${base64Image}` : undefined)
   if (!url) throw new Error("The image service returned no image preview.")
 
   return {
-    id: payload?.asset?.id || `generated-${Date.now()}`,
+    id: payload?.asset_id || payload?.asset?.id || `generated-${Date.now()}`,
     url,
     source: "generated",
     status: "completed",
