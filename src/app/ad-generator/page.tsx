@@ -151,7 +151,7 @@ export default function AdGeneratorPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Creative</p>
-                                    <h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#21182b] sm:text-4xl">Ad Creative Studio</h1>
+                                    {/*<h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#21182b] sm:text-4xl">Ad Creative Studio</h1>*/}
                                     <p className="mt-2 text-[#766b80]">Auto-generate ready-to-use ads from your extracted products.</p>
                                 </div>
                                 <Badge className="bg-[#f7e4f3] text-[#8e267e] border-0">

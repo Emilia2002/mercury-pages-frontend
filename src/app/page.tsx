@@ -63,13 +63,13 @@ const features = [
     color: "text-[#1f9d6f]",
     bg: "bg-[#e6f6f0]",
   },
-  {
-    icon: Wand2,
-    title: "Ad creative studio",
-    description: "Turn any product into launch-ready ads across social, story, and display formats. Export as images, ready to run.",
-    color: "text-[#6425c7]",
-    bg: "bg-[#efe6fa]",
-  },
+  // {
+  //   icon: Wand2,
+  //   title: "Ad creative studio",
+  //   description: "Turn any product into launch-ready ads across social, story, and display formats. Export as images, ready to run.",
+  //   color: "text-[#6425c7]",
+  //   bg: "bg-[#efe6fa]",
+  // },
   {
     icon: Zap,
     title: "Brand-aware AI",
@@ -77,6 +77,13 @@ const features = [
     color: "text-[#e83ead]",
     bg: "bg-[#f7e4f3]",
   },
+  {
+    icon: ImageIcon,
+    title: "Product page AI Image generator",
+    description: "Generate AI Images directly in the product page editor.",    color: "text-[#e83ead]",
+    bg: "bg-[#f7e4f3]",
+  },
+
 ]
 
 const steps = [
@@ -101,7 +108,7 @@ const steps = [
   {
     number: "04",
     title: "Launch and export",
-    body: "Publish your page, export to Shopify, or generate matching ad creative — all from the same workspace.",
+    body: "Publish your page and export to Shopify — all from the same workspace.",
     icon: Rocket,
   },
 ]
@@ -125,7 +132,7 @@ const testimonials = [
     role: "Home & lifestyle",
   },
   {
-    quote: "The Shopify export alone saved my team hours every week. The ad studio is a bonus we didn't know we needed.",
+    quote: "The Shopify export alone saved my team hours every week.",
     author: "Ecommerce lead",
     role: "Fashion accessories",
   },
@@ -138,7 +145,7 @@ const faqs = [
   ["Can I edit everything before publishing?", "Yes. Every page is fully yours to shape — section order, copy, images, colors, fonts, spacing, and calls to action. Nothing is locked behind a paywall or fixed template."],
   ["Does it integrate with Shopify?", "Yes. Connect your store once, then export any generated product page to Shopify with a single click. Product title, description, images, variants, and pricing all sync automatically."],
   ["What kind of products work best?", "Mercury is designed for modern commerce across skincare, fashion, home goods, food, accessories, electronics, fitness, and luxury. It adapts its design approach based on the product category — so a serum page looks different from a sneaker page."],
-  ["What's included in the free plan?", "Five product pages per month, AI-generated descriptions, the built-in ad generator, and SEO optimization. No credit card required to get started."],
+  ["What's included in the free plan?", "Five product pages per month, AI-generated descriptions and SEO optimization. No credit card required to get started."],
   ["Is my data secure?", "Your product data and pages are stored securely with row-level access control. Only you can see and edit your own pages. We never share your data with third parties."],
 ]
 
@@ -306,7 +313,7 @@ export default function Home() {
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5 text-sm text-[#766b80]">
             <span className="font-semibold text-[#21182b]">One workspace for the full launch</span>
             <span className="flex items-center gap-2"><ImageIcon className="size-4 text-[#e83ead]" /> Product pages</span>
-            <span className="flex items-center gap-2"><Layers3 className="size-4 text-[#6425c7]" /> Ad concepts</span>
+            {/*<span className="flex items-center gap-2"><Layers3 className="size-4 text-[#6425c7]" /> Ad concepts</span>*/}
             <span className="flex items-center gap-2"><Sparkles className="size-4 text-[#e83ead]" /> Brand-aware AI</span>
             <span className="flex items-center gap-2"><ShoppingBag className="size-4 text-[#1f9d6f]" /> Shopify export</span>
           </div>
@@ -330,9 +337,9 @@ export default function Home() {
             <motion.div {...fadeInUp} className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#e83ead]">Everything in one place</p>
               <h2 className="mt-4 text-4xl font-bold tracking-[-0.05em] sm:text-5xl">A complete creative pipeline, not just a page builder.</h2>
-              <p className="mt-5 text-lg leading-8 text-[#766b80]">From the first product URL to the final ad creative — Mercury handles extraction, design, editing, and export so you can focus on the story.</p>
+              <p className="mt-5 text-lg leading-8 text-[#766b80]">From the first product URL — Mercury handles extraction, design, editing, and export so you can focus on the story.</p>
             </motion.div>
-            <motion.div {...stagger} className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <motion.div {...stagger} className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-2">
               {features.map((feature) => (
                 <motion.div key={feature.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }} className="rounded-3xl border border-[#eae2f0] bg-white p-7 shadow-sm transition hover:shadow-[0_18px_50px_rgba(77,33,91,0.06)]">
                   <div className={`flex size-12 items-center justify-center rounded-2xl ${feature.bg} ${feature.color}`}>

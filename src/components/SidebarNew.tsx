@@ -9,7 +9,7 @@ const mainItems = [
   { icon: BarChart3, label: "Dashboard", href: "/crm-dashboard" },
   { icon: FileText, label: "My Pages", href: "/my-pages" },
   { icon: LayoutTemplate, label: "Page Editor", href: "/page-editor" },
-  { icon: Target, label: "Ad Creative Studio", href: "/ad-generator" },
+  // { icon: Target, label: "Ad Creative Studio", href: "/ad-generator" },
   { icon: ShoppingBag, label: "Shopify Integration", href: "/integrations-shopify" },
 ]
 

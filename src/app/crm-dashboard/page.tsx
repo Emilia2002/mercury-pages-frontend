@@ -534,32 +534,32 @@ export default function CRMDashboard() {
                             )}
                         </motion.div>
 
-                        {/* Ad Creative Studio entry point */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}
-                            className="mt-8"
-                        >
-                            <Card className="overflow-hidden rounded-3xl border border-[#21182b] bg-gradient-to-br from-[#21182b] to-[#3a1f47] p-8 text-white">
-                                <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-                                    <div className="max-w-lg">
-                                        <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#f3a9dc]">
-                                            <Wand2 className="size-3.5" />
-                                            Ad Creative Studio
-                                        </div>
-                                        <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em]">Turn your products into launch-ready ad creative.</h3>
-                                        <p className="mt-2 text-sm leading-6 text-[#d6c2de]">Generate on-brand ad variations across social, story, and display formats from any product in your workspace.</p>
-                                    </div>
-                                    <Button
-                                        onClick={() => router.push('/ad-generator')}
-                                        className="h-12 shrink-0 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-6 text-sm font-semibold text-white shadow-lg shadow-[#e83ead]/30 transition hover:opacity-90 hover:scale-[1.01]"
-                                    >
-                                        <Target className="mr-2 size-4" />
-                                        Open Ad Studio
-                                        <ArrowRight className="ml-1 size-4" />
-                                    </Button>
-                                </div>
-                            </Card>
-                        </motion.div>
+                        {/*/!* Ad Creative Studio entry point *!/*/}
+                        {/*<motion.div*/}
+                        {/*    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}*/}
+                        {/*    className="mt-8"*/}
+                        {/*>*/}
+                        {/*    <Card className="overflow-hidden rounded-3xl border border-[#21182b] bg-gradient-to-br from-[#21182b] to-[#3a1f47] p-8 text-white">*/}
+                        {/*        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">*/}
+                        {/*            <div className="max-w-lg">*/}
+                        {/*                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#f3a9dc]">*/}
+                        {/*                    <Wand2 className="size-3.5" />*/}
+                        {/*                    Ad Creative Studio*/}
+                        {/*                </div>*/}
+                        {/*                <h3 className="mt-4 text-2xl font-bold tracking-[-0.03em]">Turn your products into launch-ready ad creative.</h3>*/}
+                        {/*                <p className="mt-2 text-sm leading-6 text-[#d6c2de]">Generate on-brand ad variations across social, story, and display formats from any product in your workspace.</p>*/}
+                        {/*            </div>*/}
+                        {/*            <Button*/}
+                        {/*                onClick={() => router.push('/ad-generator')}*/}
+                        {/*                className="h-12 shrink-0 rounded-xl bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-6 text-sm font-semibold text-white shadow-lg shadow-[#e83ead]/30 transition hover:opacity-90 hover:scale-[1.01]"*/}
+                        {/*            >*/}
+                        {/*                <Target className="mr-2 size-4" />*/}
+                        {/*                Open Ad Studio*/}
+                        {/*                <ArrowRight className="ml-1 size-4" />*/}
+                        {/*            </Button>*/}
+                        {/*        </div>*/}
+                        {/*    </Card>*/}
+                        {/*</motion.div>*/}
                     </div>
                 </div>
             </div>
