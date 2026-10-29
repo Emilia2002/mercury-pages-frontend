@@ -25,6 +25,7 @@ import {
 import {useAuth} from "@/contexts/AuthContext";
 import {useRouter} from "next/navigation";
 import {motion} from "framer-motion";
+import { DEFAULT_TEMPLATE_ID, TEMPLATE_OPTIONS, type TemplateId } from "@/lib/page-templates";
 
 interface ExtractedData {
     new_title: string;
@@ -35,6 +36,7 @@ interface ExtractedData {
     category: string;
     availability: boolean;
     benefits_list?: string[];
+    template_id?: string;
 }
 
 interface JobResult {
@@ -84,6 +86,7 @@ export default function CRMDashboard() {
     const [jobs, setJobs] = useState<Job[]>([]);
     const [loadingJobs, setLoadingJobs] = useState(true);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>(DEFAULT_TEMPLATE_ID);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
     useEffect(() => {
@@ -134,7 +137,7 @@ export default function CRMDashboard() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${auth.token}`,
                 },
-                body: JSON.stringify({source_url: url}),
+                body: JSON.stringify({ source_url: url, template_id: selectedTemplate }),
             });
 
             if (!response.ok && response.status != 403) {
@@ -343,6 +346,35 @@ export default function CRMDashboard() {
                                 </div>
 
                                 <div className="p-6">
+                                    <div className="mb-6">
+                                        <div className="mb-3 flex items-end justify-between gap-4">
+                                            <div>
+                                                <p className="text-sm font-semibold text-[#21182b]">Choose a page direction</p>
+                                                <p className="mt-1 text-xs text-[#766b80]">Your choice shapes the section order, colors, and editor preview.</p>
+                                            </div>
+                                            <Badge className="hidden rounded-full bg-[#f3eafa] text-[#6425c7] sm:inline-flex">Step 1 of 2</Badge>
+                                        </div>
+                                        <div role="radiogroup" aria-label="Page template" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                            {TEMPLATE_OPTIONS.map((template) => {
+                                                const isSelected = selectedTemplate === template.id
+                                                return (
+                                                    <label key={template.id} className={`group cursor-pointer rounded-2xl border p-4 transition ${isSelected ? 'border-[#6425c7] bg-[#f8f1fc] shadow-[0_8px_24px_rgba(100,37,199,0.12)]' : 'border-[#eae2f0] bg-white hover:border-[#c9b5d8]'}`}>
+                                                        <input type="radio" name="page-template" value={template.id} checked={isSelected} onChange={() => setSelectedTemplate(template.id)} className="sr-only" />
+                                                        <div className="mb-3 flex items-center justify-between">
+                                                            <div className="size-10 rounded-xl" style={{ background: `linear-gradient(135deg, ${template.accent}, ${template.surface})` }} aria-hidden="true" />
+                                                            <span className={`flex size-5 items-center justify-center rounded-full border text-[10px] ${isSelected ? 'border-[#6425c7] bg-[#6425c7] text-white' : 'border-[#d8cddd] text-transparent'}`} aria-hidden="true">✓</span>
+                                                        </div>
+                                                        <p className="text-sm font-semibold text-[#21182b]">{template.name}</p>
+                                                        <p className="mt-1 text-xs leading-5 text-[#766b80]">{template.description}</p>
+                                                        <div className="mt-3 flex gap-1.5" aria-hidden="true">
+                                                            {template.sections.slice(0, 4).map((section) => <span key={section} className="h-1.5 flex-1 rounded-full" style={{ backgroundColor: isSelected ? template.accent : template.muted }} />)}
+                                                        </div>
+                                                    </label>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className="mb-3 flex items-center gap-2 text-xs font-medium text-[#766b80]"><span className="flex size-5 items-center justify-center rounded-full bg-[#21182b] text-[10px] text-white">2</span> Paste your product URL</div>
                                     <div className="flex flex-col gap-3 sm:flex-row">
                                         <div className="relative flex-1">
                                             <LinkIcon className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#aa97b0]" />
@@ -406,6 +438,7 @@ export default function CRMDashboard() {
                                                             </ul>
                                                         </div>
                                                     )}
+                                                    <div className="mb-2 flex items-center gap-2 text-xs text-[#766b80]"><span className="font-semibold text-[#21182b]">Template:</span> {TEMPLATE_OPTIONS.find((template) => template.id === extractedData.template_id)?.name || TEMPLATE_OPTIONS.find((template) => template.id === selectedTemplate)?.name}</div>
                                                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                                                         {extractedData.price && <span className="text-[#21182b]"><strong>Price:</strong> {extractedData.price}</span>}
                                                         {extractedData.category && <span className="text-[#21182b]"><strong>Category:</strong> {extractedData.category}</span>}

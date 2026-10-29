@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Sidebar from "@/components/SidebarNew"
 import { useAuth } from "@/contexts/AuthContext"
 import { mapAIExtractToSections, type AIExtractResponse } from "@/lib/product-page-adapter"
+import { getPageTemplate } from "@/lib/page-templates"
 import { Plus, Copy, Trash2, Eye, EyeOff, GripVertical, Monitor, Smartphone, Undo2, Redo2, Save, Check, Loader as Loader2, ChevronLeft, Sparkles, Settings2, LayoutGrid, X, ArrowUp, ArrowDown } from "lucide-react"
 
 // ---------- Types ----------
@@ -536,6 +537,7 @@ export default function PageEditorPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [sections, setSections] = useState<PageSection[]>(initialSections)
+  const [templateName, setTemplateName] = useState("Demo template")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
   const [pageTitle, setPageTitle] = useState("Aurora Hydrating Serum — Product Page")
@@ -696,8 +698,10 @@ export default function PageEditorPage() {
           : undefined
         const latest = selected || jobs.find((job) => job.status === "completed" && job.result)
         if (!latest?.result || latest.status !== "completed") { setGenerationState("empty"); return }
-        const generated = mapAIExtractToSections(latest.result) as PageSection[]
+        const templateId = latest.result.template_id || (latest as { template_id?: string }).template_id
+        const generated = mapAIExtractToSections(latest.result, templateId) as PageSection[]
         setSections(generated)
+        setTemplateName(getPageTemplate(templateId).name)
         setPageTitle(`${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`)
         setGenerationState("loaded")
       } catch (error) {
@@ -726,6 +730,10 @@ export default function PageEditorPage() {
               <ChevronLeft className="size-5" />
             </button>
             <div className="hidden sm:block">
+              <div className="mb-1 flex items-center gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#aa97b0]">Template</span>
+                <span className="rounded-full bg-[#f3eafa] px-2 py-0.5 text-[10px] font-semibold text-[#6425c7]">{templateName}</span>
+              </div>
               <input
                 value={pageTitle}
                 onChange={(e) => { setPageTitle(e.target.value); setSaveStatus("unsaved") }}
