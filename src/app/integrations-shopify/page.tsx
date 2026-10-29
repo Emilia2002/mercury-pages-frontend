@@ -101,6 +101,8 @@ export default function ShopifyIntegrationPage() {
         }
 
         setIsLoading(true);
+        setIsConnecting(true);
+        setError("");
 
         try {
             const response = await fetch(`${API_BASE_URL}/users/me/shopify`, {
@@ -119,20 +121,22 @@ export default function ShopifyIntegrationPage() {
             }
 
             setIsSuccess(true);
+            setIsConnected(true);
         } catch (error) {
             console.error("Error saving credentials:", error);
             setError(`Failed to connect to Shopify.`);
         } finally {
             setIsLoading(false);
+            setIsConnecting(false);
         }
     };
 
     return (
-        <div className="h-screen relative overflow-hidden bg-slate-950">
-            <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+        <div className="min-h-screen relative overflow-hidden bg-[#fcfafd]">
+            <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#fcfafd] via-white to-[#f7e4f3]/40" />
             <div className="absolute inset-0 z-10 opacity-10 pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse-slow" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/50 rounded-full blur-3xl animate-pulse-slow" />
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#f7e4f3] rounded-full blur-3xl animate-pulse-slow" />
             </div>
 
             <div className="relative z-20 flex h-screen">
@@ -145,10 +149,11 @@ export default function ShopifyIntegrationPage() {
                         transition={{ duration: 0.5 }}
                         className="text-center mb-12"
                     >
-                        <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-3">
+                        <h1 className="flex items-center justify-center gap-3 text-4xl sm:text-5xl font-bold tracking-[-0.06em] text-[#21182b] mb-3">
+                            <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/shopify/default.svg" alt="Shopify" className="size-10" />
                             Shopify Integration
                         </h1>
-                        <p className="text-slate-300 text-lg sm:text-xl max-w-2xl mx-auto">
+                        <p className="text-[#766b80] text-lg sm:text-xl max-w-2xl mx-auto">
                             Connect your Shopify store in a few simple steps to enable automatic product syncing and direct ad exports.
                         </p>
                     </motion.div>
@@ -156,7 +161,7 @@ export default function ShopifyIntegrationPage() {
                     <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
                         {/* Setup Instructions */}
                         <div className="space-y-4">
-                            <Card className="bg-slate-900/40 backdrop-blur-xl border border-pink-500/20 rounded-3xl p-6 shadow-lg shadow-pink-500/10">
+                            <Card className="bg-white/90 backdrop-blur-xl border border-[#eae2f0] rounded-3xl p-6 shadow-lg shadow-[#6425c7]/5">
                                 <CardHeader>
                                     <CardTitle className="text-white flex items-center gap-2">
                                         <Store className="w-5 h-5 text-purple-400" />
@@ -177,7 +182,7 @@ export default function ShopifyIntegrationPage() {
                                 >
                                     <Card
                                         className={`
-                                        bg-slate-900/40 backdrop-blur-xl border border-pink-500/20 rounded-2xl p-6 transition-all duration-300
+                                        bg-white/90 backdrop-blur-xl border border-[#eae2f0] rounded-2xl p-6 transition-all duration-300
                                         ${expandedStep === step.id ? 'border-purple-500/50 shadow-lg shadow-purple-500/20' : 'hover:border-purple-500/30'}
                                     `}
                                     >
@@ -257,7 +262,7 @@ export default function ShopifyIntegrationPage() {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="space-y-6"
                         >
-                            <Card className="bg-slate-900/40 backdrop-blur-xl border border-pink-500/20 rounded-3xl p-6 shadow-lg shadow-pink-500/10">
+                            <Card className="bg-white/90 backdrop-blur-xl border border-[#eae2f0] rounded-3xl p-6 shadow-lg shadow-[#6425c7]/5">
                                 <CardHeader>
                                     <CardTitle className="text-white flex items-center gap-2">
                                         <Store className="w-5 h-5 text-purple-400" />

@@ -20,6 +20,7 @@ import {
     Calendar,
     Sparkles,
     ArrowRight,
+    Trash2,
 } from "lucide-react"
 import {useAuth} from "@/contexts/AuthContext";
 
@@ -143,6 +144,20 @@ export default function MyPagesPage() {
         category: "",
     });
 
+    const handleDeletePage = async (job: Job) => {
+        if (!auth.token || !window.confirm(`Delete ${job.result?.title || "this product page"}?`)) return
+        try {
+            const response = await fetch(`${API_BASE_URL}/jobs/${encodeURIComponent(job._id)}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${auth.token}` },
+            })
+            if (!response.ok) throw new Error("Unable to delete this page.")
+            setJobs((current) => current.filter((item) => item._id !== job._id))
+        } catch (error) {
+            window.alert(error instanceof Error ? error.message : "Unable to delete this page.")
+        }
+    }
+
     const handleSaveEdit = () => {
         if (!selectedJob) return;
 
@@ -242,8 +257,8 @@ export default function MyPagesPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#e83ead]">Library</p>
-                                    <h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[#21182b] sm:text-4xl">My Pages</h1>
-                                    <p className="mt-2 text-[#766b80]">Manage your generated product pages and track performance.</p>
+                                    <h1 className="mt-2 text-4xl font-bold tracking-[-0.05em] text-[#21182b] sm:text-5xl">My Pages</h1>
+                                    <p className="mt-3 max-w-xl text-base leading-7 text-[#766b80]">Keep your generated storefronts organized, open a page in the editor, export it to Shopify, or remove it when you no longer need it.</p>
                                 </div>
                                 <Badge className="bg-[#f7e4f3] text-[#8e267e] border-0">
                                     <Sparkles className="mr-1 size-3" />
@@ -367,7 +382,7 @@ export default function MyPagesPage() {
                                                         {result.category}
                                                     </Badge>
                                                 )}
-                                                <div className="mt-4 flex gap-2">
+                                                <div className="mt-4 flex flex-wrap gap-2">
                                                     {page.status === "completed" && (
                                                         <>
                                                             <Button
@@ -378,26 +393,12 @@ export default function MyPagesPage() {
                                                                 <Edit className="mr-1.5 size-4" />
                                                                 Open in editor
                                                             </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="border-[#eae2f0] bg-white text-[#21182b] hover:bg-[#f9f2f8] hover:text-[#8e267e]"
-                                                                onClick={() => {
-                                                                    setSelectedJob(page);
-                                                                    setEditForm({
-                                                                        new_title: page.result?.new_title || page.result?.title || "",
-                                                                        description: page.result?.description || "",
-                                                                        benefits: (page.result?.benefits_list || []).join('\n'),
-                                                                        price: page.result?.price || "",
-                                                                        category: page.result?.category || "",
-                                                                    });
-                                                                    setIsEditModalOpen(true);
-                                                                }}
-                                                            >
-                                                                <Edit className="size-4" />
-                                                            </Button>
+
                                                             <Button size="sm" variant="outline" className="border-[#eae2f0] bg-white text-[#21182b] hover:bg-[#f9f2f8] hover:text-[#8e267e]" onClick={() => handleExportToShopify(page)}>
                                                                 <ExternalLink className="size-4" />
+                                                            </Button>
+                                                            <Button size="sm" variant="outline" aria-label={`Delete ${displayTitle}`} className="border-[#f3d7df] bg-white text-[#b43c59] hover:bg-[#fce8ec]" onClick={() => handleDeletePage(page)}>
+                                                                <Trash2 className="size-4" />
                                                             </Button>
                                                         </>
                                                     )}

@@ -527,6 +527,38 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Pricing */}
+        <section id="pricing" className="bg-white px-6 py-24 lg:px-10">
+          <div className="mx-auto max-w-7xl">
+            <motion.div {...fadeInUp} className="mx-auto max-w-2xl text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#e83ead]">Simple pricing</p>
+              <h2 className="mt-4 text-4xl font-bold tracking-[-0.05em] sm:text-5xl">Everything you need to ship better pages.</h2>
+              <p className="mt-5 text-lg leading-8 text-[#766b80]">Start free, then unlock unlimited creation and the AI image generator when your store is ready to grow.</p>
+            </motion.div>
+            <motion.div {...fadeInUp} className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
+              <div className="rounded-3xl border border-[#eae2f0] bg-[#fcfafd] p-8">
+                <p className="text-sm font-semibold text-[#766b80]">Craftsman</p>
+                <p className="mt-4 text-5xl font-bold tracking-[-0.06em] text-[#21182b]">€0<span className="text-base font-medium text-[#9b8da2]"> / month</span></p>
+                <p className="mt-3 text-sm leading-6 text-[#766b80]">For exploring Mercury and launching your first pages.</p>
+                <ul className="mt-7 space-y-3 text-sm text-[#21182b]">
+                  {['5 product pages per month', 'AI-written product descriptions', 'SEO-ready page structure', 'Visual page editor'].map((item) => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-[#1f9d6f]" /> {item}</li>)}
+                </ul>
+                <Link href="/signup" className="mt-8 inline-flex w-full items-center justify-center rounded-full border border-[#d8cce2] bg-white px-5 py-3 text-sm font-semibold text-[#21182b]">Start for free</Link>
+              </div>
+              <div className="relative rounded-3xl bg-[#21182b] p-8 text-white shadow-xl shadow-[#21182b]/15">
+                <span className="absolute right-6 top-6 rounded-full bg-[#f7e4f3] px-3 py-1 text-xs font-semibold text-[#8e267e]">Premium</span>
+                <p className="text-sm font-semibold text-[#f3c9e8]">Premium</p>
+                <p className="mt-4 text-5xl font-bold tracking-[-0.06em]">€30<span className="text-base font-medium text-[#c7b8cc]"> / month</span></p>
+                <p className="mt-3 text-sm leading-6 text-[#d9cedd]">For brands building and exporting at full speed.</p>
+                <ul className="mt-7 space-y-3 text-sm text-[#f7f0f8]">
+                  {['Unlimited product pages', 'AI descriptions and SEO optimization', 'AI image generator inside the editor', 'Shopify export and product syncing', 'Priority processing'].map((item) => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-[#f0a9dc]" /> {item}</li>)}
+                </ul>
+                <Link href="/pricing" className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-5 py-3 text-sm font-semibold text-white">Choose Premium <ArrowRight className="ml-2 size-4" /></Link>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Testimonials */}
         <section id="testimonials" className="px-6 py-24 lg:px-10">
           <div className="mx-auto max-w-7xl">
