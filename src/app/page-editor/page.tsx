@@ -13,7 +13,7 @@ import { MediaLibrary, type EditorMediaAsset } from "@/components/page-editor/Me
 import { Plus, Copy, Trash2, Eye, EyeOff, GripVertical, Monitor, Smartphone, Undo2, Redo2, Save, Check, Loader as Loader2, ChevronLeft, Sparkles, Settings2, LayoutGrid, X, ArrowUp, ArrowDown, ImagePlus, Search, RefreshCw, CheckCircle2 } from "lucide-react"
 
 // ---------- Types ----------
-type SectionType = "hero" | "gallery" | "buybox" | "benefits" | "specs" | "story" | "reviews" | "faq" | "cta"
+type SectionType = "hero" | "gallery" | "buybox" | "benefits" | "specs" | "story" | "reviews" | "similar" | "faq" | "cta"
 
 interface PageSection {
   id: string
@@ -25,10 +25,10 @@ interface PageSection {
 
 const SECTION_LABELS: Record<SectionType, string> = {
   hero: "Hero", gallery: "Gallery", buybox: "Buy Box", benefits: "Benefits",
-  specs: "Specifications", story: "Brand Story", reviews: "Reviews", faq: "FAQ", cta: "Call to Action",
+  specs: "Specifications", story: "Brand Story", reviews: "Reviews", similar: "Similar Products", faq: "FAQ", cta: "Call to Action",
 }
 
-const SECTION_TYPES: SectionType[] = ["hero", "gallery", "buybox", "benefits", "specs", "story", "reviews", "faq", "cta"]
+const SECTION_TYPES: SectionType[] = ["hero", "gallery", "buybox", "benefits", "specs", "story", "reviews", "similar", "faq", "cta"]
 
 const uid = () => Math.random().toString(36).slice(2, 10)
 
@@ -80,7 +80,7 @@ function makeDefaultSection(type: SectionType): PageSection {
       return { ...base, name: "Hero", settings: {
         eyebrow: SAMPLE.eyebrow, title: SAMPLE.title, subtitle: SAMPLE.subtitle,
         ctaLabel: "Shop now", ctaHref: "#buybox", imageUrl: SAMPLE.images[0], imageAlt: SAMPLE.title,
-        imagePosition: "right", backgroundColor: "$primary", textColor: "#ffffff",
+        imagePosition: "right", textSize: 40, imageWidth: 50, backgroundColor: "$primary", textColor: "#ffffff",
       }}
     case "gallery":
       return { ...base, name: "Gallery", settings: {
@@ -126,7 +126,7 @@ function makeDefaultSection(type: SectionType): PageSection {
 }
 
 function initialSections(): PageSection[] {
-  return (["hero","gallery","buybox","benefits","specs","story","reviews","faq","cta"] as SectionType[]).map(makeDefaultSection)
+  return (["hero","gallery","buybox","benefits","specs","story","reviews","similar","faq","cta"] as SectionType[]).map(makeDefaultSection)
 }
 
 // ---------- Color helpers ----------
@@ -134,6 +134,7 @@ const TOKEN_COLORS: Record<string, string> = {
   primary: "#e83ead", secondary: "#6425c7", plum: "#21182b", surface: "#ffffff", soft: "#f9f2f8", text: "#21182b", muted: "#766b80",
 }
 function resolveColor(v: string): string {
+  if (typeof v !== "string" || !v) return "#ffffff"
   if (v.startsWith("$")) return TOKEN_COLORS[v.slice(1)] || "#ffffff"
   return v
 }
@@ -274,6 +275,8 @@ function Inspector({ section, onUpdate }: { section: PageSection | null; onUpdat
         <TextField label="Image URL" value={s.imageUrl as string} onChange={(v) => u("imageUrl", v)} />
         <TextField label="Image Alt" value={s.imageAlt as string} onChange={(v) => u("imageAlt", v)} />
         <SelectField label="Image Position" value={s.imagePosition as string} options={["left","right","full"]} onChange={(v) => u("imagePosition", v)} />
+        <NumberField label="Hero text size" value={(s.textSize as number) || 40} min={24} max={72} onChange={(v) => u("textSize", v)} />
+        <NumberField label="Image width" value={(s.imageWidth as number) || 50} min={25} max={75} onChange={(v) => u("imageWidth", v)} />
         <ColorField label="Background" value={s.backgroundColor as string} onChange={(v) => u("backgroundColor", v)} />
         <ColorField label="Text Color" value={s.textColor as string} onChange={(v) => u("textColor", v)} />
       </>
@@ -316,6 +319,11 @@ function Inspector({ section, onUpdate }: { section: PageSection | null; onUpdat
       case "reviews": return <>
         <TextField label="Title" value={s.title as string} onChange={(v) => u("title", v)} />
         <ObjectList label="Reviews" items={s.reviews as Record<string,unknown>[]} fields={[{key:"author",label:"Author",type:"text"},{key:"rating",label:"Rating",type:"number"},{key:"text",label:"Review",type:"textarea"}]} onChange={(v) => u("reviews", v)} />
+        <ColorField label="Background" value={s.backgroundColor as string} onChange={(v) => u("backgroundColor", v)} />
+      </>
+      case "similar": return <>
+        <TextField label="Title" value={s.title as string} onChange={(v) => u("title", v)} />
+        <ObjectList label="Products" items={s.products as Record<string,unknown>[]} fields={[{key:"title",label:"Product",type:"text"},{key:"price",label:"Price",type:"text"},{key:"imageUrl",label:"Image URL",type:"text"}]} onChange={(v) => u("products", v)} />
         <ColorField label="Background" value={s.backgroundColor as string} onChange={(v) => u("backgroundColor", v)} />
       </>
       case "faq": return <>
@@ -369,28 +377,30 @@ function SectionContent({ section }: { section: PageSection }) {
     case "hero": {
       const img = s.imageUrl as string
       const pos = s.imagePosition as string
+      const textSize = Number(s.textSize) || 40
+      const imageWidth = Math.min(75, Math.max(25, Number(s.imageWidth) || 50))
       if (pos === "full") return (
         <div className="relative flex min-h-[400px] items-end overflow-hidden" style={{ background: bg }}>
           {img && <img src={img} alt={s.imageAlt as string} className="absolute inset-0 size-full object-cover" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="relative z-10 p-10" style={{ color: text }}>
             {(s.eyebrow as string) && <span className="text-xs font-semibold uppercase tracking-[0.18em] opacity-90">{s.eyebrow as string}</span>}
-            <h1 className="mt-2 text-4xl font-bold tracking-tight">{s.title as string}</h1>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl" style={{ fontSize: `clamp(2rem, ${textSize / 16}vw, ${textSize}px)` }}>{s.title as string}</h1>
             <p className="mt-2 max-w-lg text-base opacity-85">{s.subtitle as string}</p>
             <button className="mt-5 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-[#21182b]">{s.ctaLabel as string}</button>
           </div>
         </div>
       )
       return (
-        <div className={`grid items-center gap-0 md:grid-cols-2`} style={{ background: bg, color: text }}>
-          <div className={`p-10 ${pos === "right" ? "order-1" : "order-2"}`}>
+        <div className="grid grid-cols-1 items-center gap-0 md:[grid-template-columns:var(--editor-grid)]" style={{ background: bg, color: text, "--editor-grid": `minmax(0, ${100 - imageWidth}fr) minmax(0, ${imageWidth}fr)` } as React.CSSProperties}>
+          <div className={`p-6 sm:p-10 ${pos === "right" ? "order-1" : "order-2"}`}>
             {(s.eyebrow as string) && <span className="text-xs font-semibold uppercase tracking-[0.18em] opacity-90">{s.eyebrow as string}</span>}
-            <h1 className="mt-2 text-4xl font-bold tracking-tight">{s.title as string}</h1>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl" style={{ fontSize: `clamp(2rem, ${textSize / 16}vw, ${textSize}px)` }}>{s.title as string}</h1>
             <p className="mt-3 text-base opacity-85">{s.subtitle as string}</p>
             <button className="mt-6 rounded-full bg-white px-6 py-2.5 text-sm font-semibold" style={{ color: bg === "#ffffff" ? "#e83ead" : "#21182b" }}>{s.ctaLabel as string}</button>
           </div>
           <div className={`h-full min-h-[300px] overflow-hidden ${pos === "right" ? "order-2" : "order-1"}`}>
-            {img && <img src={img} alt={s.imageAlt as string} className="size-full object-cover" />}
+            {img && <img src={img} alt={s.imageAlt as string} draggable className="size-full cursor-grab object-cover active:cursor-grabbing" />}
           </div>
         </div>
       )
@@ -400,7 +410,7 @@ function SectionContent({ section }: { section: PageSection }) {
       const images = s.images as { url: string; alt: string }[]
       return (
         <div className="p-8" style={{ background: bg }}>
-          <div className={`grid gap-3`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" style={{ gridTemplateColumns: `repeat(${Math.min(cols, 3)}, minmax(0, 1fr))` }}>
             {images.map((img, i) => (
               <div key={i} className="aspect-square overflow-hidden rounded-xl border border-[#eae2f0]">
                 {img.url && <img src={img.url} alt={img.alt} className="size-full object-cover" />}
@@ -415,7 +425,7 @@ function SectionContent({ section }: { section: PageSection }) {
       const orig = s.originalPrice as string
       const cur = s.currency as string
       return (
-        <div className="p-10" style={{ background: bg }}>
+        <div className="p-6 sm:p-10" style={{ background: bg }}>
           <div className="mx-auto flex max-w-2xl flex-col gap-4">
             <h2 className="text-2xl font-bold tracking-tight text-[#21182b]">{s.title as string}</h2>
             <div className="flex items-baseline gap-3">
@@ -436,10 +446,10 @@ function SectionContent({ section }: { section: PageSection }) {
       const cols = s.columns as number
       const benefits = s.benefits as { icon: string; title: string; description: string }[]
       return (
-        <div className="p-10" style={{ background: bg }}>
+        <div className="p-6 sm:p-10" style={{ background: bg }}>
           <h2 className="text-center text-2xl font-bold tracking-tight text-[#21182b]">{s.title as string}</h2>
           <p className="mt-2 text-center text-sm text-[#766b80]">{s.subtitle as string}</p>
-          <div className={`mt-8 grid gap-5`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2" style={{ gridTemplateColumns: `repeat(${Math.min(cols, 4)}, minmax(0, 1fr))` }}>
             {benefits.map((b, i) => {
               const Icon = ICON_MAP[b.icon] || Sparkles
               return (
@@ -458,7 +468,7 @@ function SectionContent({ section }: { section: PageSection }) {
       const specs = s.specs as { label: string; value: string }[]
       const layout = s.layout as string
       return (
-        <div className="p-10" style={{ background: bg }}>
+        <div className="p-6 sm:p-10" style={{ background: bg }}>
           <h2 className="text-2xl font-bold tracking-tight text-[#21182b]">{s.title as string}</h2>
           {layout === "cards" ? (
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -502,7 +512,7 @@ function SectionContent({ section }: { section: PageSection }) {
     case "reviews": {
       const reviews = s.reviews as { author: string; rating: number; text: string }[]
       return (
-        <div className="p-10" style={{ background: bg }}>
+        <div className="p-6 sm:p-10" style={{ background: bg }}>
           <h2 className="text-center text-2xl font-bold tracking-tight text-[#21182b]">{s.title as string}</h2>
           <div className="mt-8 grid gap-5 md:grid-cols-3">
             {reviews.map((r, i) => (
@@ -516,10 +526,26 @@ function SectionContent({ section }: { section: PageSection }) {
         </div>
       )
     }
+    case "similar": {
+      const products = s.products as { title: string; price: string; imageUrl: string }[]
+      return (
+        <div className="p-6 sm:p-10" style={{ background: bg }}>
+          <h2 className="text-center text-2xl font-bold tracking-tight text-[#21182b]">{s.title as string}</h2>
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {products.map((product, i) => (
+              <div key={i} className="overflow-hidden rounded-2xl border border-[#eae2f0] bg-white">
+                <div className="aspect-square overflow-hidden bg-[#f9f2f8]">{product.imageUrl && <img src={product.imageUrl} alt={product.title} className="size-full object-cover" draggable />}</div>
+                <div className="p-4"><p className="text-sm font-semibold text-[#21182b]">{product.title}</p><p className="mt-1 text-sm text-[#e83ead]">{product.price}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
     case "faq": {
       const items = s.items as { question: string; answer: string }[]
       return (
-        <div className="p-10" style={{ background: bg }}>
+        <div className="p-6 sm:p-10" style={{ background: bg }}>
           <h2 className="text-center text-2xl font-bold tracking-tight text-[#21182b]">{s.title as string}</h2>
           <div className="mx-auto mt-6 max-w-2xl flex flex-col gap-3">
             {items.map((item, i) => (
@@ -801,7 +827,7 @@ function PageEditorContent() {
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Toolbar */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#eae2f0] bg-white px-4 lg:px-6">
+        <header className="flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#eae2f0] bg-white px-3 py-2 sm:flex-nowrap sm:px-4 lg:px-6">
           <div className="flex items-center gap-3">
             <button onClick={handleBack} className="flex size-9 items-center justify-center rounded-lg text-[#766b80] transition hover:bg-[#f9f2f8] hover:text-[#21182b]">
               <ChevronLeft className="size-5" />
@@ -819,7 +845,7 @@ function PageEditorContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Undo / Redo */}
             <button onClick={undo} disabled={!canUndo} className="flex size-9 items-center justify-center rounded-lg border border-[#eae2f0] text-[#766b80] transition hover:bg-[#f9f2f8] disabled:opacity-40 disabled:hover:bg-white" title="Undo (Ctrl+Z)">
               <Undo2 className="size-4" />
@@ -862,7 +888,9 @@ function PageEditorContent() {
         {generationState === "error" && <div role="alert" className="border-b border-[#f4c6ce] bg-[#fce8ec] px-4 py-2 text-xs text-[#a8324b]">{generationError}. You can use the sample page while we retry.</div>}
         {generationState === "empty" && <div className="border-b border-[#eae2f0] bg-[#f9f2f8] px-4 py-2 text-xs text-[#766b80]">No generated product yet. Showing the sample page as a demo.</div>}
 
-        <div className="flex flex-1 overflow-hidden">
+        {selected && <div className="max-h-80 shrink-0 overflow-hidden border-b border-[#eae2f0] bg-white lg:hidden"><Inspector section={selected} onUpdate={updateSettings} /></div>}
+
+        <div className="flex min-w-0 flex-1 overflow-hidden">
           {/* Left: section navigator */}
           <aside className="hidden w-64 shrink-0 flex-col border-r border-[#eae2f0] bg-white md:flex">
             <div className="flex items-center justify-between px-4 py-3 border-b border-[#eae2f0]">
@@ -929,8 +957,8 @@ function PageEditorContent() {
           </aside>
 
           {/* Center: live preview */}
-          <main className="flex-1 overflow-y-auto bg-[#f4eef6]">
-            <div className={`mx-auto my-6 ${previewWidth} transition-all duration-300`}>
+          <main className="min-w-0 flex-1 overflow-y-auto bg-[#f4eef6]">
+            <div className={`mx-auto my-3 w-full px-2 sm:my-6 sm:px-0 ${previewWidth} transition-all duration-300`}>
               <div className="overflow-hidden rounded-2xl border border-[#eae2f0] bg-white shadow-[0_20px_60px_rgba(77,33,91,0.08)]">
                 {/* Fake browser chrome */}
                 <div className="flex items-center gap-2 border-b border-[#eae2f0] bg-[#f9f2f8] px-4 py-2.5">
