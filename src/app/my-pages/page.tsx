@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import Sidebar from '@/components/SidebarNew'
+import { deletePageDocument, listPageDocuments, type PageDocument } from '@/lib/page-documents'
 
 import {
     Search,
@@ -47,6 +48,8 @@ interface Job {
     result?: JobResult;
     exported?: boolean;
     shopify_product_id?: string;
+    page_id?: string;
+    source_job_id?: string;
 }
 
 const statusConfig = {
@@ -96,18 +99,42 @@ export default function MyPagesPage() {
         if (!auth.token) return;
         setLoadingJobs(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/jobs`, {
-                headers: {Authorization: `Bearer ${auth.token}`},
-            });
-            if (!response.ok) throw new Error(`Failed to fetch jobs: ${response.status}`);
-            const data = await response.json();
-            setJobs(data as Job[]);
+            const pages = await listPageDocuments(auth.token)
+            const data = pages.map((page: PageDocument): Job => {
+                const hero = page.sections.find((section) => section.type === "hero")
+                const buybox = page.sections.find((section) => section.type === "buybox")
+                const gallery = page.sections.find((section) => section.type === "gallery")
+                const heroSettings = (hero?.settings || {}) as Record<string, unknown>
+                const buyboxSettings = (buybox?.settings || {}) as Record<string, unknown>
+                const galleryImages = Array.isArray((gallery?.settings as Record<string, unknown> | undefined)?.images)
+                    ? ((gallery?.settings as Record<string, unknown>).images as Array<{ url?: string }>).map((image) => image.url).filter((url): url is string => Boolean(url))
+                    : []
+                return {
+                    _id: page._id,
+                    page_id: page._id,
+                    source_job_id: page.job_id,
+                    url: "",
+                    status: "completed",
+                    created_at: page.updated_at || page.created_at || undefined,
+                    result: {
+                        title: String(heroSettings.title || page.page_title),
+                        new_title: page.page_title,
+                        description: String(heroSettings.subtitle || ""),
+                        images: galleryImages,
+                        thumbnail: galleryImages[0] || undefined,
+                        price: String(buyboxSettings.price || ""),
+                    },
+                    exported: Boolean(page.shopify_export),
+                    shopify_product_id: typeof page.shopify_export?.shopify_product_id === "string" ? page.shopify_export.shopify_product_id : undefined,
+                }
+            })
+            setJobs(data)
         } catch (err) {
-            console.error('Error fetching jobs:', err);
+            console.error('Error fetching saved pages:', err);
         } finally {
             setLoadingJobs(false);
         }
-    }, [auth.token, API_BASE_URL]);
+    }, [auth.token]);
 
     useEffect(() => {
         if (auth.isAuthenticated) fetchJobs();
@@ -148,11 +175,7 @@ export default function MyPagesPage() {
     const handleDeletePage = async (job: Job) => {
         if (!auth.token || !window.confirm(`Delete ${job.result?.title || "this product page"}?`)) return
         try {
-            const response = await fetch(`${API_BASE_URL}/jobs/${encodeURIComponent(job._id)}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${auth.token}` },
-            })
-            if (!response.ok) throw new Error("Unable to delete this page.")
+            await deletePageDocument(job.page_id || job._id, auth.token)
             setJobs((current) => current.filter((item) => item._id !== job._id))
         } catch (error) {
             window.alert(error instanceof Error ? error.message : "Unable to delete this page.")
@@ -202,8 +225,8 @@ export default function MyPagesPage() {
         }
 
         const payload = {
-            job_id: job._id,
-            idempotency_key: `shopify-export-${job._id}`,
+            job_id: job.source_job_id || job._id,
+            idempotency_key: `shopify-export-${job.page_id || job._id}`,
             new_title: job.result?.new_title || job.result?.title || "Untitled Product",
             description: job.result?.description,
             images: job.result?.images,
@@ -229,7 +252,7 @@ export default function MyPagesPage() {
                 const errorData = await response.json().catch(() => ({})) as { detail?: string };
                 const detail = errorData.detail || "Shopify export could not be completed.";
                 if (/credentials|onboarding|connect.*shopify/i.test(detail)) {
-                    router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/my-pages?exportJob=${job._id}`)}`);
+                    router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/my-pages?pageId=${job.page_id || job._id}`)}`);
                     return;
                 }
                 throw new Error(detail);
@@ -411,7 +434,7 @@ export default function MyPagesPage() {
                                                             <Button
                                                                 size="sm"
                                                                 className="flex-1 bg-gradient-to-r from-[#e83ead] to-[#6425c7] text-white hover:opacity-90"
-                                                                onClick={() => router.push(`/page-editor?jobId=${encodeURIComponent(page._id)}`)}
+                                                                onClick={() => router.push(`/page-editor?pageId=${encodeURIComponent(page.page_id || page._id)}`)}
                                                             >
                                                                 <Edit className="mr-1.5 size-4" />
                                                                 Open in editor

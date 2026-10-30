@@ -10,6 +10,7 @@ import { getPageTemplate } from "@/lib/page-templates"
 import { GenerateImageDialog } from "@/components/page-editor/GenerateImageDialog"
 import type { GeneratedImageAsset } from "@/lib/image-generation"
 import { MediaLibrary, type EditorMediaAsset } from "@/components/page-editor/MediaLibrary"
+import { createPageDocument, getPageDocument, updatePageDocument } from "@/lib/page-documents"
 import { Plus, Copy, Trash2, Eye, EyeOff, GripVertical, Monitor, Smartphone, Undo2, Redo2, Save, Check, Loader as Loader2, ChevronLeft, Sparkles, Settings2, LayoutGrid, X, ArrowUp, ArrowDown, ImagePlus, Search, RefreshCw, CheckCircle2 } from "lucide-react"
 
 // ---------- Types ----------
@@ -587,6 +588,8 @@ function PageEditorContent() {
   const templateId = searchParams.get("template") || "modern-minimal"
   const [sections, setSections] = useState<PageSection[]>(initialSections)
   const [templateName, setTemplateName] = useState("Demo template")
+  const [pageId, setPageId] = useState<string | null>(() => searchParams.get("pageId"))
+  const [pageRevision, setPageRevision] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
   const [pageTitle, setPageTitle] = useState("Aurora Hydrating Serum — Product Page")
@@ -742,11 +745,27 @@ function PageEditorContent() {
     })
   }
 
-  // Save (simulated — no database)
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
+    if (!auth.token || !pageId) return
     setSaveStatus("saving")
-    setTimeout(() => setSaveStatus("saved"), 800)
-  }, [])
+    try {
+      const saved = await updatePageDocument(pageId, {
+        revision: pageRevision,
+        page_title: pageTitle,
+        template_id: templateId,
+        sections,
+      }, auth.token)
+      setPageRevision(saved.revision)
+      setSaveStatus("saved")
+    } catch (error) {
+      setSaveStatus("unsaved")
+      if (error instanceof Error && "status" in error && (error as Error & { status?: number }).status === 409) {
+        setGenerationError("This page changed in another tab. Reload it before saving again.")
+      } else {
+        setGenerationError(error instanceof Error ? error.message : "Unable to save this page")
+      }
+    }
+  }, [auth.token, pageId, pageRevision, pageTitle, sections, templateId])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -759,7 +778,7 @@ function PageEditorContent() {
     return () => window.removeEventListener("keydown", handler)
   }, [undo, redo, handleSave])
 
-  // Auth guard and latest generated product loading
+  // Auth guard and persisted page or latest generated product loading
   useEffect(() => {
     if (!auth.isLoading && !auth.isAuthenticated) router.push("/signin")
   }, [auth.isLoading, auth.isAuthenticated, router])
@@ -768,8 +787,24 @@ function PageEditorContent() {
     if (!auth.isAuthenticated || !auth.token) return
     const loadLatestGeneration = async () => {
       try {
+        const token = auth.token
+        if (!token) return
+        const savedPageId = searchParams.get("pageId")
+        if (savedPageId) {
+          const page = await getPageDocument(savedPageId, token)
+          const loadedSections = page.sections as unknown as PageSection[]
+          setPageId(page._id)
+          setPageRevision(page.revision)
+          setSections(loadedSections)
+          setMediaAssets(mediaFromSections(loadedSections))
+          setPageTitle(page.page_title)
+          setTemplateName(getPageTemplate(page.template_id || templateId).name)
+          setGenerationState("loaded")
+          return
+        }
+
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
-        const response = await fetch(`${baseUrl}/jobs`, { headers: { Authorization: `Bearer ${auth.token}` } })
+        const response = await fetch(`${baseUrl}/jobs`, { headers: { Authorization: `Bearer ${token}` } })
         if (!response.ok) throw new Error("Unable to load your generated product")
         const jobs = await response.json() as Array<{ _id?: string; id?: string; status?: string; result?: AIExtractResponse }>
         const selectedJobId = searchParams.get("jobId")
@@ -778,20 +813,25 @@ function PageEditorContent() {
           : undefined
         const latest = selected || jobs.find((job) => job.status === "completed" && job.result)
         if (!latest?.result || latest.status !== "completed") { setGenerationState("empty"); return }
-        const templateId = latest.result.template_id || (latest as { template_id?: string }).template_id
-        const generated = (mapAIExtractToSections(latest.result, templateId) as PageSection[]).filter((section): section is PageSection => Boolean(section?.id && section?.type))
+        const generatedTemplateId = latest.result.template_id || (latest as { template_id?: string }).template_id
+        const generated = (mapAIExtractToSections(latest.result, generatedTemplateId) as PageSection[]).filter((section): section is PageSection => Boolean(section?.id && section?.type))
+        const nextTitle = `${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`
+        const createdPage = await createPageDocument({ job_id: latest._id || latest.id || "", page_title: nextTitle, template_id: generatedTemplateId, sections: generated }, token)
+        setPageId(createdPage._id)
+        setPageRevision(createdPage.revision)
         setSections(generated)
         setMediaAssets(mediaFromSections(generated))
-        setTemplateName(getPageTemplate(templateId).name)
-        setPageTitle(`${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`)
+        setTemplateName(getPageTemplate(generatedTemplateId).name)
+        setPageTitle(nextTitle)
         setGenerationState("loaded")
+        router.replace(`/page-editor?pageId=${encodeURIComponent(createdPage._id)}`)
       } catch (error) {
         setGenerationState("error")
         setGenerationError(error instanceof Error ? error.message : "Unable to load generated product")
       }
     }
     void loadLatestGeneration()
-  }, [auth.isAuthenticated, auth.token, searchParams])
+  }, [auth.isAuthenticated, auth.token, router, searchParams, templateId])
 
   const handleBack = () => {
     if (saveStatus === "unsaved") setShowExitModal(true)
