@@ -112,6 +112,14 @@ function makeDefaultSection(type: SectionType): PageSection {
       return { ...base, name: "Reviews", settings: {
         title: "Loved by 12,000+ customers", reviews: SAMPLE.reviews, backgroundColor: "#ffffff",
       }}
+    case "similar":
+      return { ...base, name: "Similar Products", settings: {
+        title: "You may also like", products: [
+          { title: "Cloud Barrier Cream", price: "$36", imageUrl: SAMPLE.images[1] },
+          { title: "Night Repair Oil", price: "$54", imageUrl: SAMPLE.images[2] },
+          { title: "Daily Mineral SPF", price: "$28", imageUrl: SAMPLE.images[3] },
+        ], backgroundColor: "#f9f2f8",
+      }}
     case "faq":
       return { ...base, name: "FAQ", settings: {
         title: "Frequently asked questions", items: SAMPLE.faq, backgroundColor: "#f9f2f8",
@@ -142,8 +150,8 @@ const SWATCHES = ["#e83ead","#6425c7","#21182b","#ffffff","#fcfafd","#f9f2f8","#
 
 function mediaFromSections(sections: PageSection[]): EditorMediaAsset[] {
   const assets: EditorMediaAsset[] = []
-  sections.forEach((section) => {
-    const images = section.type === "gallery" && Array.isArray(section.settings.images)
+  sections.filter(Boolean).forEach((section) => {
+    const images = section.type === "gallery" && Array.isArray(section.settings?.images)
       ? section.settings.images as Array<{ url?: string; alt?: string }>
       : section.settings.imageUrl ? [{ url: String(section.settings.imageUrl), alt: String(section.settings.imageAlt || section.name) }] : []
     images.forEach((image, index) => { if (image.url) assets.push({ id: `${section.id}-${index}`, url: image.url, alt: image.alt || section.name, source: "original" }) })
@@ -598,7 +606,7 @@ function PageEditorContent() {
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
 
-  const selected = sections.find((s) => s.id === selectedId) || null
+  const selected = sections.filter(Boolean).find((s) => s.id === selectedId) || null
 
   const pushHistory = useCallback((prev: PageSection[]) => {
     undoStack.current.push(prev)
@@ -771,7 +779,7 @@ function PageEditorContent() {
         const latest = selected || jobs.find((job) => job.status === "completed" && job.result)
         if (!latest?.result || latest.status !== "completed") { setGenerationState("empty"); return }
         const templateId = latest.result.template_id || (latest as { template_id?: string }).template_id
-        const generated = mapAIExtractToSections(latest.result, templateId) as PageSection[]
+        const generated = (mapAIExtractToSections(latest.result, templateId) as PageSection[]).filter((section): section is PageSection => Boolean(section?.id && section?.type))
         setSections(generated)
         setMediaAssets(mediaFromSections(generated))
         setTemplateName(getPageTemplate(templateId).name)
@@ -824,8 +832,10 @@ function PageEditorContent() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#fcfafd] text-[#21182b]">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Toolbar */}
         <header className="flex min-h-16 shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[#eae2f0] bg-white px-3 py-2 sm:flex-nowrap sm:px-4 lg:px-6">
           <div className="flex items-center gap-3">
@@ -889,6 +899,19 @@ function PageEditorContent() {
         {generationState === "empty" && <div className="border-b border-[#eae2f0] bg-[#f9f2f8] px-4 py-2 text-xs text-[#766b80]">No generated product yet. Showing the sample page as a demo.</div>}
 
         {selected && <div className="max-h-80 shrink-0 overflow-hidden border-b border-[#eae2f0] bg-white lg:hidden"><Inspector section={selected} onUpdate={updateSettings} /></div>}
+
+        <nav aria-label="Product sections" className="flex shrink-0 gap-2 overflow-x-auto border-b border-[#eae2f0] bg-white px-3 py-2 md:hidden">
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              type="button"
+              onClick={() => setSelectedId(section.id)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${selectedId === section.id ? "border-[#e83ead] bg-[#f7e4f3] text-[#8e267e]" : "border-[#eae2f0] text-[#766b80]"}`}
+            >
+              {section.name}
+            </button>
+          ))}
+        </nav>
 
         <div className="flex min-w-0 flex-1 overflow-hidden">
           {/* Left: section navigator */}
