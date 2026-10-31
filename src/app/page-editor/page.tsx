@@ -844,18 +844,37 @@ function PageEditorContent() {
     if (!jobId) return router.push("/my-pages")
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+    const visibleSections = sections.filter((section) => section.visible)
+    const sectionSettings = Object.fromEntries(
+      sections.map((section) => [section.type, section.settings]),
+    )
     const images = mediaAssets.map((asset) => asset.url).filter(Boolean)
     const buybox = sections.find((section) => section.type === "buybox")
-    const description = sections.filter((section) => section.visible).map((section) => String(section.settings.subtitle || section.settings.body || "")).filter(Boolean).join("\\n\\n")
+    const hero = sections.find((section) => section.type === "hero")
+    const description = visibleSections
+      .flatMap((section) => [section.settings.subtitle, section.settings.body])
+      .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
+      .join("\\n\\n")
     const response = await fetch(`${baseUrl}/shopify/export`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth.token}` },
       body: JSON.stringify({
-        new_title: pageTitle,
+        // Keep the legacy product fields populated while also sending the complete
+        // editor document so no section data is lost during export.
+        new_title: pageTitle || hero?.settings.title,
         description,
         images,
         variants: {},
         price: buybox?.settings.price,
+        original_price: buybox?.settings.originalPrice,
+        currency: buybox?.settings.currency,
+        benefits_list: Array.isArray((sectionSettings.benefits as { benefits?: unknown[] } | undefined)?.benefits)
+          ? (sectionSettings.benefits as { benefits: Array<{ title?: string }> }).benefits.map((benefit) => benefit.title).filter(Boolean)
+          : [],
+        page_title: pageTitle,
+        template_id: templateId,
+        sections,
+        section_settings: sectionSettings,
         job_id: jobId,
       }),
     })
