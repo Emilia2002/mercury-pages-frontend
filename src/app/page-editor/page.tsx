@@ -589,6 +589,7 @@ function PageEditorContent() {
   const [sections, setSections] = useState<PageSection[]>(initialSections)
   const [templateName, setTemplateName] = useState("Demo template")
   const [pageId, setPageId] = useState<string | null>(() => searchParams.get("pageId"))
+  const [sourceJobId, setSourceJobId] = useState<string | null>(() => searchParams.get("jobId"))
   const [pageRevision, setPageRevision] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
@@ -794,6 +795,7 @@ function PageEditorContent() {
           const page = await getPageDocument(savedPageId, token)
           const loadedSections = page.sections as unknown as PageSection[]
           setPageId(page._id)
+          setSourceJobId(page.job_id || null)
           setPageRevision(page.revision)
           setSections(loadedSections)
           setMediaAssets(mediaFromSections(loadedSections))
@@ -818,6 +820,7 @@ function PageEditorContent() {
         const nextTitle = `${String(latest.result.new_title || latest.result.title || "Product")} — Product Page`
         const createdPage = await createPageDocument({ job_id: latest._id || latest.id || "", page_title: nextTitle, template_id: generatedTemplateId, sections: generated }, token)
         setPageId(createdPage._id)
+        setSourceJobId(latest._id || latest.id || null)
         setPageRevision(createdPage.revision)
         setSections(generated)
         setMediaAssets(mediaFromSections(generated))
@@ -840,8 +843,11 @@ function PageEditorContent() {
 
   const handleExportToShopify = async () => {
     if (!auth.token) return router.push("/signin")
-    const jobId = searchParams.get("jobId")
-    if (!jobId) return router.push("/my-pages")
+    const jobId = sourceJobId || searchParams.get("jobId")
+    if (!jobId) {
+      window.alert("This page is missing its source generation job. Reopen it from My Pages to export it.")
+      return
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
     const visibleSections = sections.filter((section) => section.visible)
@@ -881,7 +887,7 @@ function PageEditorContent() {
     if (response.ok) return
     const error = await response.json().catch(() => ({})) as { detail?: string }
     if (response.status === 400 && error.detail?.toLowerCase().includes("shopify")) {
-      router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/page-editor?jobId=${jobId}`)}`)
+      router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/page-editor?${pageId ? `pageId=${pageId}` : `jobId=${jobId}`}`)}`)
       return
     }
     window.alert(error.detail || "We could not export this page to Shopify.")
@@ -1102,7 +1108,7 @@ function PageEditorContent() {
         </div>
       </div>
 
-      <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} jobId={searchParams.get("jobId") || undefined} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
+      <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} jobId={sourceJobId || searchParams.get("jobId") || undefined} pageId={pageId || undefined} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
 
       {/* Exit confirmation modal */}
       <AnimatePresence>

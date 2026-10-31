@@ -4,7 +4,7 @@ import { useState } from "react"
 import { ImagePlus, Loader2, RefreshCw, X } from "lucide-react"
 import { generateProductImage, type GeneratedImageAsset, type ImagePurpose, type ImageStyle } from "@/lib/image-generation"
 
-export function GenerateImageDialog({ open, apiUrl, token, productContext, templateId, jobId, onClose, onGenerated }: { open: boolean; apiUrl: string; token: string; productContext: string; templateId?: string; jobId?: string; onClose: () => void; onGenerated: (asset: GeneratedImageAsset) => void }) {
+export function GenerateImageDialog({ open, apiUrl, token, productContext, templateId, jobId, pageId, onClose, onGenerated }: { open: boolean; apiUrl: string; token: string; productContext: string; templateId?: string; jobId?: string; pageId?: string; onClose: () => void; onGenerated: (asset: GeneratedImageAsset) => void }) {
   const [purpose, setPurpose] = useState<ImagePurpose>("hero")
   const [style, setStyle] = useState<ImageStyle>("studio")
   const [aspectRatio, setAspectRatio] = useState<"square" | "portrait" | "landscape">("landscape")
