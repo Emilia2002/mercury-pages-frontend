@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import Sidebar from '@/components/SidebarNew'
@@ -159,10 +160,11 @@ export default function MyPagesPage() {
 
     const totalPages = jobs.length;
     const completedPages = jobs.filter(job => job.status === 'completed').length;
-    const [exportLoading, setExportLoading] = useState(false);
+    const [exportingPageId, setExportingPageId] = useState<string | null>(null);
     const [exportError, setExportError] = useState<string | null>(null);
+    const [exportMessage, setExportMessage] = useState("");
+    const [exportDialogOpen, setExportDialogOpen] = useState(false);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-    const [exportSuccess, setExportSuccess] = useState<boolean>(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editForm, setEditForm] = useState({
         new_title: "",
@@ -232,11 +234,15 @@ export default function MyPagesPage() {
             images: job.result?.images,
             variants: job.result?.variants || {},
             price: job.result?.price,
+            page_id: job.page_id || job._id,
+            sections: [],
+            section_settings: {},
         };
 
-        setExportLoading(true);
+        setExportingPageId(job.page_id || job._id);
         setExportError(null);
-        setExportSuccess(false);
+        setExportMessage("");
+        setExportDialogOpen(true);
 
         try {
             const response = await fetch(`${API_BASE_URL}/shopify/export`, {
@@ -268,7 +274,7 @@ export default function MyPagesPage() {
                 throw new Error(errorData.detail || "Shopify export could not be completed.");
             }
 
-            setExportSuccess(true);
+            setExportMessage("Product exported to Shopify successfully.");
             const exportData = await response.json().catch(() => ({})) as { shopify_product_id?: string | number; product?: { product?: { id?: number } } };
             const shopifyProductId = exportData.shopify_product_id
                 ? String(exportData.shopify_product_id)
@@ -276,19 +282,21 @@ export default function MyPagesPage() {
                     ? String(exportData.product.product.id)
                     : undefined;
             setJobs((current) => current.map((item) => item._id === job._id ? { ...item, exported: true, shopify_product_id: shopifyProductId } : item));
-            alert(shopifyProductId ? `Product exported to Shopify (product ${shopifyProductId}).` : "Product exported to Shopify successfully!");
+            setExportMessage(shopifyProductId ? `Product exported to Shopify (product ${shopifyProductId}).` : "Product exported to Shopify successfully!");
         /* eslint-disable @typescript-eslint/no-explicit-any */
         } catch (error: any) {
             console.error('Error during Shopify export:', error);
             const message = error instanceof Error ? error.message : 'Unknown error during export.';
             if (/Shopify credentials not set|complete onboarding/i.test(message)) {
-                alert("Shopify credentials not set. Please connect your Shopify store.");
+                setExportError("Shopify credentials not set. Please connect your Shopify store.");
+                setExportMessage("Shopify credentials not set. Please connect your Shopify store.");
             } else {
-                alert(`Shopify export failed: ${message}`);
+                setExportError(message);
+                setExportMessage(`Shopify export failed: ${message}`);
             }
             setExportError(message);
         } finally {
-            setExportLoading(false);
+            setExportingPageId(null);
         }
     };
 
@@ -440,9 +448,9 @@ export default function MyPagesPage() {
                                                                 Open in editor
                                                             </Button>
 
-                                                            <Button size="sm" variant="outline" disabled={exportLoading} className="border-[#d8ecd9] bg-[#f2fbf4] text-[#247a4b] hover:bg-[#e6f6ea]" onClick={() => handleExportToShopify(page)}>
-                                                                {exportLoading ? <Loader className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}
-                                                                <span className="hidden sm:inline">{page.exported ? "Exported" : "Export"}</span>
+                                                            <Button size="sm" variant="outline" disabled={exportingPageId !== null} className="border-[#d8ecd9] bg-[#f2fbf4] text-[#247a4b] hover:bg-[#e6f6ea]" onClick={() => handleExportToShopify(page)}>
+                                                                {exportingPageId === (page.page_id || page._id) ? <Loader className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}
+                                                                <span className="hidden sm:inline">{exportingPageId === (page.page_id || page._id) ? "Exporting..." : page.exported ? "Exported" : "Export"}</span>
                                                             </Button>
                                                         </>
                                                     )}
@@ -487,6 +495,17 @@ export default function MyPagesPage() {
                         )}
                     </div>
                 </div>
+
+                <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{exportingPageId ? "Exporting to Shopify" : exportError ? "Shopify export failed" : "Shopify export complete"}</DialogTitle>
+                            <DialogDescription>{exportingPageId ? "Sending your page content and sections to Shopify. Please keep this window open." : exportMessage || exportError || "Your page is ready in Shopify."}</DialogDescription>
+                        </DialogHeader>
+                        {exportingPageId && <div className="flex justify-center py-3"><Loader className="size-6 animate-spin text-[#247a4b]" /></div>}
+                        {!exportingPageId && <DialogFooter><Button onClick={() => setExportDialogOpen(false)}>Close</Button></DialogFooter>}
+                    </DialogContent>
+                </Dialog>
 
                 {/* Edit modal */}
                 {isEditModalOpen && (

@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { mapAIExtractToSections, type AIExtractResponse } from "@/lib/product-page-adapter"
 import { getPageTemplate } from "@/lib/page-templates"
 import { GenerateImageDialog } from "@/components/page-editor/GenerateImageDialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { GeneratedImageAsset } from "@/lib/image-generation"
 import { MediaLibrary, type EditorMediaAsset } from "@/components/page-editor/MediaLibrary"
 import { createPageDocument, getPageDocument, updatePageDocument } from "@/lib/page-documents"
@@ -601,8 +602,10 @@ function PageEditorContent() {
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [mediaAssets, setMediaAssets] = useState<EditorMediaAsset[]>(() => mediaFromSections(initialSections()))
   const [showMedia, setShowMedia] = useState(true)
-  const [showImageGenerator, setShowImageGenerator] = useState(false)
-  const [imageTargetId, setImageTargetId] = useState<string | null>(null)
+const [showImageGenerator, setShowImageGenerator] = useState(false)
+ const [imageTargetId, setImageTargetId] = useState<string | null>(null)
+ const [exportState, setExportState] = useState<"idle" | "loading" | "success" | "error">("idle")
+ const [exportMessage, setExportMessage] = useState("")
 
   // Undo / redo
   const undoStack = useRef<PageSection[][]>([])
@@ -843,13 +846,18 @@ function PageEditorContent() {
 
   const handleExportToShopify = async () => {
     if (!auth.token) return router.push("/signin")
+    if (exportState === "loading") return
+    setExportState("loading")
+    setExportMessage("Sending all page sections to Shopify...")
     const jobId = sourceJobId || searchParams.get("jobId")
     if (!jobId) {
-      window.alert("This page is missing its source generation job. Reopen it from My Pages to export it.")
+      setExportState("error")
+      setExportMessage("This page is missing its source generation job. Reopen it from My Pages to export it.")
       return
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
     const visibleSections = sections.filter((section) => section.visible)
     const sectionSettings = Object.fromEntries(
       sections.map((section) => [section.type, section.settings]),
@@ -882,15 +890,28 @@ function PageEditorContent() {
         sections,
         section_settings: sectionSettings,
         job_id: jobId,
+        page_id: pageId,
+        idempotency_key: `shopify-export-${pageId || jobId}`,
       }),
     })
-    if (response.ok) return
+    if (response.ok) {
+      setExportState("success")
+      setExportMessage("Your page and all of its sections were exported to Shopify successfully.")
+      return
+    }
     const error = await response.json().catch(() => ({})) as { detail?: string }
     if (response.status === 400 && error.detail?.toLowerCase().includes("shopify")) {
+      setExportState("error")
+      setExportMessage(error.detail || "Connect Shopify before exporting this page.")
       router.push(`/integrations-shopify?returnTo=${encodeURIComponent(`/page-editor?${pageId ? `pageId=${pageId}` : `jobId=${jobId}`}`)}`)
       return
     }
-    window.alert(error.detail || "We could not export this page to Shopify.")
+    setExportState("error")
+    setExportMessage(error.detail || "We could not export this page to Shopify.")
+  } catch (error) {
+    setExportState("error")
+    setExportMessage(error instanceof Error ? error.message : "We could not export this page to Shopify.")
+    }
   }
 
   const previewWidth = previewMode === "mobile" ? "max-w-[390px]" : "max-w-full"
@@ -949,8 +970,9 @@ function PageEditorContent() {
               {saveStatus === "saving" && <span className="flex items-center gap-1 text-[#6425c7]"><Loader2 className="size-3.5 animate-spin" /> Saving...</span>}
               {saveStatus === "unsaved" && <span className="text-[#d99a2b]">Unsaved changes</span>}
             </div>
-            <button onClick={handleExportToShopify} className="flex h-9 items-center gap-2 rounded-lg border border-[#d8ecd9] bg-[#f2fbf4] px-3 text-sm font-semibold text-[#247a4b] transition hover:bg-[#e6f6ea]" title="Export this page to Shopify">
-              <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/shopify/default.svg" alt="" className="size-4" /> Export to Shopify
+            <button onClick={handleExportToShopify} disabled={exportState === "loading"} className="flex h-9 items-center gap-2 rounded-lg border border-[#d8ecd9] bg-[#f2fbf4] px-3 text-sm font-semibold text-[#247a4b] transition hover:bg-[#e6f6ea] disabled:cursor-wait disabled:opacity-70" title="Export this page to Shopify">
+              {exportState === "loading" ? <Loader2 className="size-4 animate-spin" /> : <img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/shopify/default.svg" alt="" className="size-4" />}
+              {exportState === "loading" ? "Exporting..." : "Export to Shopify"}
             </button>
             <button onClick={handleSave} className="flex h-9 items-center gap-2 rounded-lg bg-gradient-to-r from-[#e83ead] to-[#6425c7] px-4 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
               <Save className="size-4" /> Save
@@ -1108,7 +1130,18 @@ function PageEditorContent() {
         </div>
       </div>
 
-      <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} jobId={sourceJobId || searchParams.get("jobId") || undefined} pageId={pageId || undefined} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
+      <Dialog open={exportState !== "idle"} onOpenChange={(open) => { if (!open && exportState !== "loading") setExportState("idle") }}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{exportState === "loading" ? "Exporting to Shopify" : exportState === "success" ? "Export complete" : "Export failed"}</DialogTitle>
+        <DialogDescription>{exportMessage}</DialogDescription>
+      </DialogHeader>
+      {exportState === "loading" && <div className="flex justify-center py-3"><Loader2 className="size-6 animate-spin text-[#247a4b]" /></div>}
+      {exportState !== "loading" && <DialogFooter><button type="button" onClick={() => setExportState("idle")} className="rounded-lg bg-[#21182b] px-4 py-2 text-sm font-semibold text-white">Close</button></DialogFooter>}
+    </DialogContent>
+  </Dialog>
+
+  <GenerateImageDialog open={showImageGenerator} apiUrl={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"} token={auth.token || ""} productContext={templateName || "product page"} templateId={templateId} jobId={sourceJobId || searchParams.get("jobId") || undefined} pageId={pageId || undefined} onClose={() => { setShowImageGenerator(false); setImageTargetId(null) }} onGenerated={handleGeneratedAsset} />
 
       {/* Exit confirmation modal */}
       <AnimatePresence>
