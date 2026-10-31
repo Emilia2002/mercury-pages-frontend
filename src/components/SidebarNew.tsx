@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { ChartBar as BarChart3, ChevronRight, FileText, LayoutTemplate, LogOut, Menu, Rocket, Settings, ShoppingBag, Target, X, Wand as Wand2 } from "lucide-react"
@@ -22,6 +22,18 @@ export default function Sidebar() {
   const navigate = (href: string) => {
     setIsMobileMenuOpen(false)
     router.push(href)
+  }
+
+  useEffect(() => {
+    if (pathname === "/page-editor") {
+      setIsMobileMenuOpen(false)
+    }
+  }, [pathname])
+
+  const isPageEditor = pathname === "/page-editor";
+
+  if (isPageEditor) {
+    return null; // Do not render the sidebar for the page-editor route
   }
 
   const sidebar = (
